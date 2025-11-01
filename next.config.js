@@ -5,6 +5,12 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...config.externals, 'bcrypt'];
+    }
+    return config;
+  },
 }
 
 module.exports = nextConfig

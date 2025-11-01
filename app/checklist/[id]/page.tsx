@@ -9,7 +9,7 @@ import CreateChecklistItemForm from '@/components/CreateChecklistItemForm';
 export default async function ChecklistDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -17,8 +17,10 @@ export default async function ChecklistDetailPage({
     redirect('/signin');
   }
 
+  const { id } = await params;
+
   const checklist = await prisma.checklist.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       items: {
         orderBy: { order: 'asc' },
