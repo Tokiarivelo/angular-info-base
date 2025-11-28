@@ -5,11 +5,13 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from './prisma';
 import bcrypt from 'bcrypt';
 import type { Provider } from 'next-auth/providers';
+import type { UserRole } from '@prisma/client';
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
+      role: UserRole;
     } & DefaultSession['user'];
   }
 }
@@ -47,6 +49,7 @@ const providers: Provider[] = [
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       };
     },
   }),
@@ -74,12 +77,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as { role?: UserRole }).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
       }
       return session;
     },
