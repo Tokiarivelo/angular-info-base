@@ -5,6 +5,7 @@ A Next.js 15 application implementing an Angular learning checklist with user au
 ## Features
 
 - 🔐 **Authentication**: Secure user registration and login using NextAuth v5 with JWT sessions
+- 🌐 **Google OAuth**: Sign in with Google for seamless authentication
 - ✅ **Checklist Management**: Create, view, update, and delete checklists
 - 📝 **Checklist Items**: Add items to checklists with notes, toggle completion status, and track progress
 - 🎨 **Modern UI**: Built with Tailwind CSS for a clean, responsive interface
@@ -16,7 +17,7 @@ A Next.js 15 application implementing an Angular learning checklist with user au
 - **Framework**: Next.js 15 (App Router, TypeScript)
 - **Database**: PostgreSQL (Neon Serverless)
 - **ORM**: Prisma
-- **Authentication**: NextAuth v5 (Credentials provider with Prisma adapter)
+- **Authentication**: NextAuth v5 (Credentials and Google OAuth providers with Prisma adapter)
 - **Styling**: Tailwind CSS
 - **Password Hashing**: bcrypt
 
@@ -55,13 +56,35 @@ The `.env.example` file already contains the Neon database credentials. **Import
 openssl rand -base64 32
 ```
 
-### 4. Generate Prisma Client
+### 4. Set up Google OAuth (Optional)
+
+To enable "Sign in with Google":
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to **APIs & Services** > **Credentials**
+4. Click **Create Credentials** > **OAuth client ID**
+5. Select **Web application** as the application type
+6. Add the following authorized redirect URIs:
+   - For development: `http://localhost:3000/api/auth/callback/google`
+   - For production: `https://your-domain.com/api/auth/callback/google`
+7. Copy the **Client ID** and **Client Secret**
+8. Add them to your `.env` file:
+
+```env
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+> **Note**: Google OAuth is optional. The app will still work with email/password authentication if Google credentials are not configured.
+
+### 5. Generate Prisma Client
 
 ```bash
 npm run prisma:generate
 ```
 
-### 5. Run database migrations
+### 6. Run database migrations
 
 ```bash
 npm run prisma:migrate
@@ -73,7 +96,7 @@ Alternatively, you can use `prisma db push` for development:
 npm run prisma:push
 ```
 
-### 6. (Optional) Seed the database
+### 7. (Optional) Seed the database
 
 ```bash
 npm run seed
@@ -83,7 +106,7 @@ This will create a test user:
 - Email: `test@example.com`
 - Password: `password123`
 
-### 7. Start the development server
+### 8. Start the development server
 
 ```bash
 npm run dev
@@ -214,6 +237,8 @@ If you need to use the unpooled connection (e.g., for certain Prisma CLI operati
    - `DATABASE_URL` - Your Neon pooled connection string
    - `NEXTAUTH_URL` - Your production URL (e.g., `https://your-app.vercel.app`)
    - `NEXTAUTH_SECRET` - A strong random secret (generate with `openssl rand -base64 32`)
+   - `GOOGLE_CLIENT_ID` - (Optional) Your Google OAuth client ID
+   - `GOOGLE_CLIENT_SECRET` - (Optional) Your Google OAuth client secret
 
 4. Deploy!
 
@@ -225,6 +250,10 @@ Make sure to set these in your deployment platform:
 DATABASE_URL=<your-neon-pooled-connection-string>
 NEXTAUTH_URL=<your-production-url>
 NEXTAUTH_SECRET=<strong-random-secret-at-least-32-chars>
+
+# Optional: For Google OAuth
+GOOGLE_CLIENT_ID=<your-google-client-id>
+GOOGLE_CLIENT_SECRET=<your-google-client-secret>
 ```
 
 ## Security Notes
