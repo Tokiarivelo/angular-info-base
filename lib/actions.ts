@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { parseFile } from '@/lib/fileParser';
 
 export async function createChecklist(formData: FormData) {
   const session = await auth();
@@ -171,4 +172,56 @@ export async function deleteChecklistItem(itemId: string) {
   });
 
   revalidatePath(`/checklist/${item.checklistId}`);
+}
+
+export async function createChecklistFromFile(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+  const file = formData.get('file') as File | null;
+
+  if (!file) {
+    throw new Error('File is required');
+  }
+
+  const fileName = file.name;
+  const content = await file.text();
+
+  if (!content.trim()) {
+    throw new Error('File is empty');
+  }
+
+  // Parse the file content
+  const parsedChecklist = parseFile(content, fileName);
+
+  // Create the checklist with items in a transaction
+  const checklist = await prisma.$transaction(async (tx) => {
+    const newChecklist = await tx.checklist.create({
+      data: {
+        title: parsedChecklist.title,
+        description: parsedChecklist.description,
+        ownerId: userId,
+      },
+    });
+
+    // Create all items
+    if (parsedChecklist.items.length > 0) {
+      await tx.checklistItem.createMany({
+        data: parsedChecklist.items.map((item, index) => ({
+          checklistId: newChecklist.id,
+          title: item.title,
+          notes: item.notes,
+          order: index,
+        })),
+      });
+    }
+
+    return newChecklist;
+  });
+
+  revalidatePath('/checklist');
+  return checklist;
 }

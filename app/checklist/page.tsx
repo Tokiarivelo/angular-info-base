@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import ChecklistList from '@/components/ChecklistList';
 import CreateChecklistForm from '@/components/CreateChecklistForm';
+import FileUploadChecklistForm from '@/components/FileUploadChecklistForm';
 
 export default async function ChecklistPage() {
   const session = await auth();
@@ -57,7 +58,10 @@ export default async function ChecklistPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               My Checklists
             </h1>
-            <CreateChecklistForm />
+            <div className="flex flex-wrap gap-3">
+              <CreateChecklistForm />
+              <FileUploadChecklistForm />
+            </div>
           </div>
 
           <ChecklistList checklists={checklists} />
