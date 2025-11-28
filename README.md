@@ -6,8 +6,13 @@ A Next.js 15 application implementing an Angular learning checklist with user au
 
 - 🔐 **Authentication**: Secure user registration and login using NextAuth v5 with JWT sessions
 - 🌐 **Google OAuth**: Sign in with Google for seamless authentication
+- 👤 **Role-based Access**: Admin role for managing users, courses, and viewing all tasks
 - ✅ **Checklist Management**: Create, view, update, and delete checklists
 - 📝 **Checklist Items**: Add items to checklists with notes, toggle completion status, and track progress
+- 📚 **Courses**: Create courses with multiple chapters and learning materials
+- 📖 **Chapters**: Each chapter can have live preview URLs and multiple checklists
+- 🎯 **Progress Tracking**: Track user progress with repository links, website URLs, and screenshots
+- 📸 **Screenshot Storage**: Support for cloud storage (Cloudinary recommended) for progress screenshots
 - 🎨 **Modern UI**: Built with Tailwind CSS for a clean, responsive interface
 - 🔒 **Authorization**: Each user can only access and modify their own checklists
 - 🗄️ **Database**: PostgreSQL via Neon Serverless with Prisma ORM
@@ -102,9 +107,17 @@ npm run prisma:push
 npm run seed
 ```
 
-This will create a test user:
-- Email: `test@example.com`
-- Password: `password123`
+This will create:
+- A test user:
+  - Email: `test@example.com`
+  - Password: `password123`
+  - Role: `USER`
+- An admin user:
+  - Email: `admin@example.com`
+  - Password: `password123`
+  - Role: `ADMIN`
+- A sample course with chapters and checklists
+- Sample course enrollment for the test user
 
 ### 8. Start the development server
 
@@ -154,13 +167,49 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `email`: User email (unique)
 - `name`: User's name (optional)
 - `password`: Hashed password
+- `role`: User role (`USER` or `ADMIN`) - Admins can manage users, courses, and view all tasks
 - `createdAt`: Timestamp of user creation
+
+### Course
+- `id`: Unique identifier (CUID)
+- `title`: Course title
+- `description`: Optional description
+- `createdAt`: Timestamp of creation
+- `updatedAt`: Timestamp of last update
+
+### Chapter
+- `id`: Unique identifier (CUID)
+- `courseId`: Reference to Course
+- `title`: Chapter title
+- `description`: Optional description
+- `livePreviewUrl`: URL for live preview of what user will learn in the chapter
+- `order`: Display order (integer)
+- `createdAt`: Timestamp of creation
+- `updatedAt`: Timestamp of last update
+
+### CourseEnrollment
+- `id`: Unique identifier (CUID)
+- `userId`: Reference to User
+- `courseId`: Reference to Course
+- `createdAt`: Timestamp of enrollment
+
+### UserChapterProgress
+- `id`: Unique identifier (CUID)
+- `userId`: Reference to User
+- `chapterId`: Reference to Chapter
+- `repositoryUrl`: Link to the repository for the chapter
+- `websiteUrl`: Link to the website created
+- `screenshotUrls`: Array of screenshot URLs (stored in cloud storage)
+- `completed`: Completion status (boolean)
+- `createdAt`: Timestamp of creation
+- `updatedAt`: Timestamp of last update
 
 ### Checklist
 - `id`: Unique identifier (CUID)
 - `title`: Checklist title
 - `description`: Optional description
 - `ownerId`: Reference to User
+- `chapterId`: Optional reference to Chapter (checklists can belong to chapters)
 - `createdAt`: Timestamp of creation
 
 ### ChecklistItem
@@ -171,6 +220,24 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `order`: Display order (integer)
 - `notes`: Optional notes
 - `updatedAt`: Timestamp of last update
+
+## Cloud Storage for Screenshots
+
+For storing user screenshots, we recommend using one of these free cloud storage services:
+
+### Cloudinary (Recommended)
+- **Free Tier**: 25 GB storage, 25 GB bandwidth/month
+- **Setup**: Create a free account at [cloudinary.com](https://cloudinary.com)
+- **Usage**: Upload images via API and store the returned URL in `screenshotUrls`
+- **Example URL**: `https://res.cloudinary.com/demo/image/upload/v1234567890/screenshot.png`
+
+### Firebase Storage
+- **Free Tier**: 5 GB storage, 1 GB/day download
+- **Setup**: Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+
+### AWS S3 (Free Tier)
+- **Free Tier**: 5 GB storage, 20,000 GET requests, 2,000 PUT requests/month (12 months)
+- **Setup**: Create an AWS account at [aws.amazon.com](https://aws.amazon.com)
 
 ## Available Scripts
 

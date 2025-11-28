@@ -10,16 +10,88 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id        String      @id @default(cuid())
-  email     String      @unique
+  id        String   @id @default(cuid())
+  email     String   @unique
   name      String?
   password  String?
-  createdAt DateTime    @default(now())
-  
-  checklists Checklist[]
-  accounts   Account[]
-  sessions   Session[]
+  role      UserRole @default(USER)
+  createdAt DateTime @default(now())
+
+  checklists        Checklist[]
+  accounts          Account[]
+  sessions          Session[]
+  courseEnrollments CourseEnrollment[]
+  chapterProgress   UserChapterProgress[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  chapters    Chapter[]
+  enrollments CourseEnrollment[]
+
+  @@index([title])
+}
+
+model Chapter {
+  id             String   @id @default(cuid())
+  courseId       String
+  title          String
+  description    String?
+  livePreviewUrl String? // URL for live preview of what user will learn
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  course       Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  checklists   Checklist[]
+  userProgress UserChapterProgress[]
+
+  @@index([courseId])
+  @@index([order])
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model UserChapterProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  chapterId      String
+  repositoryUrl  String? // Link to the repository for the chapter
+  websiteUrl     String? // Link to the website created
+  screenshotUrls String[] // Array of screenshot URLs (stored in cloud storage like Cloudinary)
+  completed      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([chapterId])
 }
 
 model Checklist {
@@ -27,12 +99,15 @@ model Checklist {
   title       String
   description String?
   ownerId     String
+  chapterId   String? // Optional: checklist can belong to a chapter
   createdAt   DateTime @default(now())
-  
-  owner User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  items ChecklistItem[]
-  
+
+  owner   User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  chapter Chapter?        @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  items   ChecklistItem[]
+
   @@index([ownerId])
+  @@index([chapterId])
 }
 
 model ChecklistItem {
@@ -43,9 +118,9 @@ model ChecklistItem {
   order       Int?
   notes       String?
   updatedAt   DateTime @updatedAt
-  
+
   checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
-  
+
   @@index([checklistId])
 }
 
