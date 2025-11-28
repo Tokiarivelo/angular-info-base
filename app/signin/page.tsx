@@ -46,6 +46,7 @@ export default function SignInPage() {
       await signIn('google', { callbackUrl: '/checklist' });
     } catch (err) {
       setError('An error occurred. Please try again.');
+    } finally {
       setLoading(false);
     }
   }
