@@ -180,6 +180,7 @@ export async function createChecklistFromFile(formData: FormData) {
     throw new Error('Unauthorized');
   }
 
+  const userId = session.user.id;
   const file = formData.get('file') as File | null;
 
   if (!file) {
@@ -202,7 +203,7 @@ export async function createChecklistFromFile(formData: FormData) {
       data: {
         title: parsedChecklist.title,
         description: parsedChecklist.description,
-        ownerId: session.user!.id!,
+        ownerId: userId,
       },
     });
 

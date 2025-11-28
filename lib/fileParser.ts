@@ -32,7 +32,7 @@ export function parseCSV(content: string, fileName: string): ParsedChecklist {
 
   // Check if first line is a header - only match header keywords at word boundaries
   const firstLine = lines[0].toLowerCase();
-  const headerKeywords = /^(title|item|task|name|description|notes)(,|$)/i;
+  const headerKeywords = /^(title|item|task|name|description|notes)(,|$)/;
   if (headerKeywords.test(firstLine.trim())) {
     startIndex = 1;
   }
@@ -82,7 +82,7 @@ function parseCSVLine(line: string): string[] {
     const char = line[i];
 
     if (char === '"') {
-      if (inQuotes && line[i + 1] === '"') {
+      if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
         current += '"';
         i++;
       } else {
