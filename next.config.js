@@ -1,16 +1,13 @@
-/** @type {import('next').NextConfig} */
+//** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverActions: {
-      bodySizeLimit: '2mb',
-    },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Autorise tous les domaines
+      },
+    ],
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals = [...config.externals, 'bcrypt'];
-    }
-    return config;
-  },
-}
+};
 
-module.exports = nextConfig
+export default nextConfig;
