@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 
 interface LinkMetadata {
   title?: string;
@@ -7,8 +8,26 @@ interface LinkMetadata {
   icon?: string;
 }
 
+// Allowed domains for link preview to prevent SSRF attacks
+const ALLOWED_DOMAINS = [
+  'github.com',
+  'gitlab.com',
+  'bitbucket.org',
+  'vercel.app',
+  'netlify.app',
+  'herokuapp.com',
+  'pages.dev',
+  'github.io',
+];
+
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const url = searchParams.get('url');
 
@@ -17,19 +36,39 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate URL
+    let parsedUrl: URL;
     try {
-      new URL(url);
+      parsedUrl = new URL(url);
     } catch {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
     }
 
-    // Fetch the HTML content
+    // Check if domain is allowed
+    const hostname = parsedUrl.hostname.replace('www.', '');
+    const isAllowed = ALLOWED_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: 'Domain not allowed for preview' },
+        { status: 403 }
+      );
+    }
+
+    // Fetch the HTML content with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(url, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (compatible; LinkPreviewBot/1.0; +http://example.com)',
       },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error('Failed to fetch URL');
@@ -93,6 +132,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(metadata);
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Request timeout' },
+        { status: 408 }
+      );
+    }
     console.error('Link preview error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch link metadata' },

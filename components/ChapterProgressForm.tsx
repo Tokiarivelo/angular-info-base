@@ -68,8 +68,14 @@ export default function ChapterProgressForm({
 
       // Add the screenshot URL to the progress
       startTransition(async () => {
-        await addScreenshotToProgress(chapterId, url);
-        setScreenshots([...screenshots, url]);
+        try {
+          await addScreenshotToProgress(chapterId, url);
+          // Only update local state after successful server update
+          setScreenshots([...screenshots, url]);
+        } catch (error) {
+          console.error('Failed to save screenshot:', error);
+          setUploadError('Failed to save screenshot to progress');
+        }
       });
     } catch (error) {
       console.error('Upload error:', error);

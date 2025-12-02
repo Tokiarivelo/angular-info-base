@@ -240,16 +240,6 @@ export async function updateChapterProgress(
   const repositoryUrl = formData.get('repositoryUrl') as string;
   const websiteUrl = formData.get('websiteUrl') as string;
 
-  // Get or create progress record
-  const existingProgress = await prisma.userChapterProgress.findUnique({
-    where: {
-      userId_chapterId: {
-        userId,
-        chapterId,
-      },
-    },
-  });
-
   const progress = await prisma.userChapterProgress.upsert({
     where: {
       userId_chapterId: {
@@ -285,18 +275,6 @@ export async function addScreenshotToProgress(
 
   const userId = session.user.id;
 
-  // Get or create progress record
-  const existingProgress = await prisma.userChapterProgress.findUnique({
-    where: {
-      userId_chapterId: {
-        userId,
-        chapterId,
-      },
-    },
-  });
-
-  const currentUrls = existingProgress?.screenshotUrls || [];
-
   const progress = await prisma.userChapterProgress.upsert({
     where: {
       userId_chapterId: {
@@ -305,7 +283,9 @@ export async function addScreenshotToProgress(
       },
     },
     update: {
-      screenshotUrls: [...currentUrls, screenshotUrl],
+      screenshotUrls: {
+        push: screenshotUrl,
+      },
     },
     create: {
       userId,
