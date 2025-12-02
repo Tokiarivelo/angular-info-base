@@ -68,9 +68,9 @@ export default function ChapterProgressForm({
       // Add the screenshot URL to the progress
       startTransition(async () => {
         try {
-          await addScreenshotToProgress(chapterId, url);
+          const updatedProgress = await addScreenshotToProgress(chapterId, url);
           // Only update local state after successful server update
-          setScreenshots([...screenshots, url]);
+          setScreenshots(updatedProgress.screenshotUrls);
         } catch (error) {
           console.error('Failed to save screenshot:', error);
           setUploadError('Failed to save screenshot to progress');
@@ -90,8 +90,15 @@ export default function ChapterProgressForm({
 
   const handleRemoveScreenshot = async (url: string) => {
     startTransition(async () => {
-      await removeScreenshotFromProgress(chapterId, url);
-      setScreenshots(screenshots.filter((s) => s !== url));
+      try {
+        const updatedProgress = await removeScreenshotFromProgress(
+          chapterId,
+          url
+        );
+        setScreenshots(updatedProgress.screenshotUrls);
+      } catch (error) {
+        console.error('Failed to remove screenshot:', error);
+      }
     });
   };
 

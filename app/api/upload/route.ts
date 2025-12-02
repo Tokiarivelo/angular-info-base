@@ -38,12 +38,18 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename
+    // Create secure filename based on MIME type
     const timestamp = Date.now();
-    const originalName = file.name.replace(/\.[^.]+$/, ''); // Remove extension
-    const sanitizedName = originalName.replace(/[^a-zA-Z0-9-]/g, '_');
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const filename = `${timestamp}-${sanitizedName}.${extension}`;
+    const mimeToExtension: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg',
+    };
+    const extension = mimeToExtension[file.type] || 'jpg';
+    const filename = `${timestamp}-screenshot.${extension}`;
 
     // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
