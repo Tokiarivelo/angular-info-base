@@ -40,7 +40,10 @@ export async function POST(request: NextRequest) {
 
     // Create unique filename
     const timestamp = Date.now();
-    const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const originalName = file.name.replace(/\.[^.]+$/, ''); // Remove extension
+    const sanitizedName = originalName.replace(/[^a-zA-Z0-9-]/g, '_');
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const filename = `${timestamp}-${sanitizedName}.${extension}`;
 
     // Ensure upload directory exists
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');

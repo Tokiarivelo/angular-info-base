@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Image from 'next/image';
 import {
   updateChapterProgress,
   addScreenshotToProgress,
@@ -182,7 +181,7 @@ export default function ChapterProgressForm({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
-                    alt={`Screenshot ${index + 1}`}
+                    alt={`Screenshot of chapter completion ${index + 1}`}
                     className="w-full h-32 object-cover rounded-lg border border-gray-300"
                   />
                   <button
