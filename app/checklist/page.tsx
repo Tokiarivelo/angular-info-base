@@ -36,6 +36,12 @@ export default async function ChecklistPage() {
             </div>
             <div className="flex items-center space-x-4">
               <Link
+                href="/courses"
+                className="text-gray-700 hover:text-gray-900"
+              >
+                Courses
+              </Link>
+              <Link
                 href="/checklist"
                 className="text-gray-700 hover:text-gray-900 font-medium"
               >
