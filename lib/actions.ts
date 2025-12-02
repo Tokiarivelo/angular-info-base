@@ -225,3 +225,152 @@ export async function createChecklistFromFile(formData: FormData) {
   revalidatePath('/checklist');
   return checklist;
 }
+
+// Chapter Progress Actions
+export async function updateChapterProgress(
+  chapterId: string,
+  formData: FormData
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+  const repositoryUrl = formData.get('repositoryUrl') as string;
+  const websiteUrl = formData.get('websiteUrl') as string;
+
+  const progress = await prisma.userChapterProgress.upsert({
+    where: {
+      userId_chapterId: {
+        userId,
+        chapterId,
+      },
+    },
+    update: {
+      repositoryUrl: repositoryUrl || null,
+      websiteUrl: websiteUrl || null,
+    },
+    create: {
+      userId,
+      chapterId,
+      repositoryUrl: repositoryUrl || null,
+      websiteUrl: websiteUrl || null,
+      completed: false,
+    },
+  });
+
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return progress;
+}
+
+export async function addScreenshotToProgress(
+  chapterId: string,
+  screenshotUrl: string
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  const progress = await prisma.userChapterProgress.upsert({
+    where: {
+      userId_chapterId: {
+        userId,
+        chapterId,
+      },
+    },
+    update: {
+      screenshotUrls: {
+        push: screenshotUrl,
+      },
+    },
+    create: {
+      userId,
+      chapterId,
+      screenshotUrls: [screenshotUrl],
+      completed: false,
+    },
+  });
+
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return progress;
+}
+
+export async function removeScreenshotFromProgress(
+  chapterId: string,
+  screenshotUrl: string
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  const existingProgress = await prisma.userChapterProgress.findUnique({
+    where: {
+      userId_chapterId: {
+        userId,
+        chapterId,
+      },
+    },
+  });
+
+  if (!existingProgress) {
+    throw new Error('Progress record not found');
+  }
+
+  const updatedUrls = existingProgress.screenshotUrls.filter(
+    (url) => url !== screenshotUrl
+  );
+
+  const progress = await prisma.userChapterProgress.update({
+    where: {
+      userId_chapterId: {
+        userId,
+        chapterId,
+      },
+    },
+    data: {
+      screenshotUrls: updatedUrls,
+    },
+  });
+
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return progress;
+}
+
+export async function toggleChapterCompletion(
+  chapterId: string,
+  completed: boolean
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  const progress = await prisma.userChapterProgress.upsert({
+    where: {
+      userId_chapterId: {
+        userId,
+        chapterId,
+      },
+    },
+    update: {
+      completed,
+    },
+    create: {
+      userId,
+      chapterId,
+      completed,
+    },
+  });
+
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return progress;
+}
