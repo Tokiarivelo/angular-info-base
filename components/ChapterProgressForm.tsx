@@ -7,11 +7,11 @@ import {
   removeScreenshotFromProgress,
   toggleChapterCompletion,
 } from '@/lib/actions';
-import { UserChapterProgress } from '@prisma/client';
+import { UserChapterProgress, Screenshot } from '@prisma/client';
 
 interface ChapterProgressFormProps {
   chapterId: string;
-  progress: UserChapterProgress | null;
+  progress: (UserChapterProgress & { screenshots: Screenshot[] }) | null;
 }
 
 export default function ChapterProgressForm({
@@ -25,8 +25,8 @@ export default function ChapterProgressForm({
     progress?.repositoryUrl || ''
   );
   const [websiteUrl, setWebsiteUrl] = useState(progress?.websiteUrl || '');
-  const [screenshots, setScreenshots] = useState<string[]>(
-    progress?.screenshotUrls || []
+  const [screenshots, setScreenshots] = useState<Screenshot[]>(
+    progress?.screenshots || []
   );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -63,14 +63,14 @@ export default function ChapterProgressForm({
         throw new Error(data.error || 'Upload failed');
       }
 
-      const { url } = await response.json();
+      const { url, publicId } = await response.json();
 
-      // Add the screenshot URL to the progress
+      // Add the screenshot to the progress
       startTransition(async () => {
         try {
-          const updatedProgress = await addScreenshotToProgress(chapterId, url);
-          // Only update local state after successful server update
-          setScreenshots(updatedProgress.screenshotUrls);
+          const result = await addScreenshotToProgress(chapterId, url, publicId);
+          // Update local state with new screenshot
+          setScreenshots((prev) => [...prev, result.screenshot]);
         } catch (error) {
           console.error('Failed to save screenshot:', error);
           setUploadError('Failed to save screenshot to progress');
@@ -88,14 +88,11 @@ export default function ChapterProgressForm({
     }
   };
 
-  const handleRemoveScreenshot = async (url: string) => {
+  const handleRemoveScreenshot = async (screenshotId: string) => {
     startTransition(async () => {
       try {
-        const updatedProgress = await removeScreenshotFromProgress(
-          chapterId,
-          url
-        );
-        setScreenshots(updatedProgress.screenshotUrls);
+        await removeScreenshotFromProgress(screenshotId, chapterId);
+        setScreenshots((prev) => prev.filter((s) => s.id !== screenshotId));
       } catch (error) {
         console.error('Failed to remove screenshot:', error);
       }
@@ -183,17 +180,17 @@ export default function ChapterProgressForm({
           {/* Screenshot Gallery */}
           {screenshots.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {screenshots.map((url, index) => (
-                <div key={index} className="relative group">
+              {screenshots.map((screenshot) => (
+                <div key={screenshot.id} className="relative group">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={url}
-                    alt={`Screenshot of chapter completion ${index + 1}`}
+                    src={screenshot.url}
+                    alt={screenshot.caption || `Screenshot ${screenshot.id}`}
                     className="w-full h-32 object-cover rounded-lg border border-gray-300"
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveScreenshot(url)}
+                    onClick={() => handleRemoveScreenshot(screenshot.id)}
                     disabled={isPending}
                     className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50"
                   >

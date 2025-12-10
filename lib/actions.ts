@@ -266,7 +266,9 @@ export async function updateChapterProgress(
 
 export async function addScreenshotToProgress(
   chapterId: string,
-  screenshotUrl: string
+  url: string,
+  publicId?: string,
+  caption?: string
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -275,6 +277,7 @@ export async function addScreenshotToProgress(
 
   const userId = session.user.id;
 
+  // Ensure progress record exists
   const progress = await prisma.userChapterProgress.upsert({
     where: {
       userId_chapterId: {
@@ -282,26 +285,32 @@ export async function addScreenshotToProgress(
         chapterId,
       },
     },
-    update: {
-      screenshotUrls: {
-        push: screenshotUrl,
-      },
-    },
+    update: {},
     create: {
       userId,
       chapterId,
-      screenshotUrls: [screenshotUrl],
       completed: false,
     },
   });
 
+  // Create screenshot record
+  const screenshot = await prisma.screenshot.create({
+    data: {
+      url,
+      publicId,
+      caption,
+      userId,
+      progressId: progress.id,
+    },
+  });
+
   revalidatePath(`/courses/chapter/${chapterId}`);
-  return progress;
+  return { progress, screenshot };
 }
 
 export async function removeScreenshotFromProgress(
-  chapterId: string,
-  screenshotUrl: string
+  screenshotId: string,
+  chapterId: string
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -310,37 +319,39 @@ export async function removeScreenshotFromProgress(
 
   const userId = session.user.id;
 
-  const existingProgress = await prisma.userChapterProgress.findUnique({
-    where: {
-      userId_chapterId: {
-        userId,
-        chapterId,
-      },
-    },
+  // Verify ownership
+  const screenshot = await prisma.screenshot.findUnique({
+    where: { id: screenshotId },
   });
 
-  if (!existingProgress) {
-    throw new Error('Progress record not found');
+  if (!screenshot || screenshot.userId !== userId) {
+    throw new Error('Unauthorized');
   }
 
-  const updatedUrls = existingProgress.screenshotUrls.filter(
-    (url) => url !== screenshotUrl
-  );
-
-  const progress = await prisma.userChapterProgress.update({
-    where: {
-      userId_chapterId: {
-        userId,
-        chapterId,
-      },
-    },
-    data: {
-      screenshotUrls: updatedUrls,
-    },
+  // Delete from database
+  await prisma.screenshot.delete({
+    where: { id: screenshotId },
   });
 
+  // Optionally delete from Cloudinary if publicId exists
+  if (screenshot.publicId) {
+    try {
+      // Import cloudinary to delete directly
+      const { v2: cloudinary } = await import('cloudinary');
+      cloudinary.config({
+        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+      await cloudinary.uploader.destroy(screenshot.publicId);
+    } catch (error) {
+      console.error('Failed to delete from Cloudinary:', error);
+      // Continue even if Cloudinary deletion fails
+    }
+  }
+
   revalidatePath(`/courses/chapter/${chapterId}`);
-  return progress;
+  return screenshot;
 }
 
 export async function toggleChapterCompletion(
@@ -373,4 +384,610 @@ export async function toggleChapterCompletion(
 
   revalidatePath(`/courses/chapter/${chapterId}`);
   return progress;
+}
+
+// Quiz Actions
+export async function submitQuiz(
+  quizId: string,
+  answers: number[]
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  // Get quiz with questions
+  const quiz = await prisma.quiz.findUnique({
+    where: { id: quizId },
+    include: { questions: { orderBy: { order: 'asc' } } },
+  });
+
+  if (!quiz) {
+    throw new Error('Quiz not found');
+  }
+
+  // Calculate score
+  let correctCount = 0;
+  quiz.questions.forEach((question, index) => {
+    if (answers[index] === question.correctAnswer) {
+      correctCount++;
+    }
+  });
+
+  const score = Math.round((correctCount / quiz.questions.length) * 100);
+  const passed = score >= quiz.passingScore;
+
+  // Save submission
+  const submission = await prisma.quizSubmission.create({
+    data: {
+      userId,
+      quizId,
+      answers,
+      score,
+      passed,
+    },
+  });
+
+  revalidatePath(`/courses/chapter/${quiz.chapterId}`);
+  return { submission, quiz };
+}
+
+// Admin Actions - Course Management
+export async function createCourse(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const course = await prisma.course.create({
+    data: {
+      title,
+      description: description || null,
+    },
+  });
+
+  revalidatePath('/admin/courses');
+  return course;
+}
+
+export async function updateCourse(courseId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const course = await prisma.course.update({
+    where: { id: courseId },
+    data: {
+      title,
+      description: description || null,
+    },
+  });
+
+  revalidatePath('/admin/courses');
+  revalidatePath(`/admin/courses/${courseId}`);
+  return course;
+}
+
+export async function deleteCourse(courseId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  await prisma.course.delete({
+    where: { id: courseId },
+  });
+
+  revalidatePath('/admin/courses');
+}
+
+// Admin Actions - Chapter Management
+export async function createChapter(courseId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const content = formData.get('content') as string;
+  const livePreviewUrl = formData.get('livePreviewUrl') as string;
+  const order = formData.get('order') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const chapter = await prisma.chapter.create({
+    data: {
+      courseId,
+      title,
+      description: description || null,
+      content: content || null,
+      livePreviewUrl: livePreviewUrl || null,
+      order: order ? parseInt(order) : 0,
+    },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+  return chapter;
+}
+
+export async function updateChapter(chapterId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const content = formData.get('content') as string;
+  const livePreviewUrl = formData.get('livePreviewUrl') as string;
+  const order = formData.get('order') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const chapter = await prisma.chapter.update({
+    where: { id: chapterId },
+    data: {
+      title,
+      description: description || null,
+      content: content || null,
+      livePreviewUrl: livePreviewUrl || null,
+      order: order ? parseInt(order) : undefined,
+    },
+  });
+
+  revalidatePath(`/admin/courses/${chapter.courseId}`);
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return chapter;
+}
+
+export async function deleteChapter(chapterId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const chapter = await prisma.chapter.findUnique({
+    where: { id: chapterId },
+  });
+
+  if (!chapter) {
+    throw new Error('Chapter not found');
+  }
+
+  await prisma.chapter.delete({
+    where: { id: chapterId },
+  });
+
+  revalidatePath(`/admin/courses/${chapter.courseId}`);
+}
+
+// Admin Actions - Quiz Management
+export async function createQuiz(chapterId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const passingScore = formData.get('passingScore') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const quiz = await prisma.quiz.create({
+    data: {
+      chapterId,
+      title,
+      description: description || null,
+      passingScore: passingScore ? parseInt(passingScore) : 70,
+    },
+  });
+
+  revalidatePath(`/admin/courses`);
+  revalidatePath(`/courses/chapter/${chapterId}`);
+  return quiz;
+}
+
+export async function updateQuiz(quizId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const passingScore = formData.get('passingScore') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const quiz = await prisma.quiz.update({
+    where: { id: quizId },
+    data: {
+      title,
+      description: description || null,
+      passingScore: passingScore ? parseInt(passingScore) : undefined,
+    },
+  });
+
+  revalidatePath(`/admin/courses`);
+  revalidatePath(`/courses/chapter/${quiz.chapterId}`);
+  return quiz;
+}
+
+export async function deleteQuiz(quizId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const quiz = await prisma.quiz.findUnique({
+    where: { id: quizId },
+  });
+
+  if (!quiz) {
+    throw new Error('Quiz not found');
+  }
+
+  await prisma.quiz.delete({
+    where: { id: quizId },
+  });
+
+  revalidatePath(`/admin/courses`);
+  revalidatePath(`/courses/chapter/${quiz.chapterId}`);
+}
+
+export async function createQuizQuestion(quizId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const question = formData.get('question') as string;
+  const optionsJson = formData.get('options') as string;
+  const correctAnswer = formData.get('correctAnswer') as string;
+  const explanation = formData.get('explanation') as string;
+  const order = formData.get('order') as string;
+
+  if (!question || !optionsJson) {
+    throw new Error('Question and options are required');
+  }
+
+  const options = JSON.parse(optionsJson);
+
+  const quizQuestion = await prisma.quizQuestion.create({
+    data: {
+      quizId,
+      question,
+      options,
+      correctAnswer: parseInt(correctAnswer),
+      explanation: explanation || null,
+      order: order ? parseInt(order) : 0,
+    },
+  });
+
+  const quiz = await prisma.quiz.findUnique({ where: { id: quizId } });
+  revalidatePath(`/admin/courses`);
+  revalidatePath(`/courses/chapter/${quiz?.chapterId}`);
+  return quizQuestion;
+}
+
+export async function deleteQuizQuestion(questionId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const question = await prisma.quizQuestion.findUnique({
+    where: { id: questionId },
+    include: { quiz: true },
+  });
+
+  if (!question) {
+    throw new Error('Question not found');
+  }
+
+  await prisma.quizQuestion.delete({
+    where: { id: questionId },
+  });
+
+  revalidatePath(`/admin/courses`);
+  revalidatePath(`/courses/chapter/${question.quiz.chapterId}`);
+}
+
+// User enrollment action
+export async function enrollInCourse(courseId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  const enrollment = await prisma.courseEnrollment.create({
+    data: {
+      userId,
+      courseId,
+    },
+  });
+
+  revalidatePath('/courses');
+  return enrollment;
+}
+
+// Enrollment Request Actions
+export async function requestCourseEnrollment(
+  courseId: string,
+  message?: string
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  // Check if already enrolled
+  const existingEnrollment = await prisma.courseEnrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingEnrollment) {
+    throw new Error('Already enrolled in this course');
+  }
+
+  // Check if request already exists
+  const existingRequest = await prisma.enrollmentRequest.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingRequest) {
+    if (existingRequest.status === 'PENDING') {
+      throw new Error('Request already pending');
+    }
+    // Update existing rejected request to pending
+    const request = await prisma.enrollmentRequest.update({
+      where: { id: existingRequest.id },
+      data: {
+        status: 'PENDING',
+        message: message || null,
+        reviewedBy: null,
+        reviewedAt: null,
+      },
+    });
+    revalidatePath('/courses');
+    return request;
+  }
+
+  const request = await prisma.enrollmentRequest.create({
+    data: {
+      userId,
+      courseId,
+      message: message || null,
+      status: 'PENDING',
+    },
+  });
+
+  revalidatePath('/courses');
+  revalidatePath('/admin/enrollment-requests');
+  return request;
+}
+
+export async function cancelEnrollmentRequest(requestId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.enrollmentRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request || request.userId !== session.user.id) {
+    throw new Error('Unauthorized');
+  }
+
+  await prisma.enrollmentRequest.delete({
+    where: { id: requestId },
+  });
+
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Review enrollment requests
+export async function reviewEnrollmentRequest(
+  requestId: string,
+  approved: boolean
+) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.enrollmentRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request) {
+    throw new Error('Request not found');
+  }
+
+  if (approved) {
+    // Create enrollment
+    await prisma.courseEnrollment.create({
+      data: {
+        userId: request.userId,
+        courseId: request.courseId,
+        assignedBy: session.user.id,
+      },
+    });
+
+    // Update request status
+    await prisma.enrollmentRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'APPROVED',
+        reviewedBy: session.user.id,
+        reviewedAt: new Date(),
+      },
+    });
+  } else {
+    await prisma.enrollmentRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'REJECTED',
+        reviewedBy: session.user.id,
+        reviewedAt: new Date(),
+      },
+    });
+  }
+
+  revalidatePath('/admin/enrollment-requests');
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Assign course to user
+export async function assignCourseToUser(userId: string, courseId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  // Check if already enrolled
+  const existingEnrollment = await prisma.courseEnrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingEnrollment) {
+    throw new Error('User already enrolled');
+  }
+
+  const enrollment = await prisma.courseEnrollment.create({
+    data: {
+      userId,
+      courseId,
+      assignedBy: session.user.id,
+    },
+  });
+
+  revalidatePath('/admin/courses');
+  revalidatePath(`/admin/courses/${courseId}`);
+  return enrollment;
+}
+
+// Course Request Actions
+export async function requestNewCourse(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const reason = formData.get('reason') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const courseRequest = await prisma.courseRequest.create({
+    data: {
+      userId: session.user.id,
+      title,
+      description: description || null,
+      reason: reason || null,
+      status: 'PENDING',
+    },
+  });
+
+  revalidatePath('/courses');
+  revalidatePath('/admin/course-requests');
+  return courseRequest;
+}
+
+export async function cancelCourseRequest(requestId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.courseRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request || request.userId !== session.user.id) {
+    throw new Error('Unauthorized');
+  }
+
+  await prisma.courseRequest.delete({
+    where: { id: requestId },
+  });
+
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Review course requests
+export async function reviewCourseRequest(
+  requestId: string,
+  status: 'APPROVED' | 'REJECTED' | 'IN_PROGRESS'
+) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.courseRequest.update({
+    where: { id: requestId },
+    data: {
+      status,
+      reviewedBy: session.user.id,
+      reviewedAt: new Date(),
+    },
+  });
+
+  revalidatePath('/admin/course-requests');
+  return request;
 }

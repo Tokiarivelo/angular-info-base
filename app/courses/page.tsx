@@ -2,6 +2,9 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import EnrollButton from '@/components/EnrollButton';
+import RequestEnrollmentButton from '@/components/RequestEnrollmentButton';
+import CoursesPageClient from '@/components/CoursesPageClient';
 
 export default async function CoursesPage() {
   const session = await auth();
@@ -24,6 +27,20 @@ export default async function CoursesPage() {
     },
   });
 
+  // Get enrollment requests
+  const enrollmentRequests = await prisma.enrollmentRequest.findMany({
+    where: { userId: session.user.id },
+    include: {
+      course: true,
+    },
+  });
+
+  // Get course requests
+  const courseRequests = await prisma.courseRequest.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: 'desc' },
+  });
+
   // Get all courses for browsing
   const allCourses = await prisma.course.findMany({
     include: {
@@ -37,8 +54,9 @@ export default async function CoursesPage() {
     orderBy: { createdAt: 'desc' },
   });
 
-  const enrolledCourseIds = new Set(
-    enrollments.map((e) => e.course.id)
+  const enrolledCourseIds = new Set(enrollments.map((e) => e.course.id));
+  const requestedCourseIds = new Set(
+    enrollmentRequests.map((r) => r.course.id)
   );
 
   return (
@@ -80,6 +98,86 @@ export default async function CoursesPage() {
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          {/* Pending Enrollment Requests */}
+          {enrollmentRequests.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Pending Enrollment Requests
+              </h2>
+              <div className="space-y-3">
+                {enrollmentRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="bg-yellow-50 border border-yellow-200 rounded-lg p-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {request.course.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Status:{' '}
+                          <span className="font-medium text-yellow-700">
+                            {request.status}
+                          </span>
+                        </p>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        Requested{' '}
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* My Course Requests */}
+          {courseRequests.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                My Course Requests
+              </h2>
+              <div className="space-y-3">
+                {courseRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className={`border rounded-lg p-4 ${
+                      request.status === 'APPROVED'
+                        ? 'bg-green-50 border-green-200'
+                        : request.status === 'REJECTED'
+                          ? 'bg-red-50 border-red-200'
+                          : request.status === 'IN_PROGRESS'
+                            ? 'bg-blue-50 border-blue-200'
+                            : 'bg-yellow-50 border-yellow-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">
+                          {request.title}
+                        </h3>
+                        {request.description && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {request.description}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-600 mt-2">
+                          Status:{' '}
+                          <span className="font-medium">{request.status}</span>
+                        </p>
+                      </div>
+                      <span className="text-xs text-gray-500 ml-4">
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             My Courses
           </h1>
@@ -124,38 +222,11 @@ export default async function CoursesPage() {
             </div>
           )}
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 mt-12">
-            All Available Courses
-          </h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {allCourses.map((course) => (
-              <div
-                key={course.id}
-                className={`bg-white rounded-lg shadow hover:shadow-md transition-shadow ${
-                  enrolledCourseIds.has(course.id)
-                    ? 'border-2 border-blue-500'
-                    : ''
-                }`}
-              >
-                <div className="p-6">
-                  {enrolledCourseIds.has(course.id) && (
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2">
-                      Enrolled
-                    </span>
-                  )}
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {course.description || 'No description'}
-                  </p>
-                  <div className="text-sm text-gray-500">
-                    {course._count.chapters} chapters
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <CoursesPageClient
+            allCourses={allCourses}
+            enrolledCourseIds={Array.from(enrolledCourseIds)}
+            requestedCourseIds={Array.from(requestedCourseIds)}
+          />
         </div>
       </div>
     </div>

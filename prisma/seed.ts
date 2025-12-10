@@ -182,15 +182,85 @@ async function main() {
       chapterId: chapter1.id,
       repositoryUrl: 'https://github.com/user/html-css-project',
       websiteUrl: 'https://my-html-project.vercel.app',
-      screenshotUrls: [
-        // Screenshots can be stored in Cloudinary (free tier available)
-        // Example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/screenshot1.png'
-      ],
       completed: false,
     },
   });
 
   console.log('Created user chapter progress');
+
+  // Create sample quizzes
+  const quiz1 = await prisma.quiz.create({
+    data: {
+      chapterId: chapter1.id,
+      title: 'HTML & CSS Basics Quiz',
+      description: 'Test your knowledge of HTML and CSS fundamentals',
+      passingScore: 70,
+      questions: {
+        create: [
+          {
+            question: 'What does HTML stand for?',
+            options: [
+              'Hyper Text Markup Language',
+              'High Tech Modern Language',
+              'Home Tool Markup Language',
+              'Hyperlinks and Text Markup Language',
+            ],
+            correctAnswer: 0,
+            explanation:
+              'HTML stands for Hyper Text Markup Language, which is the standard markup language for creating web pages.',
+            order: 0,
+          },
+          {
+            question: 'Which CSS property is used to change the text color?',
+            options: ['text-color', 'color', 'font-color', 'text-style'],
+            correctAnswer: 1,
+            explanation:
+              'The "color" property is used to set the color of text in CSS.',
+            order: 1,
+          },
+          {
+            question: 'What is the correct HTML element for the largest heading?',
+            options: ['<heading>', '<h6>', '<h1>', '<head>'],
+            correctAnswer: 2,
+            explanation:
+              '<h1> defines the most important heading, while <h6> defines the least important.',
+            order: 2,
+          },
+        ],
+      },
+    },
+  });
+
+  const quiz2 = await prisma.quiz.create({
+    data: {
+      chapterId: chapter2.id,
+      title: 'JavaScript Fundamentals Quiz',
+      description: 'Evaluate your understanding of JavaScript basics',
+      passingScore: 70,
+      questions: {
+        create: [
+          {
+            question: 'Which of the following is a JavaScript data type?',
+            options: ['String', 'Boolean', 'Number', 'All of the above'],
+            correctAnswer: 3,
+            explanation:
+              'JavaScript has multiple primitive data types including String, Boolean, Number, and others.',
+            order: 0,
+          },
+          {
+            question: 'How do you declare a variable in JavaScript?',
+            options: ['var x;', 'variable x;', 'v x;', 'x variable;'],
+            correctAnswer: 0,
+            explanation:
+              'Variables in JavaScript can be declared using var, let, or const keywords.',
+            order: 1,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log('Created quizzes:', quiz1.title, quiz2.title);
 
   console.log('Seeding completed!');
 }

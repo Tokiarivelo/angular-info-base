@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import ChapterProgressForm from '@/components/ChapterProgressForm';
 import LinkPreview from '@/components/LinkPreview';
+import QuizTaker from '@/components/QuizTaker';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,6 +25,13 @@ export default async function ChapterPage({ params }: PageProps) {
       checklists: {
         include: {
           items: true,
+        },
+      },
+      quizzes: {
+        include: {
+          questions: {
+            orderBy: { order: 'asc' },
+          },
         },
       },
     },
@@ -55,7 +63,24 @@ export default async function ChapterPage({ params }: PageProps) {
         chapterId: chapterId,
       },
     },
+    include: {
+      screenshots: {
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
+
+  // Get all chapters in the course for navigation
+  const allChapters = await prisma.chapter.findMany({
+    where: { courseId: chapter.courseId },
+    orderBy: { order: 'asc' },
+    select: { id: true, title: true, order: true },
+  });
+
+  const currentIndex = allChapters.findIndex((ch) => ch.id === chapterId);
+  const previousChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;
+  const nextChapter =
+    currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -186,7 +211,7 @@ export default async function ChapterPage({ params }: PageProps) {
 
           {/* Link Previews */}
           {(progress?.repositoryUrl || progress?.websiteUrl) && (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Project Links
               </h2>
@@ -206,6 +231,73 @@ export default async function ChapterPage({ params }: PageProps) {
               </div>
             </div>
           )}
+
+          {/* Quizzes Section */}
+          {chapter.quizzes.length > 0 && (
+            <div className="space-y-6">
+              {chapter.quizzes.map((quiz) => (
+                <div key={quiz.id}>
+                  <QuizTaker quiz={quiz} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Chapter Navigation */}
+          <div className="mt-8 pt-6 border-t flex justify-between items-center">
+            {previousChapter ? (
+              <Link
+                href={`/courses/chapter/${previousChapter.id}`}
+                className="flex items-center text-blue-600 hover:text-blue-800"
+              >
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <div>
+                  <div className="text-xs text-gray-500">Previous</div>
+                  <div className="font-medium">{previousChapter.title}</div>
+                </div>
+              </Link>
+            ) : (
+              <div />
+            )}
+            {nextChapter ? (
+              <Link
+                href={`/courses/chapter/${nextChapter.id}`}
+                className="flex items-center text-blue-600 hover:text-blue-800"
+              >
+                <div className="text-right">
+                  <div className="text-xs text-gray-500">Next</div>
+                  <div className="font-medium">{nextChapter.title}</div>
+                </div>
+                <svg
+                  className="w-5 h-5 ml-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </Link>
+            ) : (
+              <div />
+            )}
+          </div>
         </div>
       </div>
     </div>
