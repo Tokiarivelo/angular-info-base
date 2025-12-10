@@ -739,3 +739,255 @@ export async function enrollInCourse(courseId: string) {
   revalidatePath('/courses');
   return enrollment;
 }
+
+// Enrollment Request Actions
+export async function requestCourseEnrollment(
+  courseId: string,
+  message?: string
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const userId = session.user.id;
+
+  // Check if already enrolled
+  const existingEnrollment = await prisma.courseEnrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingEnrollment) {
+    throw new Error('Already enrolled in this course');
+  }
+
+  // Check if request already exists
+  const existingRequest = await prisma.enrollmentRequest.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingRequest) {
+    if (existingRequest.status === 'PENDING') {
+      throw new Error('Request already pending');
+    }
+    // Update existing rejected request to pending
+    const request = await prisma.enrollmentRequest.update({
+      where: { id: existingRequest.id },
+      data: {
+        status: 'PENDING',
+        message: message || null,
+        reviewedBy: null,
+        reviewedAt: null,
+      },
+    });
+    revalidatePath('/courses');
+    return request;
+  }
+
+  const request = await prisma.enrollmentRequest.create({
+    data: {
+      userId,
+      courseId,
+      message: message || null,
+      status: 'PENDING',
+    },
+  });
+
+  revalidatePath('/courses');
+  revalidatePath('/admin/enrollment-requests');
+  return request;
+}
+
+export async function cancelEnrollmentRequest(requestId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.enrollmentRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request || request.userId !== session.user.id) {
+    throw new Error('Unauthorized');
+  }
+
+  await prisma.enrollmentRequest.delete({
+    where: { id: requestId },
+  });
+
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Review enrollment requests
+export async function reviewEnrollmentRequest(
+  requestId: string,
+  approved: boolean
+) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.enrollmentRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request) {
+    throw new Error('Request not found');
+  }
+
+  if (approved) {
+    // Create enrollment
+    await prisma.courseEnrollment.create({
+      data: {
+        userId: request.userId,
+        courseId: request.courseId,
+        assignedBy: session.user.id,
+      },
+    });
+
+    // Update request status
+    await prisma.enrollmentRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'APPROVED',
+        reviewedBy: session.user.id,
+        reviewedAt: new Date(),
+      },
+    });
+  } else {
+    await prisma.enrollmentRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'REJECTED',
+        reviewedBy: session.user.id,
+        reviewedAt: new Date(),
+      },
+    });
+  }
+
+  revalidatePath('/admin/enrollment-requests');
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Assign course to user
+export async function assignCourseToUser(userId: string, courseId: string) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  // Check if already enrolled
+  const existingEnrollment = await prisma.courseEnrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+
+  if (existingEnrollment) {
+    throw new Error('User already enrolled');
+  }
+
+  const enrollment = await prisma.courseEnrollment.create({
+    data: {
+      userId,
+      courseId,
+      assignedBy: session.user.id,
+    },
+  });
+
+  revalidatePath('/admin/courses');
+  revalidatePath(`/admin/courses/${courseId}`);
+  return enrollment;
+}
+
+// Course Request Actions
+export async function requestNewCourse(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const title = formData.get('title') as string;
+  const description = formData.get('description') as string;
+  const reason = formData.get('reason') as string;
+
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const courseRequest = await prisma.courseRequest.create({
+    data: {
+      userId: session.user.id,
+      title,
+      description: description || null,
+      reason: reason || null,
+      status: 'PENDING',
+    },
+  });
+
+  revalidatePath('/courses');
+  revalidatePath('/admin/course-requests');
+  return courseRequest;
+}
+
+export async function cancelCourseRequest(requestId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.courseRequest.findUnique({
+    where: { id: requestId },
+  });
+
+  if (!request || request.userId !== session.user.id) {
+    throw new Error('Unauthorized');
+  }
+
+  await prisma.courseRequest.delete({
+    where: { id: requestId },
+  });
+
+  revalidatePath('/courses');
+  return request;
+}
+
+// Admin: Review course requests
+export async function reviewCourseRequest(
+  requestId: string,
+  status: 'APPROVED' | 'REJECTED' | 'IN_PROGRESS'
+) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    throw new Error('Unauthorized');
+  }
+
+  const request = await prisma.courseRequest.update({
+    where: { id: requestId },
+    data: {
+      status,
+      reviewedBy: session.user.id,
+      reviewedAt: new Date(),
+    },
+  });
+
+  revalidatePath('/admin/course-requests');
+  return request;
+}

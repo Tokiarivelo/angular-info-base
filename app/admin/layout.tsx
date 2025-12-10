@@ -36,6 +36,18 @@ export default async function AdminLayout({
                 >
                   Courses
                 </Link>
+                <Link
+                  href="/admin/enrollment-requests"
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Enrollment Requests
+                </Link>
+                <Link
+                  href="/admin/course-requests"
+                  className="text-gray-700 hover:text-gray-900"
+                >
+                  Course Requests
+                </Link>
               </div>
             </div>
             <div className="flex items-center space-x-4">
