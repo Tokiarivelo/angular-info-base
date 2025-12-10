@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import EnrollButton from '@/components/EnrollButton';
 
 export default async function CoursesPage() {
   const session = await auth();
@@ -138,14 +139,15 @@ export default async function CoursesPage() {
                 }`}
               >
                 <div className="p-6">
-                  {enrolledCourseIds.has(course.id) && (
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mb-2">
-                      Enrolled
-                    </span>
-                  )}
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {course.title}
-                  </h3>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      {course.title}
+                    </h3>
+                    <EnrollButton
+                      courseId={course.id}
+                      isEnrolled={enrolledCourseIds.has(course.id)}
+                    />
+                  </div>
                   <p className="text-gray-600 mb-4 line-clamp-2">
                     {course.description || 'No description'}
                   </p>
