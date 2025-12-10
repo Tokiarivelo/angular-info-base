@@ -55,6 +55,11 @@ export default async function ChapterPage({ params }: PageProps) {
         chapterId: chapterId,
       },
     },
+    include: {
+      screenshots: {
+        orderBy: { createdAt: 'desc' },
+      },
+    },
   });
 
   return (
