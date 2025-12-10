@@ -336,12 +336,14 @@ export async function removeScreenshotFromProgress(
   // Optionally delete from Cloudinary if publicId exists
   if (screenshot.publicId) {
     try {
-      await fetch(
-        `/api/upload?publicId=${encodeURIComponent(screenshot.publicId)}`,
-        {
-          method: 'DELETE',
-        }
-      );
+      // Import cloudinary to delete directly
+      const { v2: cloudinary } = await import('cloudinary');
+      cloudinary.config({
+        cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+      await cloudinary.uploader.destroy(screenshot.publicId);
     } catch (error) {
       console.error('Failed to delete from Cloudinary:', error);
       // Continue even if Cloudinary deletion fails
