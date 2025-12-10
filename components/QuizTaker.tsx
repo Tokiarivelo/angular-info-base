@@ -93,7 +93,8 @@ export default function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
               </div>
             ) : (
               <div className="text-red-600 font-semibold text-lg">
-                You didn't pass this time. (Required: {quiz.passingScore}%)
+                You didn&apos;t pass this time. (Required: {quiz.passingScore}
+                %)
               </div>
             )}
           </div>
