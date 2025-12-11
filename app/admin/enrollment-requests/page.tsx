@@ -4,14 +4,14 @@ import EnrollmentRequestsList from '@/components/admin/EnrollmentRequestsList';
 export default async function EnrollmentRequestsPage() {
   const requests = await prisma.enrollmentRequest.findMany({
     include: {
-      user: {
+      User: {
         select: {
           id: true,
           name: true,
           email: true,
         },
       },
-      course: {
+      Course: {
         select: {
           id: true,
           title: true,
