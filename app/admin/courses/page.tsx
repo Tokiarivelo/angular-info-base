@@ -6,8 +6,8 @@ export default async function AdminCoursesPage() {
     include: {
       _count: {
         select: {
-          chapters: true,
-          enrollments: true,
+          Chapter: true,
+          CourseEnrollment: true,
         },
       },
     },
@@ -41,8 +41,8 @@ export default async function AdminCoursesPage() {
                 {course.description || 'No description'}
               </p>
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                <span>{course._count.chapters} chapters</span>
-                <span>{course._count.enrollments} enrollments</span>
+                <span>{course._count.Chapter} chapters</span>
+                <span>{course._count.CourseEnrollment} enrollments</span>
               </div>
               <div className="flex space-x-2">
                 <Link

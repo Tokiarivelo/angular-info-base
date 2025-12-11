@@ -14,16 +14,16 @@ export default async function AdminCoursePage({ params }: PageProps) {
   const course = await prisma.course.findUnique({
     where: { id },
     include: {
-      chapters: {
+      Chapter: {
         orderBy: { order: 'asc' },
         include: {
           _count: {
-            select: { quizzes: true, userProgress: true },
+            select: { Quiz: true, UserChapterProgress: true },
           },
         },
       },
       _count: {
-        select: { enrollments: true },
+        select: { CourseEnrollment: true },
       },
     },
   });
@@ -48,7 +48,7 @@ export default async function AdminCoursePage({ params }: PageProps) {
           {course.title}
         </h1>
         <div className="text-gray-600">
-          {course._count.enrollments} enrollments
+          {course._count.CourseEnrollment} enrollments
         </div>
       </div>
 
@@ -60,9 +60,9 @@ export default async function AdminCoursePage({ params }: PageProps) {
           </h2>
           <div className="space-y-2">
             <Link
-              href={`/courses/chapter/${course.chapters[0]?.id || ''}`}
+              href={`/courses/chapter/${course.Chapter[0]?.id || ''}`}
               className={`block w-full px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 ${
-                !course.chapters[0] ? 'opacity-50 pointer-events-none' : ''
+                !course.Chapter[0] ? 'opacity-50 pointer-events-none' : ''
               }`}
             >
               Preview First Chapter
@@ -71,7 +71,7 @@ export default async function AdminCoursePage({ params }: PageProps) {
         </div>
       </div>
 
-      <ChaptersList courseId={course.id} chapters={course.chapters} />
+      <ChaptersList courseId={course.id} chapters={course.Chapter} />
     </div>
   );
 }
