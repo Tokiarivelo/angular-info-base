@@ -17,9 +17,9 @@ export default async function CoursesPage() {
   const enrollments = await prisma.courseEnrollment.findMany({
     where: { userId: session.user.id },
     include: {
-      course: {
+      Course: {
         include: {
-          chapters: {
+          Chapter: {
             orderBy: { order: 'asc' },
           },
         },
@@ -31,7 +31,7 @@ export default async function CoursesPage() {
   const enrollmentRequests = await prisma.enrollmentRequest.findMany({
     where: { userId: session.user.id },
     include: {
-      course: true,
+      Course: true,
     },
   });
 
@@ -44,19 +44,19 @@ export default async function CoursesPage() {
   // Get all courses for browsing
   const allCourses = await prisma.course.findMany({
     include: {
-      chapters: {
+      Chapter: {
         orderBy: { order: 'asc' },
       },
       _count: {
-        select: { chapters: true },
+        select: { Chapter: true },
       },
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  const enrolledCourseIds = new Set(enrollments.map((e) => e.course.id));
+  const enrolledCourseIds = new Set(enrollments.map((e) => e.Course.id));
   const requestedCourseIds = new Set(
-    enrollmentRequests.map((r) => r.course.id)
+    enrollmentRequests.map((r) => r.Course.id)
   );
 
   return (
@@ -113,7 +113,7 @@ export default async function CoursesPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          {request.course.title}
+                          {request.Course.title}
                         </h3>
                         <p className="text-sm text-gray-600">
                           Status:{' '}
@@ -197,16 +197,16 @@ export default async function CoursesPage() {
                 >
                   <div className="p-6">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {enrollment.course.title}
+                      {enrollment.Course.title}
                     </h3>
                     <p className="text-gray-600 mb-4 line-clamp-2">
-                      {enrollment.course.description || 'No description'}
+                      {enrollment.Course.description || 'No description'}
                     </p>
                     <div className="text-sm text-gray-500 mb-4">
-                      {enrollment.course.chapters.length} chapters
+                      {enrollment.Course.Chapter.length} chapters
                     </div>
                     <div className="space-y-2">
-                      {enrollment.course.chapters.map((chapter) => (
+                      {enrollment.Course.Chapter.map((chapter) => (
                         <Link
                           key={chapter.id}
                           href={`/courses/chapter/${chapter.id}`}

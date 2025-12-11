@@ -21,15 +21,15 @@ export default async function ChapterPage({ params }: PageProps) {
   const chapter = await prisma.chapter.findUnique({
     where: { id: chapterId },
     include: {
-      course: true,
-      checklists: {
+      Course: true,
+      Checklist: {
         include: {
-          items: true,
+          ChecklistItem: true,
         },
       },
-      quizzes: {
+      Quiz: {
         include: {
-          questions: {
+          QuizQuestion: {
             orderBy: { order: 'asc' },
           },
         },
@@ -135,7 +135,7 @@ export default async function ChapterPage({ params }: PageProps) {
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <div className="mb-4">
               <span className="text-sm text-gray-500">
-                {chapter.course.title}
+                {chapter.Course.title}
               </span>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -172,13 +172,13 @@ export default async function ChapterPage({ params }: PageProps) {
           </div>
 
           {/* Chapter Checklists */}
-          {chapter.checklists.length > 0 && (
+          {chapter.Checklist.length > 0 && (
             <div className="bg-white rounded-lg shadow p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Checklists
               </h2>
               <div className="space-y-4">
-                {chapter.checklists.map((checklist) => (
+                {chapter.Checklist.map((checklist) => (
                   <div key={checklist.id} className="border rounded-lg p-4">
                     <h3 className="font-semibold text-gray-900 mb-2">
                       {checklist.title}
@@ -189,7 +189,7 @@ export default async function ChapterPage({ params }: PageProps) {
                       </p>
                     )}
                     <ul className="space-y-1">
-                      {checklist.items.map((item) => (
+                      {checklist.ChecklistItem.map((item) => (
                         <li key={item.id} className="text-sm text-gray-700">
                           • {item.title}
                         </li>
@@ -233,9 +233,9 @@ export default async function ChapterPage({ params }: PageProps) {
           )}
 
           {/* Quizzes Section */}
-          {chapter.quizzes.length > 0 && (
+          {chapter.Quiz.length > 0 && (
             <div className="space-y-6">
-              {chapter.quizzes.map((quiz) => (
+              {chapter.Quiz.map((quiz) => (
                 <div key={quiz.id}>
                   <QuizTaker quiz={quiz} />
                 </div>

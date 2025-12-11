@@ -7,7 +7,6 @@ datasource db {
 }
 
 model Account {
-  id                String  @id
   userId            String
   type              String
   provider          String
@@ -21,7 +20,7 @@ model Account {
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@id([provider, providerAccountId])
   @@index([userId])
 }
 

@@ -8,12 +8,12 @@ interface EnrollmentRequest {
   status: string;
   message: string | null;
   createdAt: Date;
-  user: {
+  User: {
     id: string;
     name: string | null;
     email: string;
   };
-  course: {
+  Course: {
     id: string;
     title: string;
   };
@@ -58,12 +58,12 @@ export default function EnrollmentRequestsList({
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900 text-lg">
-                      {request.course.title}
+                      {request.Course.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
                       Requested by:{' '}
                       <span className="font-medium">
-                        {request.user.name || request.user.email}
+                        {request.User.name || request.User.email}
                       </span>
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
@@ -117,10 +117,10 @@ export default function EnrollmentRequestsList({
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      {request.course.title}
+                      {request.Course.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      User: {request.user.name || request.user.email}
+                      User: {request.User.name || request.User.email}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Status:{' '}

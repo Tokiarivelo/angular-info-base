@@ -4,7 +4,7 @@ import CourseRequestsList from '@/components/admin/CourseRequestsList';
 export default async function CourseRequestsPage() {
   const requests = await prisma.courseRequest.findMany({
     include: {
-      user: {
+      User: {
         select: {
           id: true,
           name: true,

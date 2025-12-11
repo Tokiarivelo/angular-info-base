@@ -10,7 +10,7 @@ interface CourseRequest {
   reason: string | null;
   status: string;
   createdAt: Date;
-  user: {
+  User: {
     id: string;
     name: string | null;
     email: string;
@@ -68,7 +68,7 @@ export default function CourseRequestsList({
                   <p className="text-sm text-gray-600 mt-1">
                     Requested by:{' '}
                     <span className="font-medium">
-                      {request.user.name || request.user.email}
+                      {request.User.name || request.User.email}
                     </span>
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -139,7 +139,7 @@ export default function CourseRequestsList({
                       {request.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      User: {request.user.name || request.user.email}
+                      User: {request.User.name || request.User.email}
                     </p>
                   </div>
                   <div className="flex space-x-2">
@@ -187,7 +187,7 @@ export default function CourseRequestsList({
                       {request.title}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
-                      User: {request.user.name || request.user.email}
+                      User: {request.User.name || request.User.email}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Status:{' '}

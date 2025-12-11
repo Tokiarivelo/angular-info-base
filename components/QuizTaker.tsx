@@ -5,14 +5,14 @@ import { submitQuiz } from '@/lib/actions';
 import { Quiz, QuizQuestion } from '@prisma/client';
 
 interface QuizTakerProps {
-  quiz: Quiz & { questions: QuizQuestion[] };
+  quiz: Quiz & { QuizQuestion: QuizQuestion[] };
   onComplete?: () => void;
 }
 
 export default function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>(
-    new Array(quiz.questions.length).fill(-1)
+    new Array(quiz.QuizQuestion.length).fill(-1)
   );
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<{
@@ -21,7 +21,7 @@ export default function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const sortedQuestions = quiz.questions.sort((a, b) => a.order - b.order);
+  const sortedQuestions = quiz.QuizQuestion.sort((a, b) => a.order - b.order);
   const question = sortedQuestions[currentQuestion];
   const isLastQuestion = currentQuestion === sortedQuestions.length - 1;
   const isFirstQuestion = currentQuestion === 0;
@@ -67,7 +67,7 @@ export default function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
 
   const handleRetake = () => {
     setCurrentQuestion(0);
-    setAnswers(new Array(quiz.questions.length).fill(-1));
+    setAnswers(new Array(quiz.QuizQuestion.length).fill(-1));
     setShowResults(false);
     setResults(null);
   };

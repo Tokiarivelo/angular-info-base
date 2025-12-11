@@ -7,7 +7,7 @@ import { Chapter } from '@prisma/client';
 interface ChaptersListProps {
   courseId: string;
   chapters: (Chapter & {
-    _count: { quizzes: number; userProgress: number };
+    _count: { Quiz: number; UserChapterProgress: number };
   })[];
 }
 
@@ -140,8 +140,8 @@ export default function ChaptersList({
                     </p>
                   )}
                   <div className="flex gap-4 text-xs text-gray-500">
-                    <span>{chapter._count.quizzes} quizzes</span>
-                    <span>{chapter._count.userProgress} progress entries</span>
+                    <span>{chapter._count.Quiz} quizzes</span>
+                    <span>{chapter._count.UserChapterProgress} progress entries</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
