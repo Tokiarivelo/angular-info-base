@@ -5,7 +5,8 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma, prismaAuth } from './prisma';
 import bcrypt from 'bcrypt';
 import type { Provider } from 'next-auth/providers';
-import type { UserRole } from '@prisma/client';
+
+type UserRole = 'USER' | 'ADMIN';
 
 declare module 'next-auth' {
   interface Session {

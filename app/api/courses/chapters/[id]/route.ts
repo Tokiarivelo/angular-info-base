@@ -51,7 +51,7 @@ export async function GET(request: Request, { params }: RouteParams) {
         },
       },
       include: {
-        screenshots: {
+        Screenshot: {
           orderBy: { createdAt: 'desc' },
         },
       },
@@ -64,7 +64,15 @@ export async function GET(request: Request, { params }: RouteParams) {
       select: { id: true, title: true, order: true },
     });
 
-    return NextResponse.json({ chapter, progress, allChapters });
+    // Transform Screenshot to screenshots for consistency
+    return NextResponse.json({ 
+      chapter, 
+      progress: progress ? {
+        ...progress,
+        screenshots: progress.Screenshot,
+      } : null, 
+      allChapters 
+    });
   } catch (error) {
     console.error('Error fetching chapter:', error);
     return NextResponse.json(

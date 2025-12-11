@@ -7,11 +7,11 @@ interface EnrollmentRequest {
   id: string;
   status: string;
   message: string | null;
-  createdAt: Date;
+  createdAt: Date | string;
   User: {
     id: string;
     name: string | null;
-    email: string;
+    email: string | null;
   };
   Course: {
     id: string;

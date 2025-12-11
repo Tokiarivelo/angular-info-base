@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     const checklist = await prisma.checklist.findUnique({
       where: { id },
       include: {
-        items: {
+        ChecklistItem: {
           orderBy: { order: 'asc' },
         },
       },
@@ -36,7 +36,11 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    return NextResponse.json(checklist);
+    // Transform ChecklistItem to items for consistency
+    return NextResponse.json({
+      ...checklist,
+      items: checklist.ChecklistItem,
+    });
   } catch (error) {
     console.error('Error fetching checklist:', error);
     return NextResponse.json(

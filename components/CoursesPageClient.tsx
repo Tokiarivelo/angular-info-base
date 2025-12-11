@@ -9,8 +9,9 @@ interface Course {
   id: string;
   title: string;
   description: string | null;
-  _count: {
-    chapters: number;
+  _count?: {
+    Chapter?: number;
+    chapters?: number;
   };
 }
 
@@ -81,7 +82,7 @@ export default function CoursesPageClient({
                   {course.description || 'No description'}
                 </p>
                 <div className="text-sm text-gray-500">
-                  {course._count.chapters} chapters
+                  {course._count?.Chapter || course._count?.chapters || 0} chapters
                 </div>
               </div>
             </div>

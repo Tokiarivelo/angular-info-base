@@ -14,11 +14,17 @@ export async function GET() {
       where: { ownerId: session.user.id },
       orderBy: { createdAt: 'desc' },
       include: {
-        items: true,
+        ChecklistItem: true,
       },
     });
 
-    return NextResponse.json(checklists);
+    // Transform ChecklistItem to items for consistency
+    const transformedChecklists = checklists.map((checklist) => ({
+      ...checklist,
+      items: checklist.ChecklistItem,
+    }));
+
+    return NextResponse.json(transformedChecklists);
   } catch (error) {
     console.error('Error fetching checklists:', error);
     return NextResponse.json(
