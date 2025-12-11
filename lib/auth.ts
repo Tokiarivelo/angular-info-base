@@ -2,7 +2,7 @@ import NextAuth, { DefaultSession } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import { prisma } from './prisma';
+import { prisma, prismaAuth } from './prisma';
 import bcrypt from 'bcrypt';
 import type { Provider } from 'next-auth/providers';
 import type { UserRole } from '@prisma/client';
@@ -68,7 +68,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prismaAuth),
   providers,
   session: {
     strategy: 'jwt',

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,275 +6,242 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
-  USER
-  ADMIN
-}
-
-enum EnrollmentRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum CourseRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  IN_PROGRESS
-}
-
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  name          String?
-  image         String?
-  password      String?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-
-  checklists           Checklist[]
-  accounts             Account[]
-  sessions             Session[]
-  courseEnrollments    CourseEnrollment[]
-  chapterProgress      UserChapterProgress[]
-  screenshots          Screenshot[]
-  quizSubmissions      QuizSubmission[]
-  enrollmentRequests   EnrollmentRequest[]
-  courseRequests       CourseRequest[]
-}
-
-model Course {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  chapters           Chapter[]
-  enrollments        CourseEnrollment[]
-  enrollmentRequests EnrollmentRequest[]
-
-  @@index([title])
-}
-
-model Chapter {
-  id             String   @id @default(cuid())
-  courseId       String
-  title          String
-  description    String?
-  content        String?  @db.Text // Rich text content for the chapter
-  livePreviewUrl String?  // URL for live preview of what user will learn
-  order          Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  course       Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  checklists   Checklist[]
-  userProgress UserChapterProgress[]
-  quizzes      Quiz[]
-
-  @@index([courseId])
-  @@index([order])
-}
-
-model CourseEnrollment {
-  id        String   @id @default(cuid())
-  userId    String
-  courseId  String
-  assignedBy String?  // Admin who assigned this course (null if self-enrolled)
-  createdAt DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@index([userId])
-  @@index([courseId])
-}
-
-model EnrollmentRequest {
-  id        String                   @id @default(cuid())
-  userId    String
-  courseId  String
-  message   String?                  @db.Text // Optional message from user
-  status    EnrollmentRequestStatus  @default(PENDING)
-  reviewedBy String?                 // Admin who reviewed the request
-  reviewedAt DateTime?
-  createdAt DateTime                 @default(now())
-  updatedAt DateTime                 @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseId])
-  @@index([userId])
-  @@index([courseId])
-  @@index([status])
-}
-
-model CourseRequest {
-  id          String              @id @default(cuid())
-  userId      String
-  title       String
-  description String?             @db.Text
-  reason      String?             @db.Text // Why user needs this course
-  status      CourseRequestStatus @default(PENDING)
-  reviewedBy  String?             // Admin who reviewed
-  reviewedAt  DateTime?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status])
-}
-
-model UserChapterProgress {
-  id            String   @id @default(cuid())
-  userId        String
-  chapterId     String
-  repositoryUrl String?  // Link to the repository for the chapter
-  websiteUrl    String?  // Link to the website created
-  completed     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter     Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  screenshots Screenshot[]
-
-  @@unique([userId, chapterId])
-  @@index([userId])
-  @@index([chapterId])
-}
-
-model Screenshot {
-  id         String   @id @default(cuid())
-  url        String   // Cloudinary URL or other cloud storage URL
-  publicId   String?  // Cloudinary public ID for deletion
-  userId     String
-  progressId String?  // Optional: link to UserChapterProgress
-  caption    String?
-  createdAt  DateTime @default(now())
-
-  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  progress UserChapterProgress? @relation(fields: [progressId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([progressId])
-}
-
-model Quiz {
-  id          String   @id @default(cuid())
-  chapterId   String
-  title       String
-  description String?
-  passingScore Int     @default(70) // Percentage required to pass
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  chapter     Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  questions   QuizQuestion[]
-  submissions QuizSubmission[]
-
-  @@index([chapterId])
-}
-
-model QuizQuestion {
-  id            String   @id @default(cuid())
-  quizId        String
-  question      String   @db.Text
-  options       String[] // Array of answer options
-  correctAnswer Int      // Index of the correct answer (0-based)
-  explanation   String?  @db.Text // Optional explanation shown after answering
-  order         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@index([quizId])
-  @@index([order])
-}
-
-model QuizSubmission {
-  id        String   @id @default(cuid())
-  userId    String
-  quizId    String
-  answers   Int[]    // Array of selected answer indices
-  score     Int      // Percentage score (0-100)
-  passed    Boolean  // Whether the user passed based on passingScore
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([quizId])
-  @@index([userId, quizId])
-}
-
-model Checklist {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  ownerId     String
-  chapterId   String? // Optional: checklist can belong to a chapter
-  createdAt   DateTime @default(now())
-
-  owner   User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  chapter Chapter?        @relation(fields: [chapterId], references: [id], onDelete: SetNull)
-  items   ChecklistItem[]
-
-  @@index([ownerId])
-  @@index([chapterId])
-}
-
-model ChecklistItem {
-  id          String   @id @default(cuid())
-  checklistId String
-  title       String
-  done        Boolean  @default(false)
-  order       Int?
-  notes       String?
-  updatedAt   DateTime @updatedAt
-
-  checklist Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
-
-  @@index([checklistId])
-}
-
-// NextAuth models
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
 
+model Chapter {
+  id                  String                @id
+  courseId            String
+  title               String
+  description         String?
+  content             String?
+  livePreviewUrl      String?
+  order               Int                   @default(0)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  Course              Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  Checklist           Checklist[]
+  Quiz                Quiz[]
+  UserChapterProgress UserChapterProgress[]
+
+  @@index([courseId])
+  @@index([order])
+}
+
+model Checklist {
+  id            String          @id
+  title         String
+  description   String?
+  ownerId       String
+  chapterId     String?
+  createdAt     DateTime        @default(now())
+  Chapter       Chapter?        @relation(fields: [chapterId], references: [id])
+  User          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ChecklistItem ChecklistItem[]
+
+  @@index([chapterId])
+  @@index([ownerId])
+}
+
+model ChecklistItem {
+  id          String    @id
+  checklistId String
+  title       String
+  done        Boolean   @default(false)
+  order       Int?
+  notes       String?
+  updatedAt   DateTime
+  Checklist   Checklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@index([checklistId])
+}
+
+model Course {
+  id                String              @id
+  title             String
+  description       String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  Chapter           Chapter[]
+  CourseEnrollment  CourseEnrollment[]
+  EnrollmentRequest EnrollmentRequest[]
+
+  @@index([title])
+}
+
+model CourseEnrollment {
+  id         String   @id
+  userId     String
+  courseId   String
+  assignedBy String?
+  createdAt  DateTime @default(now())
+  Course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([userId])
+}
+
+model CourseRequest {
+  id          String              @id
+  userId      String
+  title       String
+  description String?
+  reason      String?
+  status      CourseRequestStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime
+  User        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([userId])
+}
+
+model EnrollmentRequest {
+  id         String                  @id
+  userId     String
+  courseId   String
+  message    String?
+  status     EnrollmentRequestStatus @default(PENDING)
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime
+  Course     Course                  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  User       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([status])
+  @@index([userId])
+}
+
+model Quiz {
+  id             String           @id
+  chapterId      String
+  title          String
+  description    String?
+  passingScore   Int              @default(70)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  Chapter        Chapter          @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  QuizQuestion   QuizQuestion[]
+  QuizSubmission QuizSubmission[]
+
+  @@index([chapterId])
+}
+
+model QuizQuestion {
+  id            String   @id
+  quizId        String
+  question      String
+  options       String[]
+  correctAnswer Int
+  explanation   String?
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  Quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([order])
+  @@index([quizId])
+}
+
+model QuizSubmission {
+  id        String   @id
+  userId    String
+  quizId    String
+  answers   Int[]
+  score     Int
+  passed    Boolean
+  createdAt DateTime @default(now())
+  Quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([userId, quizId])
+}
+
+model Screenshot {
+  id                  String               @id
+  url                 String
+  publicId            String?
+  userId              String
+  progressId          String?
+  caption             String?
+  createdAt           DateTime             @default(now())
+  UserChapterProgress UserChapterProgress? @relation(fields: [progressId], references: [id], onDelete: Cascade)
+  User                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([progressId])
+  @@index([userId])
+}
+
 model Session {
-  id           String   @id @default(cuid())
+  id           String   @id
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+model User {
+  id                  String                @id
+  email               String                @unique
+  emailVerified       DateTime?
+  name                String?
+  image               String?
+  password            String?
+  role                UserRole              @default(USER)
+  createdAt           DateTime              @default(now())
+  Account             Account[]
+  Checklist           Checklist[]
+  CourseEnrollment    CourseEnrollment[]
+  CourseRequest       CourseRequest[]
+  EnrollmentRequest   EnrollmentRequest[]
+  QuizSubmission      QuizSubmission[]
+  Screenshot          Screenshot[]
+  Session             Session[]
+  UserChapterProgress UserChapterProgress[]
+}
+
+model UserChapterProgress {
+  id            String       @id
+  userId        String
+  chapterId     String
+  repositoryUrl String?
+  websiteUrl    String?
+  completed     Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime
+  Screenshot    Screenshot[]
+  Chapter       Chapter      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  User          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([chapterId])
   @@index([userId])
 }
 
@@ -287,4 +251,22 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum CourseRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+}
+
+enum EnrollmentRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
