@@ -1,77 +1,19 @@
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import CourseEditForm from '@/components/admin/CourseEditForm';
-import ChaptersList from '@/components/admin/ChaptersList';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import AdminCoursePageClient from '@/components/admin/AdminCoursePageClient';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function AdminCoursePage({ params }: PageProps) {
-  const { id } = await params;
+  const session = await auth();
 
-  const course = await prisma.course.findUnique({
-    where: { id },
-    include: {
-      Chapter: {
-        orderBy: { order: 'asc' },
-        include: {
-          _count: {
-            select: { Quiz: true, UserChapterProgress: true },
-          },
-        },
-      },
-      _count: {
-        select: { CourseEnrollment: true },
-      },
-    },
-  });
-
-  if (!course) {
-    notFound();
+  if (!session?.user?.id || session.user.role !== 'ADMIN') {
+    redirect('/signin');
   }
 
-  return (
-    <div>
-      <div className="mb-6">
-        <Link
-          href="/admin/courses"
-          className="text-blue-600 hover:text-blue-800 text-sm"
-        >
-          ← Back to Courses
-        </Link>
-      </div>
+  const { id } = await params;
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {course.title}
-        </h1>
-        <div className="text-gray-600">
-          {course._count.CourseEnrollment} enrollments
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2 mb-8">
-        <CourseEditForm course={course} />
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Quick Actions
-          </h2>
-          <div className="space-y-2">
-            <Link
-              href={`/courses/chapter/${course.Chapter[0]?.id || ''}`}
-              className={`block w-full px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 ${
-                !course.Chapter[0] ? 'opacity-50 pointer-events-none' : ''
-              }`}
-            >
-              Preview First Chapter
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <ChaptersList courseId={course.id} chapters={course.Chapter} />
-    </div>
-  );
+  return <AdminCoursePageClient id={id} />;
 }
