@@ -129,6 +129,8 @@ Push the schema to your database:
 npm run prisma:push
 ```
 
+> **⚠️ Upgrading from an earlier version?** If you're upgrading and have existing OAuth accounts, see [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for important schema changes to the Account model (NextAuth v5 compatibility).
+
 ### 8. (Optional) Seed the database
 
 ```bash

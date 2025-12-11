@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- **Auth Error**: Fixed "Invalid `p.account.findUnique()` invocation" error when NextAuth v5 PrismaAdapter calls `getUserByAccount()`
+- **Schema Update**: Updated Account model to use composite primary key `@@id([provider, providerAccountId])` instead of separate `id` field
+- **NextAuth v5 Compatibility**: Ensures proper compatibility with `@auth/prisma-adapter` v2.6.0+
+
+### Changed
+- Added `package-lock.json` to `.gitignore` as project uses `bun.lock`
+
 ## [0.1.0] - 2024-11-01
 
 ### Initial Release
