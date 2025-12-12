@@ -105,10 +105,10 @@ export async function toggleChecklistItem(itemId: string, done: boolean) {
 
   const item = await prisma.checklistItem.findUnique({
     where: { id: itemId },
-    include: { checklist: true },
+    include: { Checklist: true },
   });
 
-  if (!item || item.checklist.ownerId !== session.user.id) {
+  if (!item || item.Checklist.ownerId !== session.user.id) {
     throw new Error('Unauthorized');
   }
 
@@ -120,10 +120,7 @@ export async function toggleChecklistItem(itemId: string, done: boolean) {
   revalidatePath(`/checklist/${item.checklistId}`);
 }
 
-export async function updateChecklistItem(
-  itemId: string,
-  formData: FormData
-) {
+export async function updateChecklistItem(itemId: string, formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
@@ -131,10 +128,10 @@ export async function updateChecklistItem(
 
   const item = await prisma.checklistItem.findUnique({
     where: { id: itemId },
-    include: { checklist: true },
+    include: { Checklist: true },
   });
 
-  if (!item || item.checklist.ownerId !== session.user.id) {
+  if (!item || item.Checklist.ownerId !== session.user.id) {
     throw new Error('Unauthorized');
   }
 
@@ -164,10 +161,10 @@ export async function deleteChecklistItem(itemId: string) {
 
   const item = await prisma.checklistItem.findUnique({
     where: { id: itemId },
-    include: { checklist: true },
+    include: { Checklist: true },
   });
 
-  if (!item || item.checklist.ownerId !== session.user.id) {
+  if (!item || item.Checklist.ownerId !== session.user.id) {
     throw new Error('Unauthorized');
   }
 
@@ -175,7 +172,7 @@ export async function deleteChecklistItem(itemId: string) {
     where: { id: itemId },
   });
 
-  revalidatePath(`/checklist/${item.checklistId}`);
+  revalidatePath(`/checklist/${item.Checklist.id}`);
 }
 
 export async function createChecklistFromFile(formData: FormData) {
@@ -205,7 +202,7 @@ export async function createChecklistFromFile(formData: FormData) {
   const checklist = await prisma.$transaction(async (tx: any) => {
     const newChecklist = await tx.checklist.create({
       data: {
-      id: randomUUID(),
+        id: randomUUID(),
         title: parsedChecklist.title,
         description: parsedChecklist.description,
         ownerId: userId,
@@ -393,10 +390,7 @@ export async function toggleChapterCompletion(
 }
 
 // Quiz Actions
-export async function submitQuiz(
-  quizId: string,
-  answers: number[]
-) {
+export async function submitQuiz(quizId: string, answers: number[]) {
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
@@ -407,7 +401,7 @@ export async function submitQuiz(
   // Get quiz with questions
   const quiz = await prisma.quiz.findUnique({
     where: { id: quizId },
-    include: { questions: { orderBy: { order: 'asc' } } },
+    include: { QuizQuestion: { orderBy: { order: 'asc' } } },
   });
 
   if (!quiz) {
@@ -416,13 +410,13 @@ export async function submitQuiz(
 
   // Calculate score
   let correctCount = 0;
-  quiz.questions.forEach((question: any, index: number) => {
+  quiz.QuizQuestion.forEach((question: any, index: number) => {
     if (answers[index] === question.correctAnswer) {
       correctCount++;
     }
   });
 
-  const score = Math.round((correctCount / quiz.questions.length) * 100);
+  const score = Math.round((correctCount / quiz.QuizQuestion.length) * 100);
   const passed = score >= quiz.passingScore;
 
   // Save submission
@@ -716,7 +710,7 @@ export async function deleteQuizQuestion(questionId: string) {
 
   const question = await prisma.quizQuestion.findUnique({
     where: { id: questionId },
-    include: { quiz: true },
+    include: { Quiz: true },
   });
 
   if (!question) {
@@ -728,7 +722,7 @@ export async function deleteQuizQuestion(questionId: string) {
   });
 
   revalidatePath(`/admin/courses`);
-  revalidatePath(`/courses/chapter/${question.quiz.chapterId}`);
+  revalidatePath(`/courses/chapter/${question.Quiz.chapterId}`);
 }
 
 // User enrollment action
