@@ -2,7 +2,26 @@
 
 import { useState, useTransition } from 'react';
 import { submitQuiz } from '@/lib/actions';
-import { Quiz, QuizQuestion } from '@prisma/client';
+
+interface QuizQuestion {
+  id: string;
+  quizId?: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string | null;
+  order: number;
+}
+
+interface Quiz {
+  id: string;
+  chapterId: string;
+  title: string;
+  description: string | null;
+  passingScore: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface QuizTakerProps {
   quiz: Quiz & { QuizQuestion: QuizQuestion[] };

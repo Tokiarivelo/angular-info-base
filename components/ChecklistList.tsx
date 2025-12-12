@@ -8,7 +8,7 @@ type ChecklistWithItems = {
   id: string;
   title: string;
   description: string | null;
-  createdAt: Date;
+  createdAt: Date | string;
   items: Array<{
     id: string;
     done: boolean;

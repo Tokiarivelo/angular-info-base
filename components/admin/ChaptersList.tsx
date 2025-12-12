@@ -2,7 +2,18 @@
 
 import { useState, useTransition } from 'react';
 import { createChapter, deleteChapter } from '@/lib/actions';
-import { Chapter } from '@prisma/client';
+
+interface Chapter {
+  id: string;
+  courseId?: string;
+  title: string;
+  description: string | null;
+  content?: string | null;
+  livePreviewUrl?: string | null;
+  order: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface ChaptersListProps {
   courseId: string;

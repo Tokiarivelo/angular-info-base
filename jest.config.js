@@ -12,10 +12,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',
@@ -24,6 +21,7 @@ const customJestConfig = {
     '!**/node_modules/**',
     '!**/.next/**',
   ],
+  transformIgnorePatterns: ['/node_modules/(?!(next-auth|@auth)/)'],
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

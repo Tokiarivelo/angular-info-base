@@ -9,11 +9,11 @@ interface CourseRequest {
   description: string | null;
   reason: string | null;
   status: string;
-  createdAt: Date;
+  createdAt: Date | string;
   User: {
     id: string;
     name: string | null;
-    email: string;
+    email: string | null;
   };
 }
 

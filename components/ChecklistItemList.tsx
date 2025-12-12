@@ -12,7 +12,7 @@ type ChecklistItem = {
   title: string;
   done: boolean;
   notes: string | null;
-  updatedAt: Date;
+  updatedAt: Date | string;
 };
 
 export default function ChecklistItemList({

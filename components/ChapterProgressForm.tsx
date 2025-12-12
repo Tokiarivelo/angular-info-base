@@ -7,7 +7,28 @@ import {
   removeScreenshotFromProgress,
   toggleChapterCompletion,
 } from '@/lib/actions';
-import { UserChapterProgress, Screenshot } from '@prisma/client';
+
+interface Screenshot {
+  id: string;
+  url: string;
+  publicId: string | null;
+  caption: string | null;
+  userId?: string;
+  progressId?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface UserChapterProgress {
+  id: string;
+  userId: string;
+  chapterId: string;
+  repositoryUrl: string | null;
+  websiteUrl: string | null;
+  completed: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface ChapterProgressFormProps {
   chapterId: string;

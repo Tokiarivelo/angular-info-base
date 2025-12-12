@@ -3,7 +3,14 @@
 import { useTransition, useState } from 'react';
 import { updateCourse, deleteCourse } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
-import { Course } from '@prisma/client';
+
+interface Course {
+  id: string;
+  title: string;
+  description: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface CourseEditFormProps {
   course: Course;

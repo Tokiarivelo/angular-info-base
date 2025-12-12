@@ -41,7 +41,7 @@ async function main() {
       title: 'Angular Fundamentals',
       description: 'Master the basics of Angular framework',
       ownerId: user.id,
-      items: {
+      ChecklistItem: {
         create: [
           {
             title: 'Install Angular CLI',
@@ -112,7 +112,7 @@ async function main() {
       description: 'Complete these tasks for HTML & CSS chapter',
       ownerId: adminUser.id,
       chapterId: chapter1.id,
-      items: {
+      ChecklistItem: {
         create: [
           {
             title: 'Create a basic HTML page',
@@ -140,7 +140,7 @@ async function main() {
       description: 'Complete these tasks for JavaScript chapter',
       ownerId: adminUser.id,
       chapterId: chapter2.id,
-      items: {
+      ChecklistItem: {
         create: [
           {
             title: 'Learn variables and data types',
@@ -195,7 +195,7 @@ async function main() {
       title: 'HTML & CSS Basics Quiz',
       description: 'Test your knowledge of HTML and CSS fundamentals',
       passingScore: 70,
-      questions: {
+      QuizQuestion: {
         create: [
           {
             question: 'What does HTML stand for?',
@@ -219,7 +219,8 @@ async function main() {
             order: 1,
           },
           {
-            question: 'What is the correct HTML element for the largest heading?',
+            question:
+              'What is the correct HTML element for the largest heading?',
             options: ['<heading>', '<h6>', '<h1>', '<head>'],
             correctAnswer: 2,
             explanation:
@@ -237,7 +238,7 @@ async function main() {
       title: 'JavaScript Fundamentals Quiz',
       description: 'Evaluate your understanding of JavaScript basics',
       passingScore: 70,
-      questions: {
+      QuizQuestion: {
         create: [
           {
             question: 'Which of the following is a JavaScript data type?',
