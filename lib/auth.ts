@@ -5,7 +5,6 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from './prisma';
 import bcrypt from 'bcrypt';
 import type { Provider } from 'next-auth/providers';
-import type { Adapter } from '@auth/core/adapters';
 
 type UserRole = 'USER' | 'ADMIN';
 
@@ -70,7 +69,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(prisma),
   providers,
   session: {
     strategy: 'jwt',
