@@ -1,13 +1,14 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
-  id                String  @id @default(uuid())
   userId            String
   type              String
   provider          String
@@ -19,6 +20,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
+  id                String  @id @default(uuid())
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])

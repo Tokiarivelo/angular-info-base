@@ -38,7 +38,11 @@ async function fetchChecklists(): Promise<Checklist[]> {
 }
 
 export default function ChecklistPageClient() {
-  const { data: checklists, isLoading, error } = useQuery({
+  const {
+    data: checklists,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['checklists'],
     queryFn: fetchChecklists,
   });
@@ -176,12 +180,17 @@ export default function ChecklistPageClient() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              My Checklists
-            </h1>
+      <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+        <div className="px-4 py-8 sm:px-0">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+                My Checklists
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage your tasks and track your progress.
+              </p>
+            </div>
             <div className="flex flex-wrap gap-3">
               <CreateChecklistForm />
               <FileUploadChecklistForm />
