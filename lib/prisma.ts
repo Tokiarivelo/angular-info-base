@@ -1,4 +1,4 @@
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient } from '@prisma/client';
 import { neonConfig } from '@neondatabase/serverless';
 
 const connectionString = process.env.DATABASE_URL;
