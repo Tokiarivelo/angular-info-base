@@ -62,7 +62,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       httpOptions: {
-        timeout: 10000,
+        timeout: 40000, // Increased to 40 seconds for slow database/network
       },
     } as any)
   );
