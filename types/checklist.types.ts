@@ -9,6 +9,25 @@ export const checklistFormSchema = z.object({
 // TypeScript type inferred from Zod schema
 export type ChecklistFormData = z.infer<typeof checklistFormSchema>;
 
+import { BaseEntity } from './shared.types';
+
+// Checklist Item Entity
+export interface ChecklistItem extends BaseEntity {
+  title: string;
+  notes: string | null;
+  done: boolean;
+  order: number;
+  checklistId: string;
+}
+
+// Checklist Entity
+export interface Checklist extends BaseEntity {
+  title: string;
+  description: string | null;
+  ownerId: string;
+  items: ChecklistItem[];
+}
+
 // Checklist store state type
 export interface ChecklistStoreState {
   isCreateModalOpen: boolean;
