@@ -9,5 +9,5 @@ export default async function CoursesPage() {
     redirect('/signin');
   }
 
-  return <CoursesPageClientWrapper />;
+  return <CoursesPageClientWrapper user={session.user} />;
 }

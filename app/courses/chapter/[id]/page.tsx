@@ -14,5 +14,5 @@ export default async function ChapterPage({ params }: PageProps) {
 
   const { id: chapterId } = await params;
 
-  return <ChapterPageClient id={chapterId} />;
+  return <ChapterPageClient id={chapterId} user={session.user} />;
 }

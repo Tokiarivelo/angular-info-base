@@ -10,8 +10,12 @@ export default function FileUploadChecklistForm() {
     error,
     isPending,
     fileInputRef,
+    isDragActive,
     handleFormSubmit,
     handleFileChange,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
     handleCancel,
   } = useFileUploadChecklist();
 
@@ -51,7 +55,16 @@ export default function FileUploadChecklistForm() {
           >
             Upload CSV or Markdown file
           </label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-indigo-400 transition-colors bg-gray-50/50">
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-xl transition-colors ${
+              isDragActive
+                ? 'border-indigo-500 bg-indigo-50'
+                : 'border-gray-300 hover:border-indigo-400 bg-gray-50/50'
+            }`}
+          >
             <div className="space-y-1 text-center">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"

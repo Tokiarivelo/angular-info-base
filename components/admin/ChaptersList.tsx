@@ -75,7 +75,10 @@ export default function ChaptersList({
       </div>
 
       {isAdding && (
-        <form onSubmit={handleAddChapter} className="mb-6 p-4 border rounded-lg">
+        <form
+          onSubmit={handleAddChapter}
+          className="mb-6 p-4 border rounded-lg"
+        >
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -85,7 +88,7 @@ export default function ChaptersList({
                 type="text"
                 name="title"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -95,7 +98,7 @@ export default function ChaptersList({
               <textarea
                 name="description"
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -110,7 +113,7 @@ export default function ChaptersList({
                     ? Math.max(...chapters.map((c) => c.order)) + 1
                     : 0
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <button
@@ -152,7 +155,9 @@ export default function ChaptersList({
                   )}
                   <div className="flex gap-4 text-xs text-gray-500">
                     <span>{chapter._count.Quiz} quizzes</span>
-                    <span>{chapter._count.UserChapterProgress} progress entries</span>
+                    <span>
+                      {chapter._count.UserChapterProgress} progress entries
+                    </span>
                   </div>
                 </div>
                 <div className="flex gap-2">

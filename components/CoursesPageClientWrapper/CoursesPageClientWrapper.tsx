@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Header from '@/components/shared/Header/Header';
 import CoursesPageClient from '@/components/CoursesPageClient';
 import { useCoursesData } from './CoursesPageClientWrapper.hooks';
 
-export default function CoursesPageClientWrapper() {
+import { User } from 'next-auth';
+
+export default function CoursesPageClientWrapper({ user }: { user: User }) {
   const {
     enrollments,
     enrollmentRequests,
@@ -16,7 +19,7 @@ export default function CoursesPageClientWrapper() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <Header user={user} variant="user" />
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
@@ -36,7 +39,7 @@ export default function CoursesPageClientWrapper() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Header user={user} variant="user" />
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
@@ -170,38 +173,5 @@ export default function CoursesPageClientWrapper() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Navbar() {
-  return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/checklist" className="text-xl font-bold text-gray-900">
-              Angular Checklist
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/courses"
-              className="text-gray-700 hover:text-gray-900 font-medium"
-            >
-              Courses
-            </Link>
-            <Link
-              href="/checklist"
-              className="text-gray-700 hover:text-gray-900"
-            >
-              Checklists
-            </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-gray-900">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </div>
-    </nav>
   );
 }

@@ -1,18 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import Header from '@/components/shared/Header/Header';
 import { useChecklists } from './ChecklistPageClient.hooks';
 import ChecklistList from '@/components/ChecklistList';
 import CreateChecklistForm from '@/components/CreateChecklistForm';
 import FileUploadChecklistForm from '@/components/FileUploadChecklistForm';
 
-export default function ChecklistPageClient() {
+import { User } from 'next-auth';
+
+export default function ChecklistPageClient({ user }: { user: User }) {
   const { checklists, isLoading, error } = useChecklists();
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <Header user={user} variant="user" />
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
@@ -26,7 +29,7 @@ export default function ChecklistPageClient() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
+        <Header user={user} variant="user" />
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0 text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -41,7 +44,7 @@ export default function ChecklistPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Header user={user} variant="user" />
 
       <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
         <div className="px-4 py-8 sm:px-0">
@@ -64,35 +67,5 @@ export default function ChecklistPageClient() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Navbar() {
-  return (
-    <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/checklist" className="text-xl font-bold text-gray-900">
-              Angular Checklist
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/courses" className="text-gray-700 hover:text-gray-900">
-              Courses
-            </Link>
-            <Link
-              href="/checklist"
-              className="text-gray-700 hover:text-gray-900 font-medium"
-            >
-              Checklists
-            </Link>
-            <Link href="/profile" className="text-gray-700 hover:text-gray-900">
-              Profile
-            </Link>
-          </div>
-        </div>
-      </div>
-    </nav>
   );
 }

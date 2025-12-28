@@ -15,5 +15,5 @@ export default async function ChecklistDetailPage({
 
   const { id } = await params;
 
-  return <ChecklistDetailClient id={id} />;
+  return <ChecklistDetailClient id={id} user={session.user} />;
 }

@@ -40,7 +40,7 @@ export default function NewCoursePage() {
               id="title"
               name="title"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="e.g., Introduction to Web Development"
             />
           </div>
@@ -56,7 +56,7 @@ export default function NewCoursePage() {
               id="description"
               name="description"
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Describe what students will learn in this course"
             />
           </div>

@@ -9,5 +9,5 @@ export default async function ChecklistPage() {
     redirect('/signin');
   }
 
-  return <ChecklistPageClient />;
+  return <ChecklistPageClient user={session.user} />;
 }

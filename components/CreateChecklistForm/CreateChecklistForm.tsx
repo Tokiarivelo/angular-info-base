@@ -51,7 +51,7 @@ export default function CreateChecklistForm() {
             id="title"
             autoFocus
             {...register('title')}
-            className={`block w-full border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all ${
+            className={`block w-full border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all text-gray-900 ${
               errors.title ? 'border-red-500' : ''
             }`}
             placeholder="e.g., Angular Fundamentals"
@@ -72,7 +72,7 @@ export default function CreateChecklistForm() {
             id="description"
             rows={3}
             {...register('description')}
-            className={`block w-full border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all ${
+            className={`block w-full border-gray-300 rounded-lg shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all text-gray-900 ${
               errors.description ? 'border-red-500' : ''
             }`}
             placeholder="What is this checklist about?"

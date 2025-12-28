@@ -34,7 +34,7 @@ export default function RequestCourseModal({
               type="text"
               id="title"
               {...register('title')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.title ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="e.g., Advanced React Patterns"
@@ -57,7 +57,7 @@ export default function RequestCourseModal({
               id="description"
               {...register('description')}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.description ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="What topics should this course cover?"
@@ -80,7 +80,7 @@ export default function RequestCourseModal({
               id="reason"
               {...register('reason')}
               rows={3}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.reason ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Tell us why this course would be valuable to you..."

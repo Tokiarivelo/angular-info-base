@@ -1,11 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import Header from '@/components/shared/Header/Header';
 import { useChecklistDetail } from './ChecklistDetailClient.hooks';
 import ChecklistItemList from '@/components/ChecklistItemList';
 import CreateChecklistItemForm from '@/components/CreateChecklistItemForm';
 
-export default function ChecklistDetailClient({ id }: { id: string }) {
+import { User } from 'next-auth';
+
+export default function ChecklistDetailClient({
+  id,
+  user,
+}: {
+  id: string;
+  user: User;
+}) {
   const { checklist, isLoading, error } = useChecklistDetail(id);
 
   if (isLoading) {
@@ -49,40 +58,7 @@ export default function ChecklistDetailClient({ id }: { id: string }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link
-                href="/checklist"
-                className="text-xl font-bold text-gray-900"
-              >
-                Angular Checklist
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/courses"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Courses
-              </Link>
-              <Link
-                href="/checklist"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Checklists
-              </Link>
-              <Link
-                href="/profile"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Profile
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Header user={user} variant="user" />
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">

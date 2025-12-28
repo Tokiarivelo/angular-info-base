@@ -46,7 +46,7 @@ export default function ChecklistItem({
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 required
-                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2.5 px-3"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 text-sm py-2.5 px-3"
                 placeholder="What needs to be done?"
                 autoFocus
               />
@@ -54,7 +54,7 @@ export default function ChecklistItem({
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
                 rows={2}
-                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2.5 px-3 resize-none"
+                className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 text-sm py-2.5 px-3 resize-none"
                 placeholder="Add some notes (optional)..."
               />
               <div className="flex justify-end gap-3">
