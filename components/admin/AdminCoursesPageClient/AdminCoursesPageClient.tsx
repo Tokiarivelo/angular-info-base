@@ -1,33 +1,10 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-
-interface Course {
-  id: string;
-  title: string;
-  description: string | null;
-  _count: {
-    Chapter: number;
-    CourseEnrollment: number;
-  };
-}
-
-async function fetchAdminCourses(): Promise<Course[]> {
-  const response = await fetch('/api/admin/courses');
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch courses');
-  }
-
-  return response.json();
-}
+import { useAdminCoursesPage } from './AdminCoursesPageClient.hooks';
 
 export default function AdminCoursesPageClient() {
-  const { data: courses, isLoading, error } = useQuery({
-    queryKey: ['adminCourses'],
-    queryFn: fetchAdminCourses,
-  });
+  const { courses, isLoading, error } = useAdminCoursesPage();
 
   if (isLoading) {
     return (
@@ -82,7 +59,9 @@ export default function AdminCoursesPageClient() {
 
       {courses.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-6 text-center">
-          <p className="text-gray-600">No courses yet. Create your first one!</p>
+          <p className="text-gray-600">
+            No courses yet. Create your first one!
+          </p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">

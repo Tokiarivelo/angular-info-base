@@ -1,32 +1,10 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-
-interface AdminStats {
-  coursesCount: number;
-  chaptersCount: number;
-  usersCount: number;
-  enrollmentsCount: number;
-  pendingEnrollmentRequests: number;
-  pendingCourseRequests: number;
-}
-
-async function fetchAdminStats(): Promise<AdminStats> {
-  const response = await fetch('/api/admin/stats');
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch admin stats');
-  }
-
-  return response.json();
-}
+import { useAdminPage } from './AdminPageClient.hooks';
 
 export default function AdminPageClient() {
-  const { data: stats, isLoading, error } = useQuery({
-    queryKey: ['adminStats'],
-    queryFn: fetchAdminStats,
-  });
+  const { stats, isLoading, error } = useAdminPage();
 
   if (isLoading) {
     return (
@@ -57,9 +35,7 @@ export default function AdminPageClient() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
-        Admin Dashboard
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
@@ -103,8 +79,8 @@ export default function AdminPageClient() {
                   className="font-medium hover:underline"
                 >
                   {stats.pendingEnrollmentRequests} enrollment request
-                  {stats.pendingEnrollmentRequests !== 1 ? 's' : ''} waiting
-                  for review
+                  {stats.pendingEnrollmentRequests !== 1 ? 's' : ''} waiting for
+                  review
                 </Link>
               </p>
             )}

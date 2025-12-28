@@ -1,51 +1,16 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import CourseEditForm from '@/components/admin/CourseEditForm';
 import ChaptersList from '@/components/admin/ChaptersList';
+import { useAdminCoursePage } from './AdminCoursePageClient.hooks';
+import { AdminCoursePageClientProps } from './AdminCoursePageClient.types';
 
-interface Chapter {
-  id: string;
-  title: string;
-  description: string | null;
-  order: number;
-  _count: {
-    Quiz: number;
-    UserChapterProgress: number;
-  };
-}
-
-interface Course {
-  id: string;
-  title: string;
-  description: string | null;
-  Chapter: Chapter[];
-  _count: {
-    CourseEnrollment: number;
-  };
-}
-
-async function fetchAdminCourse(id: string): Promise<Course> {
-  const response = await fetch(`/api/admin/courses/${id}`);
-
-  if (response.status === 404) {
-    throw new Error('NOT_FOUND');
-  }
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch course');
-  }
-
-  return response.json();
-}
-
-export default function AdminCoursePageClient({ id }: { id: string }) {
-  const { data: course, isLoading, error } = useQuery({
-    queryKey: ['adminCourse', id],
-    queryFn: () => fetchAdminCourse(id),
-  });
+export default function AdminCoursePageClient({
+  id,
+}: AdminCoursePageClientProps) {
+  const { course, isLoading, error } = useAdminCoursePage(id);
 
   if (isLoading) {
     return (

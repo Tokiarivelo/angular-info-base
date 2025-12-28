@@ -1,45 +1,13 @@
 'use client';
 
-import { useTransition } from 'react';
-import { reviewEnrollmentRequest } from '@/lib/actions';
-
-interface EnrollmentRequest {
-  id: string;
-  status: string;
-  message: string | null;
-  createdAt: Date | string;
-  User: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  };
-  Course: {
-    id: string;
-    title: string;
-  };
-}
-
-interface EnrollmentRequestsListProps {
-  requests: EnrollmentRequest[];
-}
+import { useEnrollmentRequestsList } from './EnrollmentRequestsList.hooks';
+import { EnrollmentRequestsListProps } from './EnrollmentRequestsList.types';
 
 export default function EnrollmentRequestsList({
   requests,
 }: EnrollmentRequestsListProps) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleReview = (requestId: string, approved: boolean) => {
-    startTransition(async () => {
-      try {
-        await reviewEnrollmentRequest(requestId, approved);
-      } catch (error) {
-        console.error('Failed to review request:', error);
-      }
-    });
-  };
-
-  const pendingRequests = requests.filter((r) => r.status === 'PENDING');
-  const reviewedRequests = requests.filter((r) => r.status !== 'PENDING');
+  const { isPending, handleReview, pendingRequests, reviewedRequests } =
+    useEnrollmentRequestsList({ requests });
 
   return (
     <div className="space-y-8">
@@ -71,7 +39,9 @@ export default function EnrollmentRequestsList({
                     </p>
                     {request.message && (
                       <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
-                        <p className="text-sm text-gray-700">{request.message}</p>
+                        <p className="text-sm text-gray-700">
+                          {request.message}
+                        </p>
                       </div>
                     )}
                   </div>

@@ -1,51 +1,18 @@
 'use client';
 
-import { useTransition } from 'react';
-import { reviewCourseRequest } from '@/lib/actions';
-
-interface CourseRequest {
-  id: string;
-  title: string;
-  description: string | null;
-  reason: string | null;
-  status: string;
-  createdAt: Date | string;
-  User: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  };
-}
-
-interface CourseRequestsListProps {
-  requests: CourseRequest[];
-}
+import { useCourseRequestsList } from './CourseRequestsList.hooks';
+import { CourseRequestsListProps } from './CourseRequestsList.types';
 
 export default function CourseRequestsList({
   requests,
 }: CourseRequestsListProps) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleReview = (
-    requestId: string,
-    status: 'APPROVED' | 'REJECTED' | 'IN_PROGRESS'
-  ) => {
-    startTransition(async () => {
-      try {
-        await reviewCourseRequest(requestId, status);
-      } catch (error) {
-        console.error('Failed to review request:', error);
-      }
-    });
-  };
-
-  const pendingRequests = requests.filter((r) => r.status === 'PENDING');
-  const inProgressRequests = requests.filter(
-    (r) => r.status === 'IN_PROGRESS'
-  );
-  const reviewedRequests = requests.filter(
-    (r) => r.status === 'APPROVED' || r.status === 'REJECTED'
-  );
+  const {
+    isPending,
+    handleReview,
+    pendingRequests,
+    inProgressRequests,
+    reviewedRequests,
+  } = useCourseRequestsList({ requests });
 
   return (
     <div className="space-y-8">
@@ -81,7 +48,9 @@ export default function CourseRequestsList({
                     <h4 className="text-sm font-medium text-gray-700 mb-1">
                       Description:
                     </h4>
-                    <p className="text-sm text-gray-600">{request.description}</p>
+                    <p className="text-sm text-gray-600">
+                      {request.description}
+                    </p>
                   </div>
                 )}
 

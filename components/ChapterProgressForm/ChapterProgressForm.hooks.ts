@@ -1,4 +1,4 @@
-import { useState, useTransition } from 'react';
+import { startTransition, useEffect, useTransition } from 'react';
 import {
   updateChapterProgress,
   addScreenshotToProgress,
@@ -6,6 +6,8 @@ import {
   toggleChapterCompletion,
 } from '@/lib/actions';
 import { Screenshot } from '@/types/chapter.types';
+import { useChapterProgressStore } from './ChapterProgressForm.store';
+import { ChapterProgressFormData } from './ChapterProgressForm.schema';
 
 export function useChapterProgress(
   chapterId: string,
@@ -16,26 +18,33 @@ export function useChapterProgress(
     completed: boolean;
   } | null
 ) {
-  const [isPending, startTransition] = useTransition();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isPending, startTransitionFn] = useTransition();
+  const {
+    screenshots,
+    isUploading,
+    uploadError,
+    setScreenshots,
+    addScreenshot,
+    removeScreenshot,
+    setIsUploading,
+    setUploadError,
+  } = useChapterProgressStore();
 
-  const [repositoryUrl, setRepositoryUrl] = useState(
-    initialProgress?.repositoryUrl || ''
-  );
-  const [websiteUrl, setWebsiteUrl] = useState(
-    initialProgress?.websiteUrl || ''
-  );
-  const [screenshots, setScreenshots] = useState<Screenshot[]>(
-    initialProgress?.screenshots || []
-  );
+  // Initialize store with initial data
+  useEffect(() => {
+    if (initialProgress?.screenshots) {
+      setScreenshots(initialProgress.screenshots);
+    }
+  }, [initialProgress?.screenshots, setScreenshots]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    startTransition(async () => {
+  const onSubmit = async (data: ChapterProgressFormData) => {
+    startTransitionFn(async () => {
       try {
+        const formData = new FormData();
+        if (data.repositoryUrl)
+          formData.append('repositoryUrl', data.repositoryUrl);
+        if (data.websiteUrl) formData.append('websiteUrl', data.websiteUrl);
+
         await updateChapterProgress(chapterId, formData);
       } catch (error) {
         console.error('Failed to update progress:', error);
@@ -66,14 +75,14 @@ export function useChapterProgress(
 
       const { url, publicId } = await response.json();
 
-      startTransition(async () => {
+      startTransitionFn(async () => {
         try {
           const result = await addScreenshotToProgress(
             chapterId,
             url,
             publicId
           );
-          setScreenshots((prev) => [...prev, result.screenshot]);
+          addScreenshot(result.screenshot);
         } catch (error) {
           console.error('Failed to save screenshot:', error);
           setUploadError('Failed to save screenshot to progress');
@@ -91,10 +100,10 @@ export function useChapterProgress(
   };
 
   const handleRemoveScreenshot = async (screenshotId: string) => {
-    startTransition(async () => {
+    startTransitionFn(async () => {
       try {
         await removeScreenshotFromProgress(screenshotId, chapterId);
-        setScreenshots((prev) => prev.filter((s) => s.id !== screenshotId));
+        removeScreenshot(screenshotId);
       } catch (error) {
         console.error('Failed to remove screenshot:', error);
       }
@@ -102,7 +111,7 @@ export function useChapterProgress(
   };
 
   const handleToggleCompletion = async () => {
-    startTransition(async () => {
+    startTransitionFn(async () => {
       await toggleChapterCompletion(chapterId, !initialProgress?.completed);
     });
   };
@@ -111,12 +120,8 @@ export function useChapterProgress(
     isPending,
     isUploading,
     uploadError,
-    repositoryUrl,
-    setRepositoryUrl,
-    websiteUrl,
-    setWebsiteUrl,
     screenshots,
-    handleSubmit,
+    onSubmit,
     handleFileUpload,
     handleRemoveScreenshot,
     handleToggleCompletion,

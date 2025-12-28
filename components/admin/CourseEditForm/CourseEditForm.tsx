@@ -1,17 +1,47 @@
 'use client';
 
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { updateCourse } from '@/lib/actions';
 import { CourseEditFormProps } from './CourseEditForm.types';
-import { useCourseEditForm, useCourseDelete } from './CourseEditForm.hooks';
+import { useCourseDelete } from './CourseEditForm.hooks';
+import { courseEditSchema, CourseEditFormData } from '../schemas/admin.schemas';
 
 export default function CourseEditForm({ course }: CourseEditFormProps) {
-  const { register, handleSubmit, errors, isPending } =
-    useCourseEditForm(course);
+  const [isPending, startTransition] = useTransition();
   const { handleCourseDelete, isDeleting } = useCourseDelete(course.id);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CourseEditFormData>({
+    resolver: zodResolver(courseEditSchema),
+    defaultValues: {
+      title: course.title,
+      description: course.description || '',
+    },
+  });
+
+  const onSubmit = async (data: CourseEditFormData) => {
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append('title', data.title);
+        if (data.description) formData.append('description', data.description);
+
+        await updateCourse(course.id, formData);
+      } catch (error) {
+        console.error('Failed to update course:', error);
+      }
+    });
+  };
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-4">Edit Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label
             htmlFor="title"
@@ -22,10 +52,10 @@ export default function CourseEditForm({ course }: CourseEditFormProps) {
           <input
             type="text"
             id="title"
-            {...register('title')}
             className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.title ? 'border-red-500' : 'border-gray-300'
             }`}
+            {...register('title')}
           />
           {errors.title && (
             <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
@@ -41,11 +71,11 @@ export default function CourseEditForm({ course }: CourseEditFormProps) {
           </label>
           <textarea
             id="description"
-            {...register('description')}
             rows={3}
             className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.description ? 'border-red-500' : 'border-gray-300'
             }`}
+            {...register('description')}
           />
           {errors.description && (
             <p className="mt-1 text-sm text-red-600">
