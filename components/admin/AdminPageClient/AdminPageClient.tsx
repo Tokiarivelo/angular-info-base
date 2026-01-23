@@ -144,6 +144,15 @@ export default function AdminPageClient() {
               Review new course requests
             </div>
           </Link>
+          <Link
+            href="/admin/users"
+            className="block p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
+            <div className="font-semibold text-gray-900">Users Management</div>
+            <div className="text-sm text-gray-600">
+              View users and impersonate view
+            </div>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
@@ -10,8 +11,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    let targetUserId = session.user.id;
+
+    if (session.user.role === 'ADMIN') {
+      const cookieStore = await cookies();
+      const impersonatedUserId = cookieStore.get('impersonate_userId')?.value;
+      if (impersonatedUserId) {
+        targetUserId = impersonatedUserId;
+      }
+    }
+
     const courseRequests = await prisma.courseRequest.findMany({
-      where: { userId: session.user.id },
+      where: { userId: targetUserId },
       orderBy: { createdAt: 'desc' },
     });
 

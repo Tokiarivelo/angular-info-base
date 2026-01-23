@@ -517,13 +517,22 @@ export async function createChapter(courseId: string, formData: FormData) {
     throw new Error('Title is required');
   }
 
+  let contentJson = null;
+  if (content) {
+    try {
+      contentJson = JSON.parse(content);
+    } catch (e) {
+      console.error('Failed to parse content JSON', e);
+    }
+  }
+
   const chapter = await prisma.chapter.create({
     data: {
       id: randomUUID(),
       courseId,
       title,
       description: description || null,
-      content: content || null,
+      content: contentJson,
       livePreviewUrl: livePreviewUrl || null,
       order: order ? parseInt(order) : 0,
     },
@@ -549,12 +558,23 @@ export async function updateChapter(chapterId: string, formData: FormData) {
     throw new Error('Title is required');
   }
 
+  let contentJson = undefined;
+  if (content) {
+    try {
+      contentJson = JSON.parse(content);
+    } catch (e) {
+      console.error('Failed to parse content JSON', e);
+    }
+  } else if (content === '') {
+    contentJson = null;
+  }
+
   const chapter = await prisma.chapter.update({
     where: { id: chapterId },
     data: {
       title,
       description: description || null,
-      content: content || null,
+      content: contentJson,
       livePreviewUrl: livePreviewUrl || null,
       order: order ? parseInt(order) : undefined,
     },

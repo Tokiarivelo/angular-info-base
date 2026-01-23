@@ -31,7 +31,11 @@ model Chapter {
   courseId            String
   title               String
   description         String?
-  content             String?
+  content             Json? // Flexible content blocks array
+  introText           String? // Deprecated: Migrated to content blocks
+  imageUrl            String?
+  proTips             Json? // Deprecated: Migrated to content blocks
+  instructions        Json? // Deprecated: Migrated to content blocks
   livePreviewUrl      String?
   order               Int                   @default(0)
   createdAt           DateTime              @default(now())

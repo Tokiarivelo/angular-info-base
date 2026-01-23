@@ -61,8 +61,15 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
       httpOptions: {
-        timeout: 40000, // Increased to 40 seconds for slow database/network
+        timeout: 40000,
       },
     } as any)
   );
@@ -95,4 +102,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  events: {
+    async signIn({ user, account, profile }) {
+      console.log('Sign in event:', {
+        user: user?.email,
+        account: account?.provider,
+      });
+    },
+  },
+  debug: process.env.NODE_ENV === 'development',
 });
