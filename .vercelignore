@@ -1,0 +1,51 @@
+# Vercel Ignore File
+# This file excludes unnecessary files from Vercel deployments to save space
+
+# Test files
+__tests__
+*.test.ts
+*.test.tsx
+*.test.js
+*.test.jsx
+*.spec.ts
+*.spec.tsx
+*.spec.js
+*.spec.jsx
+jest.config.cjs
+jest.setup.js
+test-*.js
+
+# Development documentation files
+.env.example
+CHANGELOG.md
+CONTRIBUTING.md
+DEPLOYMENT.md
+DEVELOPMENT.md
+IMPLEMENTATION_SUMMARY.md
+MIGRATION_GUIDE.md
+PROJECT_SUMMARY.md
+QUICKSTART.md
+README_OLD.md
+API_EXAMPLES.md
+
+# Local development
+.vscode
+.idea
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# Build artifacts not needed
+.next/cache
+coverage
+
+# Prisma development files (schema is needed, but not migrations)
+prisma/migrations
+
+# Git files
+.gitignore
+
+# Agent configurations
+.agent
