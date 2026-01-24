@@ -8,6 +8,13 @@ const nextConfig = {
       },
     ],
   },
+  // Optimize for Vercel deployment
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Reduce build output size
+  output: 'standalone',
 };
 
 export default nextConfig;
