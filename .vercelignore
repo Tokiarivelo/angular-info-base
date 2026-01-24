@@ -1,0 +1,35 @@
+# Ignore test files and directories
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+jest.config.cjs
+jest.setup.js
+
+# Ignore development documentation
+*.md
+!README.md
+
+# Ignore development configuration
+.prettierrc.json
+.eslintrc.json
+
+# Ignore test and development scripts
+test-db.js
+test-network.js
+verify-env.js
+
+# Ignore source maps (reduces deployment size)
+*.map
+
+# Ignore local environment files
+.env.example
+.env*.local
+
+# Ignore git directory
+.git
+.gitignore
+
+# Ignore agent directory
+.agent
