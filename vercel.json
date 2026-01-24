@@ -1,6 +1,6 @@
 {
   "buildCommand": "bun run build",
-  "installCommand": "bun install",
+  "installCommand": "bun install --frozen-lockfile --production=false",
   "framework": "nextjs",
   "outputDirectory": ".next",
   "regions": ["iad1"],
