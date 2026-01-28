@@ -43,9 +43,9 @@ NEXTAUTH_SECRET=your-generated-secret-here
 
 Vercel should automatically detect these settings, but verify:
 
-- **Build Command**: `npm run build`
+- **Build Command**: `bun run build`
 - **Output Directory**: `.next`
-- **Install Command**: `npm install`
+- **Install Command**: `bun install`
 
 #### 4. Deploy
 
@@ -59,7 +59,7 @@ After your first deployment:
 
 1. Update `NEXTAUTH_URL` to match your actual Vercel URL if needed
 2. Run database migrations:
-   - You can run `npm run prisma:push` locally to push the schema to Neon
+   - You can run `bun run prisma:push` locally to push the schema to Neon
    - Or add a build step in Vercel (not recommended for production)
 
 #### 6. Set Up Your Database
@@ -68,19 +68,19 @@ Before using the app, ensure your Neon database has the correct schema:
 
 ```bash
 # Locally, with your Neon connection string
-npm run prisma:push
+bun run prisma:push
 
 # Or run migrations
-npm run prisma:migrate
+bun run prisma:migrate
 ```
 
 ### Environment Variables Reference
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | Neon PostgreSQL connection string (pooled) | `postgresql://...` |
-| `NEXTAUTH_URL` | Your production URL | `https://your-app.vercel.app` |
-| `NEXTAUTH_SECRET` | Secret for JWT encryption (min 32 chars) | Generated with `openssl rand -base64 32` |
+| Variable          | Description                                | Example                                  |
+| ----------------- | ------------------------------------------ | ---------------------------------------- |
+| `DATABASE_URL`    | Neon PostgreSQL connection string (pooled) | `postgresql://...`                       |
+| `NEXTAUTH_URL`    | Your production URL                        | `https://your-app.vercel.app`            |
+| `NEXTAUTH_SECRET` | Secret for JWT encryption (min 32 chars)   | Generated with `openssl rand -base64 32` |
 
 ### Vercel-Specific Considerations
 
@@ -129,6 +129,7 @@ To use a custom domain:
 ### Continuous Deployment
 
 Vercel automatically:
+
 - Deploys on every push to your main branch
 - Creates preview deployments for pull requests
 - Provides deployment logs and analytics

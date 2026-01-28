@@ -2,10 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { ChapterRichContentEditorProps } from './ChapterRichContentEditor.types';
+import {
+  ChapterRichContentEditorProps,
+  BlockType,
+} from './ChapterRichContentEditor.types';
 import { useChapterRichContentEditor } from './ChapterRichContentEditor.hooks';
 import ImageBlockEditor from './components/ImageBlockEditor';
 import CodeBlockEditor from './components/CodeBlockEditor';
+import BlockTypeSelector from './components/BlockTypeSelector';
 
 // Dynamic import to avoid SSR issues with CKEditor
 const RichTextEditor = dynamic(() => import('./components/RichTextEditor'), {
@@ -30,6 +34,7 @@ export default function ChapterRichContentEditor({
     updateBlock,
     removeBlock,
     moveBlock,
+    changeBlockType,
     handleBlockImageUpload,
     uploadingBlockId,
     lastAddedBlockId,
@@ -158,6 +163,11 @@ export default function ChapterRichContentEditor({
               >
                 ✕
               </button>
+              {/* Block Type Selector - Only shows for convertible types */}
+              <BlockTypeSelector
+                currentType={block.type}
+                onChangeType={(newType) => changeBlockType(block.id, newType)}
+              />
             </div>
 
             {/* Block Content */}

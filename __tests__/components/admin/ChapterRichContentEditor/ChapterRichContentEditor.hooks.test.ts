@@ -170,6 +170,122 @@ describe('useChapterRichContentEditor', () => {
     });
   });
 
+  describe('changeBlockType', () => {
+    it('should convert richText block to proTip', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Some text content' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let success: boolean;
+      act(() => {
+        success = result.current.changeBlockType('block-1', 'proTip');
+      });
+
+      expect(success!).toBe(true);
+      expect(result.current.blocks[0].type).toBe('proTip');
+      expect(result.current.blocks[0].title).toBe('Pro Tip');
+      expect(result.current.blocks[0].content).toBe('Some text content');
+    });
+
+    it('should convert proTip block to richText', () => {
+      const initialBlocks: EditorBlock[] = [
+        {
+          id: 'block-1',
+          type: 'proTip',
+          content: 'Tip content',
+          title: 'Pro Tip',
+        },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let success: boolean;
+      act(() => {
+        success = result.current.changeBlockType('block-1', 'richText');
+      });
+
+      expect(success!).toBe(true);
+      expect(result.current.blocks[0].type).toBe('richText');
+      expect(result.current.blocks[0].title).toBeUndefined();
+    });
+
+    it('should preserve custom proTip title as heading when converting to richText', () => {
+      const initialBlocks: EditorBlock[] = [
+        {
+          id: 'block-1',
+          type: 'proTip',
+          content: 'Tip content',
+          title: 'Custom Title',
+        },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      act(() => {
+        result.current.changeBlockType('block-1', 'richText');
+      });
+
+      expect(result.current.blocks[0].content).toBe(
+        '<h3>Custom Title</h3>Tip content'
+      );
+    });
+
+    it('should not convert code block to other types', () => {
+      const initialBlocks: EditorBlock[] = [
+        {
+          id: 'block-1',
+          type: 'code',
+          content: 'console.log("test");',
+          title: 'typescript',
+        },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let success: boolean;
+      act(() => {
+        success = result.current.changeBlockType('block-1', 'richText');
+      });
+
+      expect(success!).toBe(false);
+      expect(result.current.blocks[0].type).toBe('code');
+    });
+
+    it('should not convert image block to other types', () => {
+      const initialBlocks: EditorBlock[] = [
+        {
+          id: 'block-1',
+          type: 'image',
+          content: 'https://example.com/image.png',
+        },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let success: boolean;
+      act(() => {
+        success = result.current.changeBlockType('block-1', 'proTip');
+      });
+
+      expect(success!).toBe(false);
+      expect(result.current.blocks[0].type).toBe('image');
+    });
+
+    it('should return false for non-existent block', () => {
+      const chapter = createMockChapter({ content: [] });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let success: boolean;
+      act(() => {
+        success = result.current.changeBlockType('non-existent', 'proTip');
+      });
+
+      expect(success!).toBe(false);
+    });
+  });
+
   describe('infinite loop prevention', () => {
     it('should NOT reset blocks when chapter content prop changes (same chapter)', () => {
       const initialBlocks: EditorBlock[] = [

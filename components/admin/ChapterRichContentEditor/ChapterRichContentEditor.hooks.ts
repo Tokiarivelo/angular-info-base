@@ -3,6 +3,7 @@ import {
   Chapter,
   EditorBlock,
   BlockType,
+  BLOCK_TYPE_CONVERSIONS,
 } from './ChapterRichContentEditor.types';
 
 /**
@@ -112,6 +113,52 @@ export function useChapterRichContentEditor(chapter: Chapter) {
     setBlocks(updated);
   };
 
+  /**
+   * Change the type of a block to another compatible type.
+   * @param id - The block ID to change
+   * @param newType - The new type to change to
+   * @returns true if successful, false otherwise
+   */
+  const changeBlockType = (id: string, newType: BlockType): boolean => {
+    const blockIndex = blocks.findIndex((b) => b.id === id);
+    if (blockIndex === -1) return false;
+
+    const block = blocks[blockIndex];
+    const allowedTypes = BLOCK_TYPE_CONVERSIONS[block.type];
+
+    if (!allowedTypes.includes(newType)) {
+      console.warn(
+        `Cannot convert block type from ${block.type} to ${newType}`
+      );
+      return false;
+    }
+
+    // Create the new block with converted type
+    const newBlock: EditorBlock = {
+      ...block,
+      type: newType,
+    };
+
+    // Handle special conversion logic
+    if (block.type === 'richText' && newType === 'proTip') {
+      // Converting text to pro tip - add default title if not present
+      newBlock.title = 'Pro Tip';
+    } else if (block.type === 'proTip' && newType === 'richText') {
+      // Converting pro tip to text - optionally prepend title to content
+      if (block.title && block.title !== 'Pro Tip') {
+        // Prepend the title as a heading if it's not the default
+        newBlock.content = `<h3>${block.title}</h3>${block.content}`;
+      }
+      // Remove the title field for richText
+      delete newBlock.title;
+    }
+
+    const updated = [...blocks];
+    updated[blockIndex] = newBlock;
+    setBlocks(updated);
+    return true;
+  };
+
   // Image Upload State
   const [uploadingBlockId, setUploadingBlockId] = useState<string | null>(null);
 
@@ -166,6 +213,7 @@ export function useChapterRichContentEditor(chapter: Chapter) {
     updateBlock,
     removeBlock,
     moveBlock,
+    changeBlockType,
     handleBlockImageUpload,
     uploadingBlockId,
     lastAddedBlockId,
