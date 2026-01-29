@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { User } from 'next-auth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import LanguageSelector from '@/components/shared/LanguageSelector';
 
 interface HeaderProps {
   user?: User; // Make user optional to handle loading states or non-authenticated views cleanly if needed, though mostly required here
@@ -71,6 +72,7 @@ export default function Header({ user, variant = 'user' }: HeaderProps) {
                 >
                   Profile
                 </Link>
+                <LanguageSelector variant="compact" />
                 <ThemeToggle />
               </>
             ) : (
@@ -102,6 +104,7 @@ export default function Header({ user, variant = 'user' }: HeaderProps) {
                 >
                   Profile
                 </Link>
+                <LanguageSelector variant="compact" />
                 <ThemeToggle />
               </>
             )}

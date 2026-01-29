@@ -1,21 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Upload, FileText } from 'lucide-react';
+import { X, Upload, FileText, Sparkles } from 'lucide-react';
 import { ChapterEditModalProps } from './ChapterEditModal.types';
 import { useChapterEditModal } from './ChapterEditModal.hooks';
 import ChapterRichContentEditor from '../ChapterRichContentEditor';
+import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
+import AIChapterChat from '../AIChapterChat';
+import { GeneratedChapterData } from '../AIChapterChat/AIChapterChat.types';
 
-type Tab = 'basic' | 'content' | 'import';
+type Tab = 'basic' | 'content' | 'import' | 'ai';
 
 export default function ChapterEditModal({
   chapter,
+  courseContext,
   isOpen,
   onClose,
   onSave,
 }: ChapterEditModalProps) {
   const [activeTab, setActiveTab] = useState<Tab>('basic');
   const [isSaving, setIsSaving] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
   const {
     title,
     setTitle,
@@ -41,6 +46,7 @@ export default function ChapterEditModal({
     handleDragLeave,
     handleDrop,
     getUpdateData,
+    setImageUrl,
   } = useChapterEditModal(chapter);
 
   const handleSave = async () => {
@@ -104,6 +110,17 @@ export default function ChapterEditModal({
             }`}
           >
             Import File
+          </button>
+          <button
+            onClick={() => setActiveTab('ai')}
+            className={`px-4 py-3 font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'ai'
+                ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            AI Generate
           </button>
         </div>
 
@@ -321,6 +338,39 @@ code
               )}
             </div>
           )}
+
+          {activeTab === 'ai' && (
+            <div className="space-y-6">
+              <div className="text-center py-12">
+                <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-6">
+                  <Sparkles className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Generate with AI
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
+                  Use Gemini AI to generate structured chapter content including
+                  text, code examples, and pro tips based on your description.
+                </p>
+                <button
+                  onClick={() => setShowAIChat(true)}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Open AI Chat
+                </button>
+              </div>
+
+              {content && content.length > 0 && (
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <p className="text-sm text-green-800 dark:text-green-200">
+                    ✓ {content.length} content blocks ready! Switch to
+                    &quot;Rich Content&quot; tab to review and edit.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -340,6 +390,28 @@ code
           </button>
         </div>
       </div>
+
+      {/* AI Chat Modal */}
+      {showAIChat && (
+        <AIChapterChat
+          courseContext={courseContext}
+          onApplyBlocks={(blocks: EditorBlock[]) => {
+            setContent(blocks);
+            setShowAIChat(false);
+            setActiveTab('content');
+          }}
+          onApplyChapter={(data: GeneratedChapterData) => {
+            // Apply all generated chapter data
+            if (data.title) setTitle(data.title);
+            if (data.description) setDescription(data.description);
+            if (data.imageUrl) setImageUrl(data.imageUrl);
+            setContent(data.blocks);
+            setShowAIChat(false);
+            setActiveTab('basic'); // Go to basic tab to see title/description
+          }}
+          onClose={() => setShowAIChat(false)}
+        />
+      )}
     </div>
   );
 }

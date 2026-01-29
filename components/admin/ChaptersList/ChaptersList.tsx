@@ -7,6 +7,7 @@ import { createChapter, updateChapter } from '@/app/actions/chapter';
 
 export default function ChaptersList({
   courseId,
+  courseContext,
   chapters: initialChapters,
 }: ChaptersListProps) {
   const { chapters, isPending, handleDeleteChapter } = useChaptersList({
@@ -116,6 +117,7 @@ export default function ChaptersList({
         <ChapterEditModal
           chapter={editingChapter}
           courseId={courseId}
+          courseContext={courseContext}
           isOpen={true}
           onClose={() => {
             setEditingChapter(null);

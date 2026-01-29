@@ -1,4 +1,5 @@
 import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
+import { CourseContext } from '../AIChapterChat/AIChapterChat.types';
 
 export interface Chapter {
   id: string;
@@ -17,6 +18,7 @@ export interface Chapter {
 export interface ChapterEditModalProps {
   chapter?: Chapter | null; // Optional for creation mode
   courseId: string; // Required for creation
+  courseContext?: CourseContext; // Course info for AI generation
   isOpen: boolean;
   onClose: () => void;
   onSave: (chapterId: string | null, data: ChapterUpdateData) => Promise<void>;

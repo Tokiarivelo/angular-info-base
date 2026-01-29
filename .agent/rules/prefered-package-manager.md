@@ -7,3 +7,4 @@ trigger: always_on
 3- Always check existing component if already exist and re-addapt it for the new component to upload
 4- laways add unit test after editing to prevent regression
 5- not use long component, always split it as possible
+6- Always update readme

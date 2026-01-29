@@ -96,7 +96,15 @@ export default function AdminCoursePageClient({
         </div>
       </div>
 
-      <ChaptersList courseId={course.id} chapters={course.Chapter} />
+      <ChaptersList
+        courseId={course.id}
+        courseContext={{
+          title: course.title,
+          description: course.description || undefined,
+          language: 'typescript', // Default to TypeScript for this platform
+        }}
+        chapters={course.Chapter}
+      />
     </div>
   );
 }

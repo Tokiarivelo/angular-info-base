@@ -200,6 +200,7 @@ export function useChapterEditModal(chapter?: Chapter | null) {
     description,
     setDescription,
     imageUrl,
+    setImageUrl,
     isUploadingImage,
     imageUploadError,
     handleImageUpload,

@@ -5,6 +5,7 @@ A comprehensive Next.js 15 learning platform with course management, progress tr
 ## Features
 
 ### For Students
+
 - 🔐 **Authentication**: Secure user registration and login using NextAuth v5 with JWT sessions
 - 🌐 **Google OAuth**: Sign in with Google for seamless authentication
 - 📚 **Course Enrollment**: Browse and enroll in courses
@@ -18,6 +19,7 @@ A comprehensive Next.js 15 learning platform with course management, progress tr
 - 📝 **Checklist Items**: Add items to checklists with notes, toggle completion status
 
 ### For Administrators
+
 - 👤 **Admin Dashboard**: Comprehensive admin panel for managing the platform
 - 📚 **Course Management**: Create, edit, and delete courses
 - 📖 **Chapter Management**: Add chapters to courses with descriptions and live preview URLs
@@ -85,7 +87,8 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
-**Important**: 
+**Important**:
+
 - Generate a secure NEXTAUTH_SECRET for production: `openssl rand -base64 32`
 - Set up a free Cloudinary account at [cloudinary.com](https://cloudinary.com) for screenshot storage
 
@@ -138,6 +141,7 @@ npm run seed
 ```
 
 This will create:
+
 - A test user:
   - Email: `test@example.com`
   - Password: `password123`
@@ -206,6 +210,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Database Schema
 
 ### User
+
 - `id`: Unique identifier (CUID)
 - `email`: User email (unique)
 - `name`: User's name (optional)
@@ -214,6 +219,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `createdAt`: Timestamp of user creation
 
 ### Course
+
 - `id`: Unique identifier (CUID)
 - `title`: Course title
 - `description`: Optional description
@@ -221,6 +227,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `updatedAt`: Timestamp of last update
 
 ### Chapter
+
 - `id`: Unique identifier (CUID)
 - `courseId`: Reference to Course
 - `title`: Chapter title
@@ -232,6 +239,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `updatedAt`: Timestamp of last update
 
 ### Quiz
+
 - `id`: Unique identifier (CUID)
 - `chapterId`: Reference to Chapter
 - `title`: Quiz title
@@ -241,6 +249,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `updatedAt`: Timestamp of last update
 
 ### QuizQuestion
+
 - `id`: Unique identifier (CUID)
 - `quizId`: Reference to Quiz
 - `question`: Question text
@@ -250,6 +259,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `order`: Display order (integer)
 
 ### QuizSubmission
+
 - `id`: Unique identifier (CUID)
 - `userId`: Reference to User
 - `quizId`: Reference to Quiz
@@ -259,12 +269,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `createdAt`: Timestamp of submission
 
 ### CourseEnrollment
+
 - `id`: Unique identifier (CUID)
 - `userId`: Reference to User
 - `courseId`: Reference to Course
 - `createdAt`: Timestamp of enrollment
 
 ### UserChapterProgress
+
 - `id`: Unique identifier (CUID)
 - `userId`: Reference to User
 - `chapterId`: Reference to Chapter
@@ -275,6 +287,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `updatedAt`: Timestamp of last update
 
 ### Screenshot
+
 - `id`: Unique identifier (CUID)
 - `url`: Cloudinary URL
 - `publicId`: Cloudinary public ID (for deletion)
@@ -284,6 +297,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `createdAt`: Timestamp of upload
 
 ### Checklist
+
 - `id`: Unique identifier (CUID)
 - `title`: Checklist title
 - `description`: Optional description
@@ -292,6 +306,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `createdAt`: Timestamp of creation
 
 ### ChecklistItem
+
 - `id`: Unique identifier (CUID)
 - `checklistId`: Reference to Checklist
 - `title`: Item title
@@ -305,6 +320,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 This application uses Cloudinary for storing user-uploaded screenshots.
 
 ### Cloudinary (Recommended & Implemented)
+
 - **Free Tier**: 25 GB storage, 25 GB bandwidth/month
 - **Features**: Automatic image optimization, transformations, CDN delivery
 - **Setup Steps**:
@@ -314,10 +330,30 @@ This application uses Cloudinary for storing user-uploaded screenshots.
   4. Images are automatically optimized and delivered via CDN
 
 ### Alternative Options
+
 - **Firebase Storage**: 5 GB storage, 1 GB/day download (free tier)
 - **AWS S3**: 5 GB storage, 20,000 GET requests/month (12-month free tier)
 
 > **Note**: The application is already configured for Cloudinary. To use an alternative, you'll need to modify `/app/api/upload/route.ts`.
+
+## Internationalization (i18n)
+
+The application supports multiple languages (currently English and French).
+
+- **Framework**: `next-intl`
+- **Language Switching**: Toggle between English and French via the global language selector in the header.
+- **Content Generation**: The AI Chapter Generator can create content in your selected language (English or French).
+
+## AI Chapter Generator
+
+Admins can use the AI assistant to generate comprehensive chapter content.
+
+- **Features**:
+  - Automatically generates chapter **Title** and **Description**
+  - Creates structured content with **Rich Text**, **Code Blocks**, and **Pro Tips**
+  - Generates prompts for **Cover Images**
+  - Supports **Multi-language Generation** (English/French)
+  - **One-click Apply**: Apply all generated metadata and content at once
 
 ## Available Scripts
 
@@ -336,7 +372,9 @@ This application uses Cloudinary for storing user-uploaded screenshots.
 ## API Endpoints
 
 ### Authentication
+
 ### API Routes
+
 - `POST /api/signup` - Register a new user
   ```bash
   curl -X POST http://localhost:3000/api/signup \
@@ -351,6 +389,7 @@ This application uses Cloudinary for storing user-uploaded screenshots.
 ### Server Actions
 
 **Checklist Actions**
+
 - `createChecklist(formData)` - Create a new checklist
 - `deleteChecklist(checklistId)` - Delete a checklist
 - `createChecklistItem(checklistId, formData)` - Add item to checklist
@@ -359,6 +398,7 @@ This application uses Cloudinary for storing user-uploaded screenshots.
 - `deleteChecklistItem(itemId)` - Delete an item
 
 **Course & Progress Actions**
+
 - `enrollInCourse(courseId)` - Enroll in a course
 - `updateChapterProgress(chapterId, formData)` - Update chapter progress (repo/site URLs)
 - `addScreenshotToProgress(chapterId, url, publicId)` - Add screenshot to progress
@@ -366,9 +406,11 @@ This application uses Cloudinary for storing user-uploaded screenshots.
 - `toggleChapterCompletion(chapterId, completed)` - Mark chapter as complete/incomplete
 
 **Quiz Actions**
+
 - `submitQuiz(quizId, answers)` - Submit quiz answers and get results
 
 **Admin Actions** (Admin role required)
+
 - `createCourse(formData)` - Create a new course
 - `updateCourse(courseId, formData)` - Update course details
 - `deleteCourse(courseId)` - Delete a course
@@ -386,6 +428,7 @@ This application uses Cloudinary for storing user-uploaded screenshots.
 Access the admin panel at `/admin` (requires ADMIN role).
 
 ### Admin Features
+
 - **Dashboard**: View platform statistics (courses, chapters, users, enrollments)
 - **Course Management**: Create, edit, and delete courses
 - **Chapter Management**: Add chapters to courses with descriptions and live preview URLs
@@ -393,6 +436,7 @@ Access the admin panel at `/admin` (requires ADMIN role).
 - **Real-time Updates**: All changes are immediately reflected in the user interface
 
 ### Creating Your First Course (Admin)
+
 1. Sign in with admin credentials (email: `admin@example.com`, password: `password123` if using seed data)
 2. Navigate to `/admin/courses`
 3. Click "Create Course"
@@ -473,11 +517,13 @@ npm test
 ## Troubleshooting
 
 ### Database connection issues
+
 - Verify your `DATABASE_URL` in `.env` is correct
 - Check that your Neon database is active
 - Ensure SSL mode is enabled (`sslmode=require`)
 
 ### Migration errors
+
 - Use `npm run prisma:push` for quick schema updates during development
 - Use `npm run prisma:migrate` for production-ready migrations
 - If migrations are out of sync, you may need to reset the database (development only):
@@ -486,6 +532,7 @@ npm test
   ```
 
 ### NextAuth errors
+
 - Ensure `NEXTAUTH_URL` matches your application URL
 - Verify `NEXTAUTH_SECRET` is set and is at least 32 characters
 - Check that the Prisma adapter models are correctly migrated

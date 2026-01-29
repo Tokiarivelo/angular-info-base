@@ -1,3 +1,5 @@
+import { CourseContext } from '../AIChapterChat/AIChapterChat.types';
+
 export interface Chapter {
   id: string;
   courseId?: string;
@@ -12,6 +14,7 @@ export interface Chapter {
 
 export interface ChaptersListProps {
   courseId: string;
+  courseContext?: CourseContext;
   chapters: (Chapter & {
     _count: { Quiz: number; UserChapterProgress: number };
   })[];
