@@ -59,6 +59,12 @@ export function useChapterEditModal(chapter?: Chapter | null) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
+  // AI Image Generation State
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [imageGenerationError, setImageGenerationError] = useState<
+    string | null
+  >(null);
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -105,6 +111,57 @@ export function useChapterEditModal(chapter?: Chapter | null) {
 
   const handleRemoveImage = () => {
     setImageUrl('');
+  };
+
+  // Generate chapter image using AI
+  const handleGenerateImage = async () => {
+    setIsGeneratingImage(true);
+    setImageGenerationError(null);
+
+    try {
+      // Extract text content from blocks to create a summary
+      const contentSummary = content
+        .filter((block) => block.type === 'richText' || block.type === 'proTip')
+        .map((block) => {
+          // Strip HTML tags for summary
+          const text = block.content?.replace(/<[^>]*>/g, ' ').trim() || '';
+          return text;
+        })
+        .join(' ')
+        .slice(0, 500);
+
+      const response = await fetch('/api/ai/generate-image-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          contentSummary,
+          generateImage: true, // Request actual image generation
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate image');
+      }
+
+      if (data.imageUrl) {
+        setImageUrl(data.imageUrl);
+      } else if (data.error) {
+        throw new Error(data.error);
+      } else {
+        throw new Error('No image was generated');
+      }
+    } catch (error) {
+      console.error('AI image generation error:', error);
+      setImageGenerationError(
+        error instanceof Error ? error.message : 'Failed to generate image'
+      );
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,6 +262,10 @@ export function useChapterEditModal(chapter?: Chapter | null) {
     imageUploadError,
     handleImageUpload,
     handleRemoveImage,
+    // AI Image Generation
+    isGeneratingImage,
+    imageGenerationError,
+    handleGenerateImage,
     livePreviewUrl,
     setLivePreviewUrl,
     // Rich content

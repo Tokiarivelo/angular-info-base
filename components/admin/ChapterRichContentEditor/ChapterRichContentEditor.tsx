@@ -10,6 +10,7 @@ import { useChapterRichContentEditor } from './ChapterRichContentEditor.hooks';
 import ImageBlockEditor from './components/ImageBlockEditor';
 import CodeBlockEditor from './components/CodeBlockEditor';
 import BlockTypeSelector from './components/BlockTypeSelector';
+import { BlockRegenerateButton } from './components/BlockAIActions';
 
 // Dynamic import to avoid SSR issues with CKEditor
 const RichTextEditor = dynamic(() => import('./components/RichTextEditor'), {
@@ -167,6 +168,13 @@ export default function ChapterRichContentEditor({
               <BlockTypeSelector
                 currentType={block.type}
                 onChangeType={(newType) => changeBlockType(block.id, newType)}
+              />
+              {/* AI Regenerate Button */}
+              <BlockRegenerateButton
+                block={block}
+                onRegeneratedBlock={(newData) =>
+                  handleUpdateBlock(block.id, newData)
+                }
               />
             </div>
 

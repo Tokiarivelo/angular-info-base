@@ -31,6 +31,10 @@ export default function ChapterEditModal({
     imageUploadError,
     handleImageUpload,
     handleRemoveImage,
+    // AI Image Generation
+    isGeneratingImage,
+    imageGenerationError,
+    handleGenerateImage,
     livePreviewUrl,
     setLivePreviewUrl,
     content,
@@ -168,9 +172,31 @@ export default function ChapterEditModal({
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-                  Chapter Image
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    Chapter Image
+                  </h3>
+                  {!imageUrl && (
+                    <button
+                      onClick={handleGenerateImage}
+                      disabled={isGeneratingImage || isUploadingImage}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      title="Generate image with AI based on chapter content"
+                    >
+                      {isGeneratingImage ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4" />
+                          Generate with AI
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
 
                 {imageUrl ? (
                   <div className="relative group w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
@@ -179,12 +205,29 @@ export default function ChapterEditModal({
                       alt="Chapter cover"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <button
                         onClick={handleRemoveImage}
                         className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
                       >
                         Remove Image
+                      </button>
+                      <button
+                        onClick={handleGenerateImage}
+                        disabled={isGeneratingImage}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isGeneratingImage ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                            Regenerating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            Regenerate
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -198,14 +241,24 @@ export default function ChapterEditModal({
                             Uploading...
                           </span>
                         </div>
+                      ) : isGeneratingImage ? (
+                        <div className="flex flex-col items-center space-y-2">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Generating with AI...
+                          </span>
+                        </div>
                       ) : (
                         <>
                           <Upload className="w-10 h-10 text-gray-400 mb-3" />
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                            Check to upload image
+                            Click to upload image
                           </span>
                           <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             PNG, JPG, up to 5MB
+                          </span>
+                          <span className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                            Or use &quot;Generate with AI&quot; button above
                           </span>
                         </>
                       )}
@@ -213,7 +266,7 @@ export default function ChapterEditModal({
                         type="file"
                         accept="image/*"
                         onChange={handleImageUpload}
-                        disabled={isUploadingImage}
+                        disabled={isUploadingImage || isGeneratingImage}
                         className="hidden"
                       />
                     </label>
@@ -222,6 +275,11 @@ export default function ChapterEditModal({
                 {imageUploadError && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-400">
                     {imageUploadError}
+                  </p>
+                )}
+                {imageGenerationError && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    {imageGenerationError}
                   </p>
                 )}
               </div>
@@ -264,25 +322,25 @@ export default function ChapterEditModal({
                     <summary className="font-medium">CSV Format</summary>
                     <pre className="mt-2 bg-white dark:bg-gray-900 p-2 rounded text-xs overflow-x-auto">
                       {`type,title,content,code
-intro,,Introduction text goes here,
-tip,Pro Tip Title,Tip content,
-instruction,Step Title,Step description,code snippet`}
+                        intro,,Introduction text goes here,
+                        tip,Pro Tip Title,Tip content,
+                        instruction,Step Title,Step description,code snippet`}
                     </pre>
                   </details>
                   <details className="cursor-pointer">
                     <summary className="font-medium">Markdown Format</summary>
                     <pre className="mt-2 bg-white dark:bg-gray-900 p-2 rounded text-xs overflow-x-auto">
                       {`# Introduction
-Intro text here
+                        Intro text here
 
-## Pro Tip: Title
-Tip content
+                        ## Pro Tip: Title
+                        Tip content
 
-## Instruction: Title
-Description
-\`\`\`
-code
-\`\`\``}
+                        ## Instruction: Title
+                        Description
+                        \`\`\`
+                        code
+                        \`\`\``}
                     </pre>
                   </details>
                 </div>

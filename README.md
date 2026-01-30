@@ -355,6 +355,43 @@ Admins can use the AI assistant to generate comprehensive chapter content.
   - Supports **Multi-language Generation** (English/French)
   - **One-click Apply**: Apply all generated metadata and content at once
 
+### Block-Level AI Actions
+
+Each content block in the rich content editor has AI-powered actions:
+
+- **🔄 AI Regenerate Block**: Click the sparkle icon on any block to regenerate its content
+  - Quick actions: "More concise", "More detailed", "Add example"
+  - Custom instructions for specific improvements
+  - Preserves block type while improving content
+
+- **✨ AI Improve Selection**: Select text in the rich text editor to reveal the "AI Improve" button
+  - Quick actions: "Fix grammar", "More professional", "Simplify", "Expand"
+  - Custom instructions for targeted improvements
+  - Preview changes before applying
+
+### AI Image Generation
+
+Generate chapter cover images automatically using AI:
+
+- **🖼️ Generate with AI**: Click the button in the Chapter Image section
+  - Uses **Google Imagen 3** for high-quality image generation
+  - Generates images based on chapter title, description, and content
+  - Automatically uploads to Cloudinary
+  - Supports **regeneration** to try different variations
+
+### Environment Variables
+
+```env
+# Gemini AI (Required for AI features)
+GEMINI_API_KEY=your_gemini_api_key
+
+# Pollinations.ai (Optional - fallback for image generation)
+POLLINATIONS_API_KEY=your_pollinations_api_key
+```
+
+- **GEMINI_API_KEY**: Get your API key from [Google AI Studio](https://aistudio.google.com/apikey)
+- **POLLINATIONS_API_KEY**: Optional, used as fallback if Gemini image generation fails
+
 ## Available Scripts
 
 - `npm run dev` - Start development server
