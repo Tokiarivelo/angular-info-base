@@ -7,6 +7,7 @@ export interface Course extends BaseEntity {
   title: string;
   description: string | null;
   published?: boolean;
+  imageUrl?: string | null;
 }
 
 export interface Enrollment extends BaseEntity {

@@ -1,28 +1,38 @@
 'use client';
 
 import { useTransition } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateCourse } from '@/lib/actions';
 import { CourseEditFormProps } from './CourseEditForm.types';
 import { useCourseDelete } from './CourseEditForm.hooks';
 import { courseEditSchema, CourseEditFormData } from '../schemas/admin.schemas';
+import CourseImageUpload from './components/CourseImageUpload';
 
 export default function CourseEditForm({ course }: CourseEditFormProps) {
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
   const { handleCourseDelete, isDeleting } = useCourseDelete(course.id);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CourseEditFormData>({
     resolver: zodResolver(courseEditSchema),
     defaultValues: {
       title: course.title,
       description: course.description || '',
+      imageUrl: course.imageUrl || null,
     },
   });
+
+  const imageUrl = watch('imageUrl');
+  const title = watch('title');
+  const description = watch('description');
 
   const onSubmit = async (data: CourseEditFormData) => {
     startTransition(async () => {
@@ -30,8 +40,10 @@ export default function CourseEditForm({ course }: CourseEditFormProps) {
         const formData = new FormData();
         formData.append('title', data.title);
         if (data.description) formData.append('description', data.description);
+        if (data.imageUrl) formData.append('imageUrl', data.imageUrl);
 
         await updateCourse(course.id, formData);
+        queryClient.invalidateQueries({ queryKey: ['adminCourse', course.id] });
       } catch (error) {
         console.error('Failed to update course:', error);
       }
@@ -41,7 +53,13 @@ export default function CourseEditForm({ course }: CourseEditFormProps) {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-bold text-gray-900 mb-4">Edit Course</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <CourseImageUpload
+          value={imageUrl}
+          onChange={(url) => setValue('imageUrl', url)}
+          title={title}
+          description={description}
+        />
         <div>
           <label
             htmlFor="title"

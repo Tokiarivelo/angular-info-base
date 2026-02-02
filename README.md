@@ -21,7 +21,7 @@ A comprehensive Next.js 15 learning platform with course management, progress tr
 ### For Administrators
 
 - 👤 **Admin Dashboard**: Comprehensive admin panel for managing the platform
-- 📚 **Course Management**: Create, edit, and delete courses
+- 📚 **Course Management**: Create, edit, and delete courses with cover images
 - 📖 **Chapter Management**: Add chapters to courses with descriptions and live preview URLs
 - 🧪 **Quiz Creation**: Create quizzes with multiple-choice questions and explanations
 - 📊 **Analytics**: View enrollment and progress statistics

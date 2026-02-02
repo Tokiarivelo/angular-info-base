@@ -24,8 +24,6 @@ export async function updateChapter(
       },
     });
 
-    console.log('updated :>> ', updated);
-
     return { success: true, chapter: updated };
   } catch (error) {
     console.error('Error updating chapter:', error);

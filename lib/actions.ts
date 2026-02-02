@@ -469,6 +469,7 @@ export async function updateCourse(courseId: string, formData: FormData) {
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
+  const imageUrl = formData.get('imageUrl') as string;
 
   if (!title) {
     throw new Error('Title is required');
@@ -479,6 +480,7 @@ export async function updateCourse(courseId: string, formData: FormData) {
     data: {
       title,
       description: description || null,
+      imageUrl: imageUrl || null,
     },
   });
 

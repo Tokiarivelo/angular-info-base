@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Edit, Trash, FileText, HelpCircle, Eye } from 'lucide-react';
 import ChapterEditModal from '../ChapterEditModal';
 import { useChaptersList } from './ChaptersList.hooks';
 import { ChaptersListProps } from './ChaptersList.types';
 import { createChapter, updateChapter } from '@/app/actions/chapter';
+import Image from 'next/image';
 
 export default function ChaptersList({
   courseId,
@@ -33,14 +34,22 @@ export default function ChaptersList({
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Chapters
-          </h2>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center px-1">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span className="p-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                <FileText className="w-5 h-5" />
+              </span>
+              Curriculum
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 ml-10">
+              Manage your course chapters and content
+            </p>
+          </div>
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all hover:scale-105"
           >
             <Plus className="w-4 h-4" />
             Add Chapter
@@ -48,71 +57,132 @@ export default function ChaptersList({
         </div>
 
         {chapters.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              No chapters yet. Start building your course!
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-8 h-8 text-blue-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              No chapters yet
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+              Get started by creating your first chapter. You can add text,
+              images, code blocks and quizzes.
             </p>
             <button
               onClick={() => setIsCreating(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-flex items-center gap-2"
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 inline-flex items-center gap-2 font-medium transition-colors"
             >
-              <Plus className="w-4 h-4" />
-              Add First Chapter
+              <Plus className="w-5 h-5" />
+              Create First Chapter
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {chapters.map((chapter) => (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {chapters.map((chapter, index) => (
               <div
                 key={chapter.id}
-                className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 transition-colors bg-white dark:bg-gray-800"
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-2 py-1 rounded">
-                        Order {chapter.order}
-                      </span>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        {chapter.title}
-                      </h3>
+                {/* Image Preview */}
+                <div className="aspect-video bg-gray-100 dark:bg-gray-900 relative overflow-hidden shrink-0">
+                  {chapter.imageUrl ? (
+                    <img
+                      src={chapter.imageUrl}
+                      alt={chapter.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-600">
+                      <FileText className="w-12 h-12 opacity-50" />
                     </div>
-                    {chapter.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {chapter.description}
-                      </p>
-                    )}
-                    <div className="flex gap-4 text-xs text-gray-500 dark:text-gray-400">
-                      <span>{chapter._count?.Quiz || 0} quizzes</span>
-                      <span>
-                        {chapter._count?.UserChapterProgress || 0} progress
-                        entries
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
+                  )}
+
+                  {/* Overlay Actions */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
-                      onClick={() => setEditingChapter(chapter)}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingChapter(chapter);
+                      }}
+                      className="p-2 bg-white rounded-full text-gray-700 hover:text-blue-600 hover:scale-110 transition-all shadow-lg"
+                      title="Edit Settings"
                     >
-                      Edit
+                      <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDeleteChapter(chapter.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteChapter(chapter.id);
+                      }}
                       disabled={isPending}
-                      className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                      className="p-2 bg-white rounded-full text-gray-700 hover:text-red-600 hover:scale-110 transition-all shadow-lg disabled:opacity-50"
+                      title="Delete"
                     >
-                      Delete
+                      <Trash className="w-4 h-4" />
                     </button>
+                  </div>
+
+                  <div className="absolute top-2 left-2">
+                    <span className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white rounded-md">
+                      Chapter {chapter.order}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {chapter.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
+                    {chapter.description || 'No description provided.'}
+                  </p>
+
+                  <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                    <div className="flex gap-4 text-xs font-medium text-gray-500 dark:text-gray-400">
+                      <div
+                        className="flex items-center gap-1.5"
+                        title="Quizzes"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>{chapter._count?.Quiz || 0}</span>
+                      </div>
+                      <div
+                        className="flex items-center gap-1.5"
+                        title="Progress"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{chapter._count?.UserChapterProgress || 0}</span>
+                      </div>
+                    </div>
+
+                    <a
+                      href={`/courses/chapter/${chapter.id}`}
+                      className="text-xs font-semibold px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                    >
+                      Edit Content
+                    </a>
                   </div>
                 </div>
               </div>
             ))}
+
+            {/* Quick Add Card */}
+            <button
+              onClick={() => setIsCreating(true)}
+              className="group relative flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all"
+            >
+              <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 flex items-center justify-center mb-4 transition-colors">
+                <Plus className="w-6 h-6 text-gray-400 group-hover:text-blue-600 dark:text-gray-500 dark:group-hover:text-blue-400" />
+              </div>
+              <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                Add New Chapter
+              </span>
+            </button>
           </div>
         )}
       </div>
 
-      {/* Edit/Create Modal */}
       {(editingChapter || isCreating) && (
         <ChapterEditModal
           chapter={editingChapter}

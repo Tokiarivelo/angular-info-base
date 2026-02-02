@@ -2,6 +2,8 @@ import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
@@ -34,10 +36,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { error: 'Course not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
     }
 
     return NextResponse.json(course);

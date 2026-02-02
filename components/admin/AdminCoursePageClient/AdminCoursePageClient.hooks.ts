@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Course } from './AdminCoursePageClient.types';
 
 async function fetchAdminCourse(id: string): Promise<Course> {
-  const response = await fetch(`/api/admin/courses/${id}`);
+  const response = await fetch(`/api/admin/courses/${id}`, {
+    cache: 'no-store',
+  });
 
   if (response.status === 404) {
     throw new Error('NOT_FOUND');

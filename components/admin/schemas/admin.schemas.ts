@@ -11,6 +11,7 @@ export type CreateChapterFormData = z.infer<typeof createChapterSchema>;
 export const courseEditSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
+  imageUrl: z.string().optional().nullable(),
 });
 
 export type CourseEditFormData = z.infer<typeof courseEditSchema>;
