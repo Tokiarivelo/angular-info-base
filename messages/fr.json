@@ -143,5 +143,88 @@
     "startLearning": "Commencer à apprendre",
     "continueWhere": "Continuez là où vous vous êtes arrêté",
     "progress": "Progression"
+  },
+  "coursesDashboard": {
+    "loadingDashboard": "Chargement de votre tableau de bord d'apprentissage...",
+    "welcomeBack": "Bon retour, {name} !",
+    "studentFallback": "Étudiant",
+    "activeCourses": "Continuez votre parcours d'apprentissage. Vous avez {count} cours actifs.",
+    "pendingApprovals": "Approbations en attente",
+    "pendingReview": "En attente d'examen",
+    "myCourseRequests": "Mes demandes de cours",
+    "status": {
+      "approved": "Approuvée",
+      "rejected": "Refusée",
+      "pending": "En attente"
+    },
+    "myCourses": "Mes cours",
+    "noCoursesTitle": "Aucun cours suivi pour le moment",
+    "noCoursesDescription": "Explorez notre catalogue ci-dessous pour trouver votre prochaine aventure d'apprentissage."
+  },
+  "coursesCatalog": {
+    "title": "Explorer le catalogue",
+    "subtitle": "Découvrez de nouveaux cours et développez vos compétences",
+    "searchPlaceholder": "Rechercher des cours...",
+    "requestCourse": "Demander un nouveau cours",
+    "noResults": "Aucun cours ne correspond à votre recherche.",
+    "requestCard": {
+      "title": "Vous ne trouvez pas ce qu'il vous faut ?",
+      "description": "Demandez un nouveau sujet de cours et nous envisagerons de l'ajouter."
+    }
+  },
+  "courseRequest": {
+    "title": "Demander un nouveau cours",
+    "description": "Vous ne trouvez pas le cours que vous cherchez ? Faites-en la demande ici et notre équipe examinera votre suggestion.",
+    "fields": {
+      "titleLabel": "Titre du cours *",
+      "titlePlaceholder": "ex. : Modèles React avancés",
+      "descriptionLabel": "Description du cours",
+      "descriptionPlaceholder": "Quels sujets ce cours devrait-il couvrir ?",
+      "reasonLabel": "Pourquoi avez-vous besoin de ce cours ?",
+      "reasonPlaceholder": "Expliquez-nous pourquoi ce cours vous serait utile..."
+    },
+    "actions": {
+      "sending": "Envoi de la demande...",
+      "submit": "Soumettre la demande",
+      "cancel": "Annuler"
+    }
+  },
+  "courseCard": {
+    "status": {
+      "enrolled": "Inscrit",
+      "pendingApproval": "Approbation en attente"
+    },
+    "noDescription": "Aucune description disponible pour ce cours.",
+    "lessons": "{count, plural, one {# Leçon} other {# Leçons}}",
+    "selfPaced": "À votre rythme",
+    "actions": {
+      "continue": "Continuer l'apprentissage",
+      "start": "Commencer le cours",
+      "requestPending": "Demande en attente"
+    }
+  },
+  "enroll": {
+    "status": {
+      "enrolled": "Inscrit"
+    },
+    "actions": {
+      "enroll": "S'inscrire",
+      "enrolling": "Inscription..."
+    }
+  },
+  "enrollmentRequest": {
+    "title": "Demander une inscription",
+    "courseLabel": "Cours :",
+    "messageLabel": "Message (facultatif)",
+    "messagePlaceholder": "Expliquez à l'administrateur pourquoi vous souhaitez vous inscrire à ce cours...",
+    "actions": {
+      "request": "Demander une inscription",
+      "send": "Envoyer la demande",
+      "sending": "Envoi...",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "sendFailed": "Échec de l'envoi de la demande"
+    }
   }
 }

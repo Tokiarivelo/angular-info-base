@@ -143,5 +143,88 @@
     "startLearning": "Start Learning",
     "continueWhere": "Continue where you left off",
     "progress": "Progress"
+  },
+  "coursesDashboard": {
+    "loadingDashboard": "Loading your learning dashboard...",
+    "welcomeBack": "Welcome back, {name}!",
+    "studentFallback": "Student",
+    "activeCourses": "Continue your learning journey. You have {count} active courses.",
+    "pendingApprovals": "Pending Approvals",
+    "pendingReview": "Pending Review",
+    "myCourseRequests": "My Course Requests",
+    "status": {
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pending": "Pending"
+    },
+    "myCourses": "My Courses",
+    "noCoursesTitle": "No courses enrolled yet",
+    "noCoursesDescription": "Explore our catalog below to find your next learning adventure."
+  },
+  "coursesCatalog": {
+    "title": "Explore Catalog",
+    "subtitle": "Discover new courses and expand your skills",
+    "searchPlaceholder": "Search courses...",
+    "requestCourse": "Request New Course",
+    "noResults": "No courses found matching your search.",
+    "requestCard": {
+      "title": "Don't see what you need?",
+      "description": "Request a new course topic and we'll consider adding it."
+    }
+  },
+  "courseRequest": {
+    "title": "Request a New Course",
+    "description": "Can't find the course you're looking for? Request it here and our team will review your suggestion.",
+    "fields": {
+      "titleLabel": "Course Title *",
+      "titlePlaceholder": "e.g., Advanced React Patterns",
+      "descriptionLabel": "Course Description",
+      "descriptionPlaceholder": "What topics should this course cover?",
+      "reasonLabel": "Why do you need this course?",
+      "reasonPlaceholder": "Tell us why this course would be valuable to you..."
+    },
+    "actions": {
+      "sending": "Sending Request...",
+      "submit": "Submit Request",
+      "cancel": "Cancel"
+    }
+  },
+  "courseCard": {
+    "status": {
+      "enrolled": "Enrolled",
+      "pendingApproval": "Pending Approval"
+    },
+    "noDescription": "No description available for this course.",
+    "lessons": "{count, plural, one {# Lesson} other {# Lessons}}",
+    "selfPaced": "Self-paced",
+    "actions": {
+      "continue": "Continue Learning",
+      "start": "Start Course",
+      "requestPending": "Request Pending"
+    }
+  },
+  "enroll": {
+    "status": {
+      "enrolled": "Enrolled"
+    },
+    "actions": {
+      "enroll": "Enroll",
+      "enrolling": "Enrolling..."
+    }
+  },
+  "enrollmentRequest": {
+    "title": "Request Enrollment",
+    "courseLabel": "Course:",
+    "messageLabel": "Message (optional)",
+    "messagePlaceholder": "Tell the admin why you want to enroll in this course...",
+    "actions": {
+      "request": "Request Enrollment",
+      "send": "Send Request",
+      "sending": "Sending...",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "sendFailed": "Failed to send request"
+    }
   }
 }
