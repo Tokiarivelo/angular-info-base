@@ -1,7 +1,10 @@
 import { useState, useTransition } from 'react';
 import { requestCourseEnrollment } from '@/lib/actions';
 
-export function useRequestEnrollment(courseId: string) {
+export function useRequestEnrollment(
+  courseId: string,
+  options: { errorFallbackMessage: string }
+) {
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
@@ -17,7 +20,7 @@ export function useRequestEnrollment(courseId: string) {
       } catch (error) {
         console.error('Failed to request enrollment:', error);
         setError(
-          error instanceof Error ? error.message : 'Failed to send request'
+          error instanceof Error ? error.message : options.errorFallbackMessage
         );
       }
     });

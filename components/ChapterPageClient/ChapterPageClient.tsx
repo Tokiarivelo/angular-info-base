@@ -13,6 +13,7 @@ import {
   Separator as PanelResizeHandle,
 } from 'react-resizable-panels';
 import { Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function ChapterPageClient({
   id,
@@ -21,6 +22,7 @@ export default function ChapterPageClient({
   id: string;
   user: User;
 }) {
+  const t = useTranslations('chapterPage');
   const { data, isLoading, error } = useChapterData(id);
   const progress = data?.progress ?? null;
 
@@ -46,7 +48,7 @@ export default function ChapterPageClient({
             </div>
           </div>
           <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">
-            Loading chapter content...
+            {t('loading')}
           </p>
         </div>
       </div>
@@ -61,18 +63,17 @@ export default function ChapterPageClient({
             <AlertCircle className="w-8 h-8 text-red-500 dark:text-red-400" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-            Chapter Not Found
+            {t('notFound.title')}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8">
-            The chapter you&apos;re looking for doesn&apos;t exist or you
-            don&apos;t have permission to view it.
+            {t('notFound.description')}
           </p>
           <Link
             href="/courses"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium hover:scale-105 transition-transform w-full"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to Courses
+            {t('notFound.backToCourses')}
           </Link>
         </div>
       </div>

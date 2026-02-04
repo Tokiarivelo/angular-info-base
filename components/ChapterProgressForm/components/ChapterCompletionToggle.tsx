@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface ChapterCompletionToggleProps {
   completed: boolean;
   onToggle: () => Promise<void>;
@@ -11,6 +13,7 @@ export default function ChapterCompletionToggle({
   onToggle,
   isPending,
 }: ChapterCompletionToggleProps) {
+  const t = useTranslations('chapterProgress.completion');
   return (
     <div
       className={`p-6 rounded-lg border-2 transition-all shadow-sm ${
@@ -47,7 +50,7 @@ export default function ChapterCompletionToggle({
                   : 'text-gray-700 dark:text-gray-300'
               }`}
             >
-              Mark chapter as completed
+              {t('label')}
             </span>
           </div>
           <p
@@ -57,9 +60,7 @@ export default function ChapterCompletionToggle({
                 : 'text-gray-500 dark:text-gray-400'
             }`}
           >
-            {completed
-              ? "🎉 Great job! You've completed this chapter."
-              : "Check this box when you've finished all the requirements."}
+            {completed ? t('completedMessage') : t('pendingMessage')}
           </p>
         </div>
       </label>

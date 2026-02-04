@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, PlayCircle, Clock, Info } from 'lucide-react';
+import { BookOpen, PlayCircle, Clock } from 'lucide-react';
 import { CourseCardProps } from './CourseCard.types';
 import EnrollButton from '@/components/EnrollButton';
 import RequestEnrollmentButton from '@/components/RequestEnrollmentButton';
+import { useTranslations } from 'next-intl';
 
 export default function CourseCard({
   id,
@@ -17,6 +18,7 @@ export default function CourseCard({
   nextChapter,
   children, // Slot for custom actions if needed
 }: React.PropsWithChildren<CourseCardProps>) {
+  const t = useTranslations('courseCard');
   return (
     <div className="group relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
       {/* Image Section */}
@@ -37,14 +39,14 @@ export default function CourseCard({
         {isEnrolled && (
           <div className="absolute top-3 right-3">
             <span className="bg-green-100/90 backdrop-blur-sm text-green-700 text-xs px-2.5 py-1 rounded-full font-medium shadow-sm border border-green-200">
-              Enrolled
+              {t('status.enrolled')}
             </span>
           </div>
         )}
         {status === 'PENDING' && (
           <div className="absolute top-3 right-3">
             <span className="bg-yellow-100/90 backdrop-blur-sm text-yellow-700 text-xs px-2.5 py-1 rounded-full font-medium shadow-sm border border-yellow-200">
-              Pending Approval
+              {t('status.pendingApproval')}
             </span>
           </div>
         )}
@@ -57,19 +59,19 @@ export default function CourseCard({
         </h3>
 
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 min-h-[40px] flex-1">
-          {description || 'No description available for this course.'}
+          {description || t('noDescription')}
         </p>
 
         {/* Metadata */}
         <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400 mb-4 pt-4 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-1.5">
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{chaptersCount} Lessons</span>
+            <span>{t('lessons', { count: chaptersCount })}</span>
           </div>
           {/* Default duration placeholder if we don't have it */}
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" />
-            <span>Self-paced</span>
+            <span>{t('selfPaced')}</span>
           </div>
         </div>
 
@@ -81,14 +83,14 @@ export default function CourseCard({
               className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 ${!nextChapter ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <PlayCircle className="w-4 h-4" />
-              {nextChapter ? 'Continue Learning' : 'Start Course'}
+              {nextChapter ? t('actions.continue') : t('actions.start')}
             </Link>
           ) : status === 'PENDING' ? (
             <button
               disabled
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 font-medium rounded-xl cursor-not-allowed"
             >
-              Request Pending
+              {t('actions.requestPending')}
             </button>
           ) : (
             <div className="flex flex-col gap-2">

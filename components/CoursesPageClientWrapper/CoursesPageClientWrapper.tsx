@@ -7,8 +7,10 @@ import CourseCard from '@/components/CourseCard/CourseCard';
 import { useCoursesData } from './CoursesPageClientWrapper.hooks';
 import { User } from 'next-auth';
 import { BookOpen, AlertCircle, Clock, CheckCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function CoursesPageClientWrapper({ user }: { user: User }) {
+  const t = useTranslations('coursesDashboard');
   const {
     enrollments,
     enrollmentRequests,
@@ -25,7 +27,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
             <p className="text-gray-500 dark:text-gray-400 font-medium">
-              Loading your learning dashboard...
+              {t('loadingDashboard')}
             </p>
           </div>
         </div>
@@ -50,11 +52,12 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="relative z-10">
             <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {user.name?.split(' ')[0] || 'Student'}!
+              {t('welcomeBack', {
+                name: user.name?.split(' ')[0] || t('studentFallback'),
+              })}
             </h1>
             <p className="text-blue-100 max-w-xl text-lg">
-              Continue your learning journey. You have{' '}
-              {enrollments?.length || 0} active courses.
+              {t('activeCourses', { count: enrollments?.length || 0 })}
             </p>
           </div>
         </div>
@@ -64,7 +67,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-yellow-500" />
-              Pending Approvals
+              {t('pendingApprovals')}
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {enrollmentRequests.map((request) => (
@@ -78,7 +81,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
                   </h3>
                   <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mt-3">
                     <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium">
-                      Pending Review
+                      {t('pendingReview')}
                     </span>
                     <span>
                       {new Date(request.createdAt).toLocaleDateString()}
@@ -95,7 +98,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-blue-500" />
-              My Course Requests
+              {t('myCourseRequests')}
             </h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {courseRequests.map((request) => (
@@ -138,7 +141,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
                             : 'bg-blue-100 text-blue-700'
                       }`}
                     >
-                      {request.status}
+                      {t(`status.${request.status.toLowerCase()}`)}
                     </span>
                     <span className="text-gray-400 text-xs">
                       {new Date(request.createdAt).toLocaleDateString()}
@@ -155,7 +158,7 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              My Courses
+              {t('myCourses')}
             </h2>
           </div>
 
@@ -165,10 +168,10 @@ export default function CoursesPageClientWrapper({ user }: { user: User }) {
                 <BookOpen className="w-8 h-8 text-blue-500" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                No courses enrolled yet
+                {t('noCoursesTitle')}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-                Explore our catalog below to find your next learning adventure.
+                {t('noCoursesDescription')}
               </p>
             </div>
           ) : (

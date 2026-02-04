@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import QuizTaker from '@/components/QuizTaker';
 import {
@@ -14,6 +16,7 @@ import ChapterCompletionToggle from '@/components/ChapterProgressForm/components
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface ChapterContentPanelProps {
   chapter: any;
@@ -26,6 +29,7 @@ interface ChapterContentPanelProps {
 
 const CodeBlock = ({ language, code }: { language: string; code: string }) => {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations('chapterContent');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
@@ -53,12 +57,14 @@ const CodeBlock = ({ language, code }: { language: string; code: string }) => {
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-green-400" />
-              <span className="text-green-400 font-medium">Copied</span>
+              <span className="text-green-400 font-medium">
+                {t('code.copied')}
+              </span>
             </>
           ) : (
             <>
               <Copy className="w-3.5 h-3.5" />
-              <span>Copy</span>
+              <span>{t('code.copy')}</span>
             </>
           )}
         </button>
@@ -92,6 +98,7 @@ export default function ChapterContentPanel({
   onToggleCompletion,
   isPending,
 }: ChapterContentPanelProps) {
+  const t = useTranslations('chapterContent');
   const previousChapter =
     currentIndex > 0 ? allChapters[currentIndex - 1] : null;
   const nextChapter =
@@ -109,7 +116,7 @@ export default function ChapterContentPanel({
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
           >
             <ChevronLeft className="w-4 h-4" />
-            Courses
+            {t('breadcrumb.courses')}
           </Link>
           <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
           <span className="truncate max-w-[200px]">{chapter.Course.title}</span>
@@ -121,7 +128,7 @@ export default function ChapterContentPanel({
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-xs">
               {currentIndex + 1}
             </span>
-            Chapter {currentIndex + 1}
+            {t('chapterLabel', { number: currentIndex + 1 })}
           </div>
 
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
@@ -138,13 +145,15 @@ export default function ChapterContentPanel({
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
               <BookOpen className="w-4 h-4" />
               <span>
-                ~{Math.ceil((chapter.content?.length || 10) * 0.5)} min read
+                {t('readingTime', {
+                  minutes: Math.ceil((chapter.content?.length || 10) * 0.5),
+                })}
               </span>
             </div>
             {completed && (
               <div className="flex items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold uppercase tracking-wide rounded-full">
                 <CheckCircle className="w-3.5 h-3.5" />
-                Completed
+                {t('completed')}
               </div>
             )}
           </div>
@@ -187,7 +196,7 @@ export default function ChapterContentPanel({
                         </div>
                         <div className="flex-1">
                           <h4 className="flex items-center gap-2 text-base font-bold text-blue-900 dark:text-blue-100 uppercase tracking-wide mb-2">
-                            {block.title || 'Pro Tip'}
+                            {block.title || t('proTip')}
                           </h4>
                           <div
                             className="prose prose-sm dark:prose-invert max-w-none text-blue-800 dark:text-blue-200"
@@ -204,7 +213,7 @@ export default function ChapterContentPanel({
                       <div className="relative rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                         <img
                           src={block.content}
-                          alt={block.title || 'Chapter Image'}
+                          alt={block.title || t('imageAlt')}
                           className="w-full max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.01]"
                           loading="lazy"
                         />
@@ -258,7 +267,7 @@ export default function ChapterContentPanel({
                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
                   <PlayCircle className="w-5 h-5" />
                 </span>
-                Step-by-Step Instructions
+                {t('instructions.title')}
               </h3>
 
               <div className="relative border-l-2 border-dashed border-gray-200 dark:border-gray-800 ml-4 space-y-12 pb-4">
@@ -306,7 +315,7 @@ export default function ChapterContentPanel({
                 <CheckCircle className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Knowledge Check
+                {t('knowledgeCheck')}
               </h2>
             </div>
 
@@ -326,7 +335,7 @@ export default function ChapterContentPanel({
         {/* Completion Action */}
         <section className="mt-12 py-10 border-t border-b border-gray-100 dark:border-gray-800 flex flex-col items-center text-center bg-gray-50/50 dark:bg-gray-900/30 -mx-6 md:-mx-10 px-6 md:px-10">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Ready to move on?
+            {t('readyToMoveOn')}
           </h3>
           <ChapterCompletionToggle
             completed={completed}
@@ -347,7 +356,7 @@ export default function ChapterContentPanel({
               </div>
               <div>
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  Previous
+                  {t('navigation.previous')}
                 </div>
                 <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
                   {previousChapter.title}
@@ -365,7 +374,7 @@ export default function ChapterContentPanel({
             >
               <div>
                 <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  Next Lesson
+                  {t('navigation.nextLesson')}
                 </div>
                 <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
                   {nextChapter.title}

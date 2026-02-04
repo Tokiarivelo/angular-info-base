@@ -1,6 +1,7 @@
 'use client';
 
 import { Screenshot } from '@/types/chapter.types';
+import { useTranslations } from 'next-intl';
 
 interface ChapterScreenshotUploadProps {
   screenshots: Screenshot[];
@@ -19,6 +20,7 @@ export default function ChapterScreenshotUpload({
   uploadError,
   isPending,
 }: ChapterScreenshotUploadProps) {
+  const t = useTranslations('chapterProgress.screenshots');
   return (
     <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-l-4 border-purple-500 p-6 rounded-r-lg shadow-sm">
       <div className="flex items-center gap-3 mb-4">
@@ -26,7 +28,7 @@ export default function ChapterScreenshotUpload({
           <span className="text-2xl">📸</span>
         </div>
         <label className="text-lg font-bold text-gray-900 dark:text-white">
-          Screenshots
+          {t('title')}
         </label>
       </div>
 
@@ -39,10 +41,10 @@ export default function ChapterScreenshotUpload({
             <div className="space-y-2">
               <div className="text-4xl">🖼️</div>
               <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Click to upload or drag and drop
+                {t('uploadPrompt')}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                PNG, JPG, GIF up to 10MB
+                {t('fileTypes')}
               </div>
             </div>
             <input
@@ -57,7 +59,7 @@ export default function ChapterScreenshotUpload({
           {isUploading && (
             <div className="mt-3 flex items-center justify-center gap-2 text-sm text-purple-600 dark:text-purple-400 font-medium">
               <div className="animate-spin w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"></div>
-              Uploading...
+              {t('uploading')}
             </div>
           )}
           {uploadError && (
@@ -71,7 +73,7 @@ export default function ChapterScreenshotUpload({
         {screenshots.length > 0 && (
           <div className="space-y-3">
             <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-              📷 Uploaded ({screenshots.length})
+              {t('uploaded', { count: screenshots.length })}
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {screenshots.map((screenshot) => (
@@ -91,7 +93,7 @@ export default function ChapterScreenshotUpload({
                     onClick={() => onRemove(screenshot.id)}
                     disabled={isPending}
                     className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-700 hover:scale-110 disabled:opacity-50 shadow-lg"
-                    aria-label="Remove screenshot"
+                    aria-label={t('removeLabel')}
                   >
                     <svg
                       className="w-4 h-4"
