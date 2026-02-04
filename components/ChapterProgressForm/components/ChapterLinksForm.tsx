@@ -2,6 +2,7 @@
 
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { ChapterProgressFormData } from '../ChapterProgressForm.schema';
+import { useTranslations } from 'next-intl';
 
 interface ChapterLinksFormProps {
   register: UseFormRegister<ChapterProgressFormData>;
@@ -14,6 +15,7 @@ export default function ChapterLinksForm({
   errors,
   isPending,
 }: ChapterLinksFormProps) {
+  const t = useTranslations('chapterProgress.links');
   return (
     <div className="space-y-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-l-4 border-blue-500 p-6 rounded-r-lg shadow-sm">
       <div className="flex items-center gap-3 mb-4">
@@ -21,7 +23,7 @@ export default function ChapterLinksForm({
           <span className="text-2xl">🔗</span>
         </div>
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-          Project Links
+          {t('title')}
         </h3>
       </div>
 
@@ -30,12 +32,12 @@ export default function ChapterLinksForm({
           htmlFor="repositoryUrl"
           className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2"
         >
-          📦 GitHub Repository URL
+          {t('repositoryLabel')}
         </label>
         <input
           type="url"
           id="repositoryUrl"
-          placeholder="https://github.com/username/repository"
+          placeholder={t('repositoryPlaceholder')}
           className={`w-full px-4 py-3 border-2 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
             errors.repositoryUrl
               ? 'border-red-500'
@@ -55,12 +57,12 @@ export default function ChapterLinksForm({
           htmlFor="websiteUrl"
           className="block text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2"
         >
-          🌐 Deployed Website URL
+          {t('websiteLabel')}
         </label>
         <input
           type="url"
           id="websiteUrl"
-          placeholder="https://your-project.vercel.app"
+          placeholder={t('websitePlaceholder')}
           className={`w-full px-4 py-3 border-2 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
             errors.websiteUrl
               ? 'border-red-500'
@@ -80,7 +82,7 @@ export default function ChapterLinksForm({
         disabled={isPending}
         className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
       >
-        {isPending ? '💾 Saving...' : '✅ Save Links'}
+        {isPending ? t('saving') : t('save')}
       </button>
     </div>
   );

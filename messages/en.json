@@ -226,5 +226,82 @@
     "errors": {
       "sendFailed": "Failed to send request"
     }
+  },
+  "chapterPage": {
+    "loading": "Loading chapter content...",
+    "notFound": {
+      "title": "Chapter Not Found",
+      "description": "The chapter you're looking for doesn't exist or you don't have permission to view it.",
+      "backToCourses": "Back to Courses"
+    }
+  },
+  "chapterContent": {
+    "code": {
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "breadcrumb": {
+      "courses": "Courses"
+    },
+    "chapterLabel": "Chapter {number}",
+    "readingTime": "~{minutes} min read",
+    "completed": "Completed",
+    "proTip": "Pro Tip",
+    "imageAlt": "Chapter Image",
+    "instructions": {
+      "title": "Step-by-Step Instructions"
+    },
+    "knowledgeCheck": "Knowledge Check",
+    "readyToMoveOn": "Ready to move on?",
+    "navigation": {
+      "previous": "Previous",
+      "nextLesson": "Next Lesson"
+    }
+  },
+  "chapterWorkspace": {
+    "tabs": {
+      "liveCode": "Live Code",
+      "preview": "Preview",
+      "submission": "Submission"
+    },
+    "submission": {
+      "title": "Submit Your Work",
+      "description": "Share your progress by providing links and screenshots of your implementation.",
+      "repositories": "Project Repositories",
+      "saving": "Saving...",
+      "save": "Save Changes",
+      "visualProof": "Visual Proof",
+      "visualProofDescription": "Upload screenshots of your running application to verify visual correctness."
+    },
+    "preview": {
+      "openNewTab": "Open New Tab",
+      "title": "Live Preview",
+      "emptyTitle": "No Preview Available",
+      "emptyDescription": "This chapter doesn't have a configured live preview environment. Use the Code or Submission tabs."
+    }
+  },
+  "chapterProgress": {
+    "links": {
+      "title": "Project Links",
+      "repositoryLabel": "📦 GitHub Repository URL",
+      "repositoryPlaceholder": "https://github.com/username/repository",
+      "websiteLabel": "🌐 Deployed Website URL",
+      "websitePlaceholder": "https://your-project.vercel.app",
+      "saving": "💾 Saving...",
+      "save": "✅ Save Links"
+    },
+    "completion": {
+      "label": "Mark chapter as completed",
+      "completedMessage": "🎉 Great job! You've completed this chapter.",
+      "pendingMessage": "Check this box when you've finished all the requirements."
+    },
+    "screenshots": {
+      "title": "Screenshots",
+      "uploadPrompt": "Click to upload or drag and drop",
+      "fileTypes": "PNG, JPG, GIF up to 10MB",
+      "uploading": "Uploading...",
+      "uploaded": "📷 Uploaded ({count})",
+      "removeLabel": "Remove screenshot"
+    }
   }
 }

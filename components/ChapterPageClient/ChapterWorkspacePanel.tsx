@@ -20,6 +20,7 @@ import {
   chapterProgressSchema,
   ChapterProgressFormData,
 } from '@/components/ChapterProgressForm/ChapterProgressForm.schema';
+import { useTranslations } from 'next-intl';
 
 interface ChapterWorkspacePanelProps {
   chapterId: string;
@@ -50,6 +51,7 @@ export default function ChapterWorkspacePanel({
   handleRemoveScreenshot,
   onSubmit,
 }: ChapterWorkspacePanelProps) {
+  const t = useTranslations('chapterWorkspace');
   const [activeTab, setActiveTab] = useState<Tab>('live-coding');
 
   const {
@@ -72,19 +74,19 @@ export default function ChapterWorkspacePanel({
           active={activeTab === 'live-coding'}
           onClick={() => setActiveTab('live-coding')}
           icon={<Code2 className="w-4 h-4" />}
-          label="Live Code"
+          label={t('tabs.liveCode')}
         />
         <TabButton
           active={activeTab === 'preview'}
           onClick={() => setActiveTab('preview')}
           icon={<Monitor className="w-4 h-4" />}
-          label="Preview"
+          label={t('tabs.preview')}
         />
         <TabButton
           active={activeTab === 'screenshot'}
           onClick={() => setActiveTab('screenshot')}
           icon={<UploadCloud className="w-4 h-4" />}
-          label="Submission"
+          label={t('tabs.submission')}
         />
       </div>
 
@@ -118,11 +120,10 @@ export default function ChapterWorkspacePanel({
             <div className="max-w-2xl mx-auto space-y-8">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Submit Your Work
+                  {t('submission.title')}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Share your progress by providing links and screenshots of your
-                  implementation.
+                  {t('submission.description')}
                 </p>
               </div>
 
@@ -133,7 +134,7 @@ export default function ChapterWorkspacePanel({
                     <LinkIcon className="w-4 h-4" />
                   </div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Project Repositories
+                    {t('submission.repositories')}
                   </h3>
                 </div>
 
@@ -150,7 +151,7 @@ export default function ChapterWorkspacePanel({
                         disabled={isPending}
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-indigo-600 text-white rounded-xl font-medium hover:bg-gray-800 dark:hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none"
                       >
-                        {isPending ? 'Saving...' : 'Save Changes'}
+                        {isPending ? t('submission.saving') : t('submission.save')}
                       </button>
                     </div>
                   </form>
@@ -164,14 +165,13 @@ export default function ChapterWorkspacePanel({
                     <ImageIcon className="w-4 h-4" />
                   </div>
                   <h3 className="font-semibold text-gray-900 dark:text-white">
-                    Visual Proof
+                    {t('submission.visualProof')}
                   </h3>
                 </div>
 
                 <div className="p-6">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                    Upload screenshots of your running application to verify
-                    visual correctness.
+                    {t('submission.visualProofDescription')}
                   </p>
                   <ChapterScreenshotUpload
                     screenshots={screenshots}
@@ -205,7 +205,7 @@ export default function ChapterWorkspacePanel({
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium px-3 py-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                   >
-                    <span>Open New Tab</span>
+                    <span>{t('preview.openNewTab')}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -213,7 +213,7 @@ export default function ChapterWorkspacePanel({
                   <iframe
                     src={chapter.livePreviewUrl}
                     className="w-full h-full border-0 shadow-inner"
-                    title="Live Preview"
+                    title={t('preview.title')}
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                   />
                   {/* Overlay for iframe loading state could go here */}
@@ -226,11 +226,10 @@ export default function ChapterWorkspacePanel({
                     <Monitor className="w-10 h-10 text-gray-300 dark:text-gray-600" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    No Preview Available
+                    {t('preview.emptyTitle')}
                   </h3>
                   <p className="text-gray-500 dark:text-gray-400">
-                    This chapter doesn&apos;t have a configured live preview
-                    environment. Use the Code or Submission tabs.
+                    {t('preview.emptyDescription')}
                   </p>
                 </div>
               </div>

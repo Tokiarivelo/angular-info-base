@@ -226,5 +226,82 @@
     "errors": {
       "sendFailed": "Échec de l'envoi de la demande"
     }
+  },
+  "chapterPage": {
+    "loading": "Chargement du contenu du chapitre...",
+    "notFound": {
+      "title": "Chapitre introuvable",
+      "description": "Le chapitre que vous cherchez n'existe pas ou vous n'avez pas l'autorisation de le consulter.",
+      "backToCourses": "Retour aux cours"
+    }
+  },
+  "chapterContent": {
+    "code": {
+      "copy": "Copier",
+      "copied": "Copié"
+    },
+    "breadcrumb": {
+      "courses": "Cours"
+    },
+    "chapterLabel": "Chapitre {number}",
+    "readingTime": "~{minutes} min de lecture",
+    "completed": "Terminé",
+    "proTip": "Astuce",
+    "imageAlt": "Image du chapitre",
+    "instructions": {
+      "title": "Instructions étape par étape"
+    },
+    "knowledgeCheck": "Vérification des connaissances",
+    "readyToMoveOn": "Prêt à continuer ?",
+    "navigation": {
+      "previous": "Précédent",
+      "nextLesson": "Leçon suivante"
+    }
+  },
+  "chapterWorkspace": {
+    "tabs": {
+      "liveCode": "Code en direct",
+      "preview": "Aperçu",
+      "submission": "Soumission"
+    },
+    "submission": {
+      "title": "Soumettez votre travail",
+      "description": "Partagez vos progrès en fournissant des liens et des captures d'écran de votre implémentation.",
+      "repositories": "Dépôts du projet",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les modifications",
+      "visualProof": "Preuve visuelle",
+      "visualProofDescription": "Téléchargez des captures d'écran de votre application en cours d'exécution pour vérifier le rendu visuel."
+    },
+    "preview": {
+      "openNewTab": "Ouvrir dans un nouvel onglet",
+      "title": "Aperçu en direct",
+      "emptyTitle": "Aucun aperçu disponible",
+      "emptyDescription": "Ce chapitre n'a pas d'environnement d'aperçu configuré. Utilisez les onglets Code ou Soumission."
+    }
+  },
+  "chapterProgress": {
+    "links": {
+      "title": "Liens du projet",
+      "repositoryLabel": "📦 URL du dépôt GitHub",
+      "repositoryPlaceholder": "https://github.com/username/repository",
+      "websiteLabel": "🌐 URL du site déployé",
+      "websitePlaceholder": "https://your-project.vercel.app",
+      "saving": "💾 Enregistrement...",
+      "save": "✅ Enregistrer les liens"
+    },
+    "completion": {
+      "label": "Marquer le chapitre comme terminé",
+      "completedMessage": "🎉 Bravo ! Vous avez terminé ce chapitre.",
+      "pendingMessage": "Cochez cette case lorsque vous avez terminé toutes les exigences."
+    },
+    "screenshots": {
+      "title": "Captures d'écran",
+      "uploadPrompt": "Cliquez pour téléverser ou glissez-déposez",
+      "fileTypes": "PNG, JPG, GIF jusqu'à 10 Mo",
+      "uploading": "Téléversement...",
+      "uploaded": "📷 Téléversées ({count})",
+      "removeLabel": "Supprimer la capture d'écran"
+    }
   }
 }
