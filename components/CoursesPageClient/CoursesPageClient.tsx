@@ -5,12 +5,14 @@ import RequestCourseModal from '@/components/RequestCourseModal'; // Assuming Re
 import { CoursesPageClientProps } from './CoursesPageClient.types';
 import CourseCard from '@/components/CourseCard/CourseCard';
 import { Search, Grid, List } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function CoursesPageClient({
   allCourses,
   enrolledCourseIds,
   requestedCourseIds,
 }: CoursesPageClientProps) {
+  const t = useTranslations('coursesCatalog');
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -31,10 +33,10 @@ export default function CoursesPageClient({
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Grid className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              Explore Catalog
+              {t('title')}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Discover new courses and expand your skills
+              {t('subtitle')}
             </p>
           </div>
 
@@ -43,7 +45,7 @@ export default function CoursesPageClient({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search courses..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-purple-500 outline-none w-full md:w-64"
@@ -54,7 +56,7 @@ export default function CoursesPageClient({
               onClick={() => setShowRequestModal(true)}
               className="px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 text-sm font-medium transition-colors shadow-lg shadow-purple-600/20 whitespace-nowrap"
             >
-              Request New Course
+              {t('requestCourse')}
             </button>
           </div>
         </div>
@@ -62,7 +64,7 @@ export default function CoursesPageClient({
         {filteredCourses.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
             <p className="text-gray-500 dark:text-gray-400">
-              No courses found matching your search.
+              {t('noResults')}
             </p>
           </div>
         ) : (
@@ -108,10 +110,10 @@ export default function CoursesPageClient({
                 <List className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="font-semibold text-purple-900 dark:text-purple-300 mb-1">
-                Don&apos;t see what you need?
+                {t('requestCard.title')}
               </h3>
               <p className="text-sm text-purple-700 dark:text-purple-400 text-center max-w-[200px]">
-                Request a new course topic and we&apos;ll consider adding it.
+                {t('requestCard.description')}
               </p>
             </button>
           </div>

@@ -2,11 +2,13 @@
 
 import { RequestEnrollmentButtonProps } from './RequestEnrollmentButton.types';
 import { useRequestEnrollment } from './RequestEnrollmentButton.hooks';
+import { useTranslations } from 'next-intl';
 
 export default function RequestEnrollmentButton({
   courseId,
   courseTitle,
 }: RequestEnrollmentButtonProps) {
+  const t = useTranslations('enrollmentRequest');
   const {
     isPending,
     showForm,
@@ -16,28 +18,30 @@ export default function RequestEnrollmentButton({
     handleRequest,
     openForm,
     closeForm,
-  } = useRequestEnrollment(courseId);
+  } = useRequestEnrollment(courseId, {
+    errorFallbackMessage: t('errors.sendFailed'),
+  });
 
   if (showForm) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-4">
-            Request Enrollment
+            {t('title')}
           </h3>
           <p className="text-gray-600 mb-4">
-            Course: <strong>{courseTitle}</strong>
+            {t('courseLabel')} <strong>{courseTitle}</strong>
           </p>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Message (optional)
+              {t('messageLabel')}
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Tell the admin why you want to enroll in this course..."
+              placeholder={t('messagePlaceholder')}
             />
           </div>
           {error && (
@@ -51,14 +55,14 @@ export default function RequestEnrollmentButton({
               disabled={isPending}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isPending ? 'Sending...' : 'Send Request'}
+              {isPending ? t('actions.sending') : t('actions.send')}
             </button>
             <button
               onClick={closeForm}
               disabled={isPending}
               className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
           </div>
         </div>
@@ -71,7 +75,7 @@ export default function RequestEnrollmentButton({
       onClick={openForm}
       className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
     >
-      Request Enrollment
+      {t('actions.request')}
     </button>
   );
 }

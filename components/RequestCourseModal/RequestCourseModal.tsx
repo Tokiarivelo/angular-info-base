@@ -2,11 +2,13 @@
 
 import { RequestCourseModalProps } from './RequestCourseModal.types';
 import { useRequestCourseForm } from './RequestCourseModal.hooks';
+import { useTranslations } from 'next-intl';
 
 export default function RequestCourseModal({
   isOpen,
   onClose,
 }: RequestCourseModalProps) {
+  const t = useTranslations('courseRequest');
   const { register, handleSubmit, errors, isPending, error } =
     useRequestCourseForm(onClose);
 
@@ -16,11 +18,10 @@ export default function RequestCourseModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <h3 className="text-2xl font-bold text-gray-900 mb-4">
-          Request a New Course
+          {t('title')}
         </h3>
         <p className="text-gray-600 mb-6">
-          Can&apos;t find the course you&apos;re looking for? Request it here
-          and our team will review your suggestion.
+          {t('description')}
         </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -28,7 +29,7 @@ export default function RequestCourseModal({
               htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Course Title *
+              {t('fields.titleLabel')}
             </label>
             <input
               type="text"
@@ -37,7 +38,7 @@ export default function RequestCourseModal({
               className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.title ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="e.g., Advanced React Patterns"
+              placeholder={t('fields.titlePlaceholder')}
             />
             {errors.title && (
               <p className="mt-1 text-sm text-red-600">
@@ -51,7 +52,7 @@ export default function RequestCourseModal({
               htmlFor="description"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Course Description
+              {t('fields.descriptionLabel')}
             </label>
             <textarea
               id="description"
@@ -60,7 +61,7 @@ export default function RequestCourseModal({
               className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.description ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="What topics should this course cover?"
+              placeholder={t('fields.descriptionPlaceholder')}
             />
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">
@@ -74,7 +75,7 @@ export default function RequestCourseModal({
               htmlFor="reason"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Why do you need this course?
+              {t('fields.reasonLabel')}
             </label>
             <textarea
               id="reason"
@@ -83,7 +84,7 @@ export default function RequestCourseModal({
               className={`w-full px-3 py-2 border rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.reason ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Tell us why this course would be valuable to you..."
+              placeholder={t('fields.reasonPlaceholder')}
             />
             {errors.reason && (
               <p className="mt-1 text-sm text-red-600">
@@ -104,7 +105,7 @@ export default function RequestCourseModal({
               disabled={isPending}
               className="flex-1 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isPending ? 'Sending Request...' : 'Submit Request'}
+              {isPending ? t('actions.sending') : t('actions.submit')}
             </button>
             <button
               type="button"
@@ -112,7 +113,7 @@ export default function RequestCourseModal({
               disabled={isPending}
               className="flex-1 px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
             >
-              Cancel
+              {t('actions.cancel')}
             </button>
           </div>
         </form>
