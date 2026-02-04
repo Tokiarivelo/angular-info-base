@@ -444,9 +444,29 @@ export async function createCourse(formData: FormData) {
 
   const title = formData.get('title') as string;
   const description = formData.get('description') as string;
+  const chaptersJson = formData.get('chapters') as string;
 
   if (!title) {
     throw new Error('Title is required');
+  }
+
+  let chaptersData: any[] = [];
+  if (chaptersJson) {
+    try {
+      const parsedChapters = JSON.parse(chaptersJson);
+      if (Array.isArray(parsedChapters)) {
+        chaptersData = parsedChapters.map((chapter: any, index: number) => ({
+          id: randomUUID(),
+          title: chapter.title,
+          description: chapter.description,
+          order: index,
+          // content is optional/nullable in schema, but defined as Json?
+          content: [], // Initialize as empty array or object as per usage
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to parse chapters JSON:', e);
+    }
   }
 
   const course = await prisma.course.create({
@@ -454,6 +474,11 @@ export async function createCourse(formData: FormData) {
       id: randomUUID(),
       title,
       description: description || null,
+      ...(chaptersData.length > 0 && {
+        Chapter: {
+          create: chaptersData,
+        },
+      }),
     },
   });
 

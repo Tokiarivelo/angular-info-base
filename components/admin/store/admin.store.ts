@@ -6,6 +6,7 @@ interface Chapter {
   title: string;
   description: string | null;
   content?: string | null;
+  imageUrl?: string | null;
   livePreviewUrl?: string | null;
   order: number;
   _count?: { Quiz: number; UserChapterProgress: number };

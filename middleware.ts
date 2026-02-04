@@ -1,21 +1,13 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/lib/auth.config';
 
-export async function middleware(request: NextRequest) {
-  const session = await auth();
-  const isProtectedRoute =
-    request.nextUrl.pathname.startsWith('/checklist') ||
-    request.nextUrl.pathname.startsWith('/profile');
-
-  if (isProtectedRoute && !session) {
-    return NextResponse.redirect(new URL('/signin', request.url));
-  }
-
-  return NextResponse.next();
-}
+export default NextAuth(authConfig).auth;
 
 export const config = {
-  matcher: ['/checklist/:path*', '/profile/:path*'],
-  runtime: 'nodejs',
+  // Match all request paths except for the ones starting with:
+  // - api (API routes)
+  // - _next/static (static files)
+  // - _next/image (image optimization files)
+  // - favicon.ico (favicon file)
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

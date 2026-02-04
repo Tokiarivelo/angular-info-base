@@ -1,7 +1,34 @@
+import { PDFParse } from 'pdf-parse';
+
 /**
- * File parser utilities for CSV and Markdown files
- * Used to convert file contents into checklist items
+ * Extract text from a buffer based on file extension/mime type
  */
+export async function extractTextFromBuffer(
+  buffer: Buffer,
+  mimeType: string
+): Promise<string> {
+  if (mimeType === 'application/pdf') {
+    try {
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getText();
+      await parser.destroy();
+      return data.text;
+    } catch (error) {
+      console.error('Error parsing PDF:', error);
+      throw new Error('Failed to parse PDF file');
+    }
+  } else if (
+    mimeType.startsWith('text/') ||
+    mimeType === 'application/json' ||
+    mimeType === 'application/markdown' ||
+    mimeType.includes('csv')
+  ) {
+    return buffer.toString('utf-8');
+  } else {
+    // Try as text by default for other types
+    return buffer.toString('utf-8');
+  }
+}
 
 export interface ParsedChecklistItem {
   title: string;
@@ -231,10 +258,7 @@ export function parseMarkdown(
 /**
  * Parse file content based on file extension
  */
-export function parseFile(
-  content: string,
-  fileName: string
-): ParsedChecklist {
+export function parseFile(content: string, fileName: string): ParsedChecklist {
   const extension = fileName.toLowerCase().split('.').pop();
 
   switch (extension) {

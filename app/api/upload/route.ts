@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { v2 as cloudinary } from 'cloudinary';
+import { getSetting } from '@/lib/settings';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Helper to configure Cloudinary
+async function configureCloudinary() {
+  const cloud_name = await getSetting('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME');
+  const api_key = await getSetting('CLOUDINARY_API_KEY');
+  const api_secret = await getSetting('CLOUDINARY_API_SECRET');
+
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new Error('Cloudinary not configured');
+  }
+
+  cloudinary.config({
+    cloud_name,
+    api_key,
+    api_secret,
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +26,8 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    await configureCloudinary();
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -80,6 +93,8 @@ export async function DELETE(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    await configureCloudinary();
 
     const { searchParams } = new URL(request.url);
     const publicId = searchParams.get('publicId');

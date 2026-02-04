@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isAIConfigured()) {
+    if (!(await isAIConfigured())) {
       return NextResponse.json(
         { error: 'Gemini API key is not configured' },
         { status: 500 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Create chat session and send message
-    const chat = createChatSession(systemPrompt, ackMessage, history);
+    const chat = await createChatSession(systemPrompt, ackMessage, history);
     const text = await sendChatMessage(chat, prompt);
 
     // Parse the response

@@ -7,6 +7,7 @@ export {
   createErrorResponse,
   isAIConfigured,
   DEFAULT_MODEL,
+  listAvailableModels,
   type ChatMessage,
 } from './client';
 
@@ -37,7 +38,7 @@ export {
 export {
   IMAGE_PROMPT_SYSTEM,
   IMAGE_PROMPT_ACK,
-  GEMINI_IMAGE_CONFIG,
+  IMAGEN_CONFIG,
   POLLINATIONS_CONFIG,
   buildImagePromptContext,
   generateImagePromptRequest,

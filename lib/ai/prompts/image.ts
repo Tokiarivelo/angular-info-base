@@ -53,19 +53,21 @@ export function generateImagePromptRequest(input: ImagePromptInput): string {
 }
 
 /**
- * Gemini image generation config (primary)
+ * Imagen image generation config (primary)
+ * Imagen models are specifically designed for image generation
  */
-export const GEMINI_IMAGE_CONFIG = {
-  model: 'gemini-2.0-flash-preview-image-generation',
-  responseModalities: ['TEXT', 'IMAGE'] as const,
+export const IMAGEN_CONFIG = {
+  model: 'imagen-3.0-generate-002',
+  numberOfImages: 1,
+  aspectRatio: '16:9',
 };
 
 /**
  * Pollinations.ai config (fallback)
+ * Uses the new gen.pollinations.ai endpoint with Bearer auth
  */
 export const POLLINATIONS_CONFIG = {
-  baseUrl: 'https://image.pollinations.ai/prompt/',
+  baseUrl: 'https://gen.pollinations.ai/image/',
   width: 1280,
   height: 720,
-  nologo: true,
 };

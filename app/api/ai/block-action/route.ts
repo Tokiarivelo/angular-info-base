@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   try {
     const { action, block, instruction, selectedText } = await request.json();
 
-    if (!isAIConfigured()) {
+    if (!(await isAIConfigured())) {
       return NextResponse.json(
         { error: 'Gemini API key is not configured' },
         { status: 500 }
@@ -60,7 +60,10 @@ async function handleRegenerate(
   }
 
   const prompt = generateRegeneratePrompt(block, instruction);
-  const chat = createChatSession(REGENERATE_SYSTEM_PROMPT, REGENERATE_ACK);
+  const chat = await createChatSession(
+    REGENERATE_SYSTEM_PROMPT,
+    REGENERATE_ACK
+  );
   const text = await sendChatMessage(chat, prompt);
 
   // Try to parse JSON response
@@ -91,7 +94,7 @@ async function handleImprove(
   }
 
   const prompt = generateImprovePrompt(selectedText, instruction);
-  const chat = createChatSession(IMPROVE_SYSTEM_PROMPT, IMPROVE_ACK);
+  const chat = await createChatSession(IMPROVE_SYSTEM_PROMPT, IMPROVE_ACK);
   const improvedText = await sendChatMessage(chat, prompt);
 
   return NextResponse.json({

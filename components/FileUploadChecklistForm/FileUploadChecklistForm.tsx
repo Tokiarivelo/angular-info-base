@@ -2,7 +2,13 @@
 
 import { useFileUploadChecklist } from './FileUploadChecklistForm.hooks';
 
-export default function FileUploadChecklistForm() {
+interface FileUploadChecklistFormProps {
+  onSuccess?: () => void;
+}
+
+export default function FileUploadChecklistForm({
+  onSuccess,
+}: FileUploadChecklistFormProps) {
   const {
     isOpen,
     setIsOpen,
@@ -11,13 +17,18 @@ export default function FileUploadChecklistForm() {
     isPending,
     fileInputRef,
     isDragActive,
-    handleFormSubmit,
+    handleFormSubmit: hookHandleFormSubmit,
     handleFileChange,
     handleDragOver,
     handleDragLeave,
     handleDrop,
     handleCancel,
   } = useFileUploadChecklist();
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    await hookHandleFormSubmit(e);
+    if (onSuccess && fileName && !error) onSuccess();
+  };
 
   if (!isOpen) {
     return (

@@ -5,6 +5,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { prisma } from './prisma';
 import bcrypt from 'bcrypt';
 import type { Provider } from 'next-auth/providers';
+import { authConfig } from './auth.config';
 
 type UserRole = 'USER' | 'ADMIN';
 
@@ -76,31 +77,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma) as any,
   providers,
   session: {
     strategy: 'jwt',
-  },
-  pages: {
-    signIn: '/signin',
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        // For OAuth users, role might not be set in the user object
-        // Fall back to USER role if not present
-        token.role = (user as { role?: UserRole }).role ?? 'USER';
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = (token.role as UserRole) ?? 'USER';
-      }
-      return session;
-    },
   },
   events: {
     async signIn({ user, account, profile }) {

@@ -1,12 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Upload, FileText, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  X,
+  Upload,
+  FileText,
+  Sparkles,
+  Image as ImageIcon,
+  Layout,
+  Save,
+  Monitor,
+  Info,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Trash2,
+} from 'lucide-react';
 import { ChapterEditModalProps } from './ChapterEditModal.types';
 import { useChapterEditModal } from './ChapterEditModal.hooks';
 import ChapterRichContentEditor from '../ChapterRichContentEditor';
-import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
 import AIChapterChat from '../AIChapterChat';
+import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
 import { GeneratedChapterData } from '../AIChapterChat/AIChapterChat.types';
 
 type Tab = 'basic' | 'content' | 'import' | 'ai';
@@ -21,6 +35,7 @@ export default function ChapterEditModal({
   const [activeTab, setActiveTab] = useState<Tab>('basic');
   const [isSaving, setIsSaving] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+
   const {
     title,
     setTitle,
@@ -53,6 +68,13 @@ export default function ChapterEditModal({
     setImageUrl,
   } = useChapterEditModal(chapter);
 
+  // Reset tab when opening for a new chapter vs editing
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab('basic');
+    }
+  }, [isOpen]);
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -68,388 +90,482 @@ export default function ChapterEditModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      <div className="relative w-full max-w-5xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800 transition-all transform scale-100">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {chapter ? `Edit Chapter: ${chapter.title}` : 'Add New Chapter'}
-          </h2>
+        <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              {chapter ? <>Edit Chapter</> : <>Create New Chapter</>}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              {chapter
+                ? `Updating "${chapter.title}"`
+                : 'Add content to your course'}
+            </p>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b dark:border-gray-700 px-6">
-          <button
-            onClick={() => setActiveTab('basic')}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'basic'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            Basic Info
-          </button>
-          <button
-            onClick={() => setActiveTab('content')}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'content'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            Rich Content
-          </button>
-          <button
-            onClick={() => setActiveTab('import')}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'import'
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            Import File
-          </button>
-          <button
-            onClick={() => setActiveTab('ai')}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === 'ai'
-                ? 'border-purple-600 text-purple-600 dark:text-purple-400'
-                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            AI Generate
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'basic' && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Introduction to Angular"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3}
-                    placeholder="Brief description of the chapter content..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    Live Preview URL
-                  </label>
-                  <input
-                    type="url"
-                    value={livePreviewUrl}
-                    onChange={(e) => setLivePreviewUrl(e.target.value)}
-                    placeholder="https://example.com"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+        {/* Sidebar + Content Layout */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar Navigation (Desktop) */}
+          <div className="hidden md:flex flex-col w-64 bg-gray-50 dark:bg-gray-800/50 border-r border-gray-100 dark:border-gray-800 p-4 space-y-2">
+            <NavButton
+              active={activeTab === 'basic'}
+              onClick={() => setActiveTab('basic')}
+              icon={<Info className="w-4 h-4" />}
+              label="Basic Info"
+              description="Title, description, cover"
+            />
+            <NavButton
+              active={activeTab === 'content'}
+              onClick={() => setActiveTab('content')}
+              icon={<Layout className="w-4 h-4" />}
+              label="Rich Content"
+              description="Editor, text, media in blocks"
+              badge={content?.length ? `${content.length}` : undefined}
+            />
+            <NavButton
+              active={activeTab === 'import'}
+              onClick={() => setActiveTab('import')}
+              icon={<FileText className="w-4 h-4" />}
+              label="Import File"
+              description="From Markdown or CSV"
+            />
+            <div className="pt-4 mt-auto">
+              <div className="px-3 pb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                AI Tools
               </div>
+              <NavButton
+                active={activeTab === 'ai'}
+                onClick={() => setActiveTab('ai')}
+                icon={<Sparkles className="w-4 h-4" />}
+                label="AI Generator"
+                description="Generate content with AI"
+                variant="purple"
+              />
+            </div>
+          </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    Chapter Image
-                  </h3>
-                  {!imageUrl && (
-                    <button
-                      onClick={handleGenerateImage}
-                      disabled={isGeneratingImage || isUploadingImage}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                      title="Generate image with AI based on chapter content"
-                    >
-                      {isGeneratingImage ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          Generate with AI
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
+          {/* Mobile Navigation (Tabs) */}
+          <div className="md:hidden flex border-b border-gray-100 dark:border-gray-800 overflow-x-auto">
+            {/* ... simplified tabs for mobile ... */}
+            <MobileTab
+              active={activeTab === 'basic'}
+              onClick={() => setActiveTab('basic')}
+              label="Basic"
+              icon={<Info className="w-4 h-4" />}
+            />
+            <MobileTab
+              active={activeTab === 'content'}
+              onClick={() => setActiveTab('content')}
+              label="Content"
+              icon={<Layout className="w-4 h-4" />}
+            />
+            <MobileTab
+              active={activeTab === 'import'}
+              onClick={() => setActiveTab('import')}
+              label="Import"
+              icon={<FileText className="w-4 h-4" />}
+            />
+            <MobileTab
+              active={activeTab === 'ai'}
+              onClick={() => setActiveTab('ai')}
+              label="AI"
+              icon={<Sparkles className="w-4 h-4" />}
+            />
+          </div>
 
-                {imageUrl ? (
-                  <div className="relative group w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
-                    <img
-                      src={imageUrl}
-                      alt="Chapter cover"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <button
-                        onClick={handleRemoveImage}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                      >
-                        Remove Image
-                      </button>
-                      <button
-                        onClick={handleGenerateImage}
-                        disabled={isGeneratingImage}
-                        className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center gap-2"
-                      >
-                        {isGeneratingImage ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                            Regenerating...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4" />
-                            Regenerate
-                          </>
-                        )}
-                      </button>
+          {/* Main Content Area */}
+          <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+            <div className="p-6 max-w-4xl mx-auto">
+              {activeTab === 'basic' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  {/* Title & Description */}
+                  <div className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Chapter Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g. Introduction to Angular Signals"
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
+                        autoFocus
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Description
+                      </label>
+                      <textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        rows={3}
+                        placeholder="Briefly describe what students will learn in this chapter..."
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
+                        <Monitor className="w-4 h-4 text-gray-400" />
+                        Live Preview URL{' '}
+                        <span className="text-xs font-normal text-gray-400">
+                          (Optional)
+                        </span>
+                      </label>
+                      <input
+                        type="url"
+                        value={livePreviewUrl}
+                        onChange={(e) => setLivePreviewUrl(e.target.value)}
+                        placeholder="https://stackblitz.com/..."
+                        className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-mono text-sm"
+                      />
                     </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-800/50 transition-colors">
-                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center">
-                      {isUploadingImage ? (
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            Uploading...
-                          </span>
-                        </div>
-                      ) : isGeneratingImage ? (
-                        <div className="flex flex-col items-center space-y-2">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            Generating with AI...
-                          </span>
-                        </div>
-                      ) : (
-                        <>
-                          <Upload className="w-10 h-10 text-gray-400 mb-3" />
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                            Click to upload image
-                          </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            PNG, JPG, up to 5MB
-                          </span>
-                          <span className="text-xs text-purple-600 dark:text-purple-400 mt-2">
-                            Or use &quot;Generate with AI&quot; button above
-                          </span>
-                        </>
+
+                  <div className="h-px bg-gray-100 dark:bg-gray-800" />
+
+                  {/* Cover Image Section */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Chapter Cover Image
+                      </label>
+                      {!imageUrl && (
+                        <button
+                          onClick={handleGenerateImage}
+                          disabled={isGeneratingImage || isUploadingImage}
+                          className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg transition-colors border border-purple-100 dark:border-purple-800"
+                        >
+                          {isGeneratingImage ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Sparkles className="w-3 h-3" />
+                          )}
+                          Auto-generate
+                        </button>
                       )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={isUploadingImage || isGeneratingImage}
-                        className="hidden"
-                      />
-                    </label>
+                    </div>
+
+                    {imageUrl ? (
+                      <div className="relative group w-full aspect-video md:h-64 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <img
+                          src={imageUrl}
+                          alt="Chapter cover"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
+                          <button
+                            onClick={handleRemoveImage}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-600/90 text-white rounded-lg hover:bg-red-600 transition-colors shadow-lg font-medium text-sm"
+                          >
+                            <Trash2 className="w-4 h-4" /> Remove
+                          </button>
+                          <button
+                            onClick={handleGenerateImage}
+                            disabled={isGeneratingImage}
+                            className="flex items-center gap-2 px-4 py-2 bg-white/10 text-white border border-white/30 rounded-lg hover:bg-white/20 transition-colors shadow-lg font-medium text-sm backdrop-blur-md"
+                          >
+                            {isGeneratingImage ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Regenerate
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="group relative border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200">
+                        <label className="cursor-pointer flex flex-col items-center justify-center py-12 px-4 w-full h-full">
+                          {isUploadingImage ? (
+                            <div className="text-center">
+                              <Loader2 className="w-10 h-10 text-blue-500 animate-spin mx-auto mb-3" />
+                              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                                Uploading image...
+                              </p>
+                            </div>
+                          ) : isGeneratingImage ? (
+                            <div className="text-center">
+                              <div className="relative">
+                                <Sparkles className="w-10 h-10 text-purple-500 animate-pulse mx-auto mb-3" />
+                                <div className="absolute inset-0 bg-purple-500 blur-xl opacity-20 rounded-full"></div>
+                              </div>
+                              <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                                Dreaming up an image...
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="text-center">
+                              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                                <ImageIcon className="w-6 h-6 text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
+                              </div>
+                              <span className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                                Click to upload or drag and drop
+                              </span>
+                              <span className="block text-xs text-gray-400 mt-1">
+                                SVG, PNG, JPG or GIF (max 5MB)
+                              </span>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={isUploadingImage || isGeneratingImage}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    )}
+
+                    {imageUploadError && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4" /> {imageUploadError}
+                      </p>
+                    )}
+                    {imageGenerationError && (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4" />{' '}
+                        {imageGenerationError}
+                      </p>
+                    )}
                   </div>
-                )}
-                {imageUploadError && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                    {imageUploadError}
-                  </p>
-                )}
-                {imageGenerationError && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                    {imageGenerationError}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'content' && (
-            <ChapterRichContentEditor
-              chapter={{
-                id: chapter?.id || 'new', // Placeholder for creation
-                title: chapter?.title || title || 'New Chapter',
-                description: description,
-                content,
-                // Pass deprecated fields only if needed for migration within the component
-                introText: null,
-                proTips: null,
-                instructions: null,
-              }}
-              onSave={async (data) => {
-                // Update local state immediately
-                setContent(data.content);
-                // Return success - don't actually save to server here
-                return Promise.resolve();
-              }}
-            />
-          )}
-
-          {activeTab === 'import' && (
-            <div className="space-y-6">
-              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                  Import Content from File
-                </h3>
-                <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-                  Upload a CSV or Markdown file to automatically populate rich
-                  content.
-                </p>
-                <div className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
-                  <details className="cursor-pointer">
-                    <summary className="font-medium">CSV Format</summary>
-                    <pre className="mt-2 bg-white dark:bg-gray-900 p-2 rounded text-xs overflow-x-auto">
-                      {`type,title,content,code
-                        intro,,Introduction text goes here,
-                        tip,Pro Tip Title,Tip content,
-                        instruction,Step Title,Step description,code snippet`}
-                    </pre>
-                  </details>
-                  <details className="cursor-pointer">
-                    <summary className="font-medium">Markdown Format</summary>
-                    <pre className="mt-2 bg-white dark:bg-gray-900 p-2 rounded text-xs overflow-x-auto">
-                      {`# Introduction
-                        Intro text here
-
-                        ## Pro Tip: Title
-                        Tip content
-
-                        ## Instruction: Title
-                        Description
-                        \`\`\`
-                        code
-                        \`\`\``}
-                    </pre>
-                  </details>
-                </div>
-              </div>
-
-              <div
-                className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 transition-all ${
-                  isDragging
-                    ? 'border-blue-500 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/30'
-                    : 'border-gray-300 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500'
-                }`}
-                onDragOver={handleDragOver}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.md"
-                  onChange={handleFileImport}
-                  className="hidden"
-                />
-                <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                <button
-                  onClick={triggerFileImport}
-                  disabled={isImporting}
-                  className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-                >
-                  <FileText className="w-5 h-5" />
-                  {isImporting ? 'Importing...' : 'Choose File'}
-                </button>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  CSV or Markdown files only
-                </p>
-              </div>
-
-              {importError && (
-                <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <p className="text-sm text-red-800 dark:text-red-200">
-                    {importError}
-                  </p>
                 </div>
               )}
 
-              {!importError && content && content.length > 0 && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <p className="text-sm text-green-800 dark:text-green-200">
-                    ✓ Content loaded ({content.length} blocks)! Switch to
-                    &quot;Rich Content&quot; tab to review.
-                  </p>
+              {activeTab === 'content' && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 h-full">
+                  <ChapterRichContentEditor
+                    chapter={{
+                      id: chapter?.id || 'new',
+                      title: chapter?.title || title || 'New Chapter',
+                      description: description,
+                      content,
+                      introText: null,
+                      proTips: null,
+                      instructions: null,
+                    }}
+                    onSave={async (data) => {
+                      setContent(data.content);
+                      return Promise.resolve();
+                    }}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'import' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-5 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900/40 rounded-lg text-blue-600 dark:text-blue-400">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          Import Content
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                          Populate this chapter instantly by uploading a
+                          pre-written file. Perfect for migrating content.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white dark:bg-gray-900/50 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-200 block mb-1">
+                          Markdown (.md)
+                        </span>
+                        <code className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1 py-0.5 rounded">
+                          # Header
+                        </code>{' '}
+                        supports images, code blocks, and lists.
+                      </div>
+                      <div className="bg-white dark:bg-gray-900/50 p-3 rounded-lg border border-blue-100 dark:border-blue-800/50 text-sm">
+                        <span className="font-semibold text-gray-700 dark:text-gray-200 block mb-1">
+                          CSV (.csv)
+                        </span>
+                        <code className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1 py-0.5 rounded">
+                          type,title,content
+                        </code>{' '}
+                        for structured data import.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-12 transition-all duration-200 ${
+                      isDragging
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.02]'
+                        : 'border-gray-300 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv,.md"
+                      onChange={handleFileImport}
+                      className="hidden"
+                    />
+
+                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6">
+                      <Upload className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    </div>
+
+                    <button
+                      onClick={triggerFileImport}
+                      disabled={isImporting}
+                      className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {isImporting ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />{' '}
+                          Processing...
+                        </span>
+                      ) : (
+                        'Choose File to Upload'
+                      )}
+                    </button>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                      or drag and drop your file here
+                    </p>
+                  </div>
+
+                  {importError && (
+                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800 rounded-xl p-4 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-red-900 dark:text-red-300">
+                          Import Failed
+                        </h4>
+                        <p className="text-sm text-red-700 dark:text-red-400 mt-1">
+                          {importError}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {!importError && content && content.length > 0 && (
+                    <div className="bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800 rounded-xl p-4 flex items-center gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                          Success! {content.length} content blocks loaded.
+                        </p>
+                        <button
+                          onClick={() => setActiveTab('content')}
+                          className="text-xs font-semibold text-green-700 underline mt-1 hover:text-green-900"
+                        >
+                          Review in Editor &rarr;
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'ai' && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300 text-center py-8">
+                  <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-3xl mb-4 relative">
+                    <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full"></div>
+                    <Sparkles className="relative w-12 h-12 text-purple-600 dark:text-purple-400" />
+                  </div>
+
+                  <div className="max-w-lg mx-auto mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                      AI Content Generator
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">
+                      Let Gemini AI architect your chapter. It can structure
+                      topics, write code examples, and generate quizzes
+                      instantly.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowAIChat(true)}
+                    className="group relative inline-flex items-center gap-2 px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span className="relative flex items-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Start AI Assistant
+                    </span>
+                  </button>
+
+                  {content && content.length > 0 && (
+                    <div className="mt-8 mx-auto max-w-sm bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <span>
+                        Current chapter has <strong>{content.length}</strong>{' '}
+                        blocks.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-
-          {activeTab === 'ai' && (
-            <div className="space-y-6">
-              <div className="text-center py-12">
-                <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-6">
-                  <Sparkles className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                  Generate with AI
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
-                  Use Gemini AI to generate structured chapter content including
-                  text, code examples, and pro tips based on your description.
-                </p>
-                <button
-                  onClick={() => setShowAIChat(true)}
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  Open AI Chat
-                </button>
-              </div>
-
-              {content && content.length > 0 && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                  <p className="text-sm text-green-800 dark:text-green-200">
-                    ✓ {content.length} content blocks ready! Switch to
-                    &quot;Rich Content&quot; tab to review and edit.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t dark:border-gray-700">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+        {/* Footer Actions */}
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center z-10">
+          <div className="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
+            {isSaving
+              ? 'Saving changes...'
+              : 'Unsaved changes are roughly drafted.'}
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={onClose}
+              disabled={isSaving}
+              className="flex-1 sm:flex-none px-5 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 sm:flex-none px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Chapter
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* AI Chat Modal */}
+      {/* AI Chat Modal Overlay */}
       {showAIChat && (
         <AIChapterChat
           courseContext={courseContext}
@@ -459,17 +575,102 @@ export default function ChapterEditModal({
             setActiveTab('content');
           }}
           onApplyChapter={(data: GeneratedChapterData) => {
-            // Apply all generated chapter data
             if (data.title) setTitle(data.title);
             if (data.description) setDescription(data.description);
             if (data.imageUrl) setImageUrl(data.imageUrl);
             setContent(data.blocks);
             setShowAIChat(false);
-            setActiveTab('basic'); // Go to basic tab to see title/description
+            setActiveTab('basic');
           }}
           onClose={() => setShowAIChat(false)}
         />
       )}
     </div>
+  );
+}
+
+// Helper Components for Cleaner Main Component
+
+function NavButton({
+  active,
+  onClick,
+  icon,
+  label,
+  description,
+  badge,
+  variant = 'blue',
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  description?: string;
+  badge?: string;
+  variant?: 'blue' | 'purple';
+}) {
+  const activeClass =
+    variant === 'blue'
+      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+      : 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800';
+
+  const hoverClass =
+    variant === 'blue'
+      ? 'hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+      : 'hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-700 dark:hover:text-purple-300';
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-3 rounded-xl transition-all border ${
+        active
+          ? `${activeClass} shadow-sm`
+          : `border-transparent text-gray-600 dark:text-gray-400 ${hoverClass}`
+      }`}
+    >
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2.5 font-semibold">
+          {icon}
+          <span>{label}</span>
+        </div>
+        {badge && (
+          <span className="bg-white dark:bg-gray-800 text-xs font-bold px-1.5 py-0.5 rounded-md shadow-sm border border-gray-100 dark:border-gray-700">
+            {badge}
+          </span>
+        )}
+      </div>
+      {description && (
+        <div
+          className={`text-xs ml-6.5 truncate ${active ? 'opacity-80' : 'opacity-60'}`}
+        >
+          {description}
+        </div>
+      )}
+    </button>
+  );
+}
+
+function MobileTab({
+  active,
+  onClick,
+  label,
+  icon,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 flex flex-col items-center justify-center p-3 text-xs font-medium border-b-2 transition-colors ${
+        active
+          ? 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
+          : 'border-transparent text-gray-500 dark:text-gray-400'
+      }`}
+    >
+      <div className="mb-1">{icon}</div>
+      {label}
+    </button>
   );
 }

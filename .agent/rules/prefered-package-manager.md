@@ -10,3 +10,4 @@ trigger: always_on
 6- Always update readme
 7- Always make styles compatible with light and dark mode
 8- Always make the text multi-languages
+9- Always make the design responsive
