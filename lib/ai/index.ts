@@ -7,6 +7,7 @@ export {
   createErrorResponse,
   isAIConfigured,
   DEFAULT_MODEL,
+  AVAILABLE_MODELS,
   listAvailableModels,
   type ChatMessage,
 } from './client';

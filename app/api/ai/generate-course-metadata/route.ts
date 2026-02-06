@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
     let topic = '';
     let model = undefined;
     let fileContent = '';
+    let targetTechnology = '';
+
+    let instructions = '';
+    let generationLanguage = 'en';
 
     const contentType = request.headers.get('content-type') || '';
 
@@ -27,6 +31,10 @@ export async function POST(request: NextRequest) {
       const formData = await request.formData();
       topic = (formData.get('topic') as string) || '';
       model = (formData.get('model') as string) || undefined;
+      targetTechnology = (formData.get('targetTechnology') as string) || '';
+      instructions = (formData.get('instructions') as string) || '';
+      generationLanguage =
+        (formData.get('generationLanguage') as string) || 'en';
       const file = formData.get('file') as File | null;
 
       if (file) {
@@ -38,6 +46,9 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       topic = body.topic;
       model = body.model;
+      targetTechnology = body.targetTechnology;
+      instructions = body.instructions;
+      generationLanguage = body.generationLanguage || 'en';
     }
 
     if (!topic && !fileContent) {
@@ -63,16 +74,31 @@ export async function POST(request: NextRequest) {
       model
     );
 
-    const userPrompt = fileContent
-      ? `Generate a course structure based on the following document content. Extract the main topics and structure a comprehensive course around it.
-      
-      Document Content:
-      """
-      ${fileContent.slice(0, 30000)}
-      """
-      
-      Preferred Title/Topic: ${topic || 'Infer from content'}`
-      : `Generate a course structure for the topic: "${topic}".`;
+    let userPrompt = '';
+    const langInstructions =
+      generationLanguage === 'fr'
+        ? 'IMPORTANT: The response MUST be in French (Français). Translate all titles, descriptions, and content.'
+        : 'The response must be in English.';
+
+    if (fileContent) {
+      userPrompt = `Generate a course structure based on the following document content. 
+        ${langInstructions}
+        ${targetTechnology ? `IMPORTANT: The course should be designed to teach how to use/consume/implement the content (e.g. API) using **${targetTechnology}**.` : ''}
+        ${instructions ? `Additional Instructions: ${instructions}` : ''}
+        Extract the main topics and structure a comprehensive course around it.
+        
+        Document Content:
+        """
+        ${fileContent.slice(0, 30000)}
+        """
+        
+        Preferred Title/Topic: ${topic || 'Infer from content'}`;
+    } else {
+      userPrompt = `Generate a course structure for the topic: "${topic}". 
+      ${langInstructions}
+      ${targetTechnology ? `Focus on using **${targetTechnology}**.` : ''}
+      ${instructions ? `Additional Instructions: ${instructions}` : ''}`;
+    }
 
     const responseText = await sendChatMessage(chat, userPrompt);
 

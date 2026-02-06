@@ -107,43 +107,42 @@ export default function ChapterContentPanel({
       : null;
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
-      <div className="max-w-3xl mx-auto p-6 md:p-10 pb-24 space-y-10">
+    <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800 bg-white dark:bg-gray-950">
+      <div className="max-w-4xl mx-auto p-8 md:p-12 pb-32 space-y-12">
         {/* Navigation Breadcrumb */}
-        <nav className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 mb-8">
+        <nav className="flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
           <Link
             href="/courses"
-            className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
+            className="hover:text-black dark:hover:text-white transition-colors flex items-center gap-1.5"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3.5 h-3.5" />
             {t('breadcrumb.courses')}
           </Link>
-          <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
-          <span className="truncate max-w-[200px]">{chapter.Course.title}</span>
+          <span className="mx-3 text-gray-300 dark:text-gray-700">/</span>
+          <span className="truncate max-w-[200px] text-gray-900 dark:text-white">
+            {chapter.Course.title}
+          </span>
         </nav>
 
         {/* Header Section */}
-        <header className="space-y-4 border-b border-gray-100 dark:border-gray-800 pb-8">
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold text-sm uppercase tracking-wider">
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-xs">
-              {currentIndex + 1}
-            </span>
-            {t('chapterLabel', { number: currentIndex + 1 })}
+        <header className="space-y-6 pb-8 border-b border-gray-100 dark:border-gray-800">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
+            <span>{t('chapterLabel', { number: currentIndex + 1 })}</span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-[1.1]">
             {chapter.title}
           </h1>
 
           {chapter.description && (
-            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
+            <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl font-light">
               {chapter.description}
             </p>
           )}
 
-          <div className="flex items-center gap-4 pt-4">
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <BookOpen className="w-4 h-4" />
+          <div className="flex flex-wrap items-center gap-6 pt-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+              <BookOpen className="w-4 h-4 text-gray-400" />
               <span>
                 {t('readingTime', {
                   minutes: Math.ceil((chapter.content?.length || 10) * 0.5),
@@ -151,8 +150,8 @@ export default function ChapterContentPanel({
               </span>
             </div>
             {completed && (
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-bold uppercase tracking-wide rounded-full">
-                <CheckCircle className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 text-sm font-bold">
+                <CheckCircle className="w-4 h-4 fill-green-100 dark:fill-green-900/30" />
                 {t('completed')}
               </div>
             )}
@@ -163,19 +162,19 @@ export default function ChapterContentPanel({
         {chapter.content &&
           Array.isArray(chapter.content) &&
           chapter.content.length > 0 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {chapter.content.map((block: any) => {
                 if (block.type === 'richText') {
                   return (
                     <article
                       key={block.id}
                       className="prose prose-lg dark:prose-invert max-w-none
-                        prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
-                        prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-relaxed
+                        prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-gray-900 dark:prose-headings:text-white
+                        prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-8
                         prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                         prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
-                        prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-50 dark:prose-code:bg-gray-800/50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
-                        prose-ul:marker:text-blue-500 prose-ol:marker:text-blue-500"
+                        prose-code:text-indigo-600 dark:prose-code:text-indigo-400 prose-code:bg-indigo-50 dark:prose-code:bg-indigo-900/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
+                        prose-ul:marker:text-gray-300 dark:prose-ul:marker:text-gray-600 prose-li:pl-0"
                       dangerouslySetInnerHTML={{ __html: block.content }}
                     />
                   );
@@ -184,22 +183,20 @@ export default function ChapterContentPanel({
                   return (
                     <div
                       key={block.id}
-                      className="my-8 relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-900 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/10 p-6 shadow-sm group hover:shadow-md transition-all"
+                      className="my-10 overflow-hidden rounded-2xl border border-indigo-100 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-900/10 p-6 md:p-8"
                     >
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-blue-500/20 transition-colors"></div>
-
-                      <div className="flex gap-4 relative z-10">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                            <span className="text-xl">💡</span>
+                      <div className="flex gap-5">
+                        <div className="flex-shrink-0 pt-1">
+                          <div className="w-10 h-10 rounded-xl bg-white dark:bg-indigo-950 flex items-center justify-center shadow-sm text-xl border border-indigo-100 dark:border-indigo-800">
+                            💡
                           </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="flex items-center gap-2 text-base font-bold text-blue-900 dark:text-blue-100 uppercase tracking-wide mb-2">
+                        <div className="flex-1 space-y-2">
+                          <h4 className="font-bold text-indigo-950 dark:text-indigo-200 text-lg">
                             {block.title || t('proTip')}
                           </h4>
                           <div
-                            className="prose prose-sm dark:prose-invert max-w-none text-blue-800 dark:text-blue-200"
+                            className="prose prose-sm dark:prose-invert max-w-none text-indigo-900/80 dark:text-indigo-300/90 leading-relaxed"
                             dangerouslySetInnerHTML={{ __html: block.content }}
                           />
                         </div>
@@ -209,18 +206,17 @@ export default function ChapterContentPanel({
                 }
                 if (block.type === 'image') {
                   return (
-                    <figure key={block.id} className="my-8 group">
-                      <div className="relative rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                    <figure key={block.id} className="my-10">
+                      <div className="relative rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                         <img
                           src={block.content}
                           alt={block.title || t('imageAlt')}
-                          className="w-full max-h-[600px] object-contain mx-auto transition-transform duration-700 group-hover:scale-[1.01]"
+                          className="w-full max-h-[600px] object-contain mx-auto"
                           loading="lazy"
                         />
                       </div>
                       {block.title && (
-                        <figcaption className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mt-3 flex items-center justify-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        <figcaption className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 mt-4">
                           {block.title}
                         </figcaption>
                       )}
@@ -240,9 +236,9 @@ export default function ChapterContentPanel({
                   return (
                     <div
                       key={block.id}
-                      className="py-8 flex items-center justify-center"
+                      className="py-12 flex items-center justify-center"
                     >
-                      <div className="w-24 h-1 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
+                      <div className="w-16 h-1 bg-gray-100 dark:bg-gray-800 rounded-full"></div>
                     </div>
                   );
                 }
@@ -253,7 +249,7 @@ export default function ChapterContentPanel({
 
         {/* Legacy Content Support (Intro, instructions, etc.) */}
         {chapter.introText && (
-          <div className="prose dark:prose-invert max-w-none p-6 md:p-8 rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div className="prose prose-lg dark:prose-invert max-w-none p-8 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
             <div dangerouslySetInnerHTML={{ __html: chapter.introText }} />
           </div>
         )}
@@ -262,44 +258,45 @@ export default function ChapterContentPanel({
         {chapter.instructions &&
           Array.isArray(chapter.instructions) &&
           chapter.instructions.length > 0 && (
-            <div className="space-y-8 mt-12">
-              <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white">
-                <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+            <div className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
+              <h3 className="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-white mb-10">
+                <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none">
                   <PlayCircle className="w-5 h-5" />
                 </span>
                 {t('instructions.title')}
               </h3>
 
-              <div className="relative border-l-2 border-dashed border-gray-200 dark:border-gray-800 ml-4 space-y-12 pb-4">
+              <div className="space-y-12 pb-4">
                 {chapter.instructions.map((instruction: any, index: number) => (
-                  <div key={index} className="relative pl-10">
-                    {/* Step Marker */}
-                    <div className="absolute -left-[17px] top-0 flex items-center justify-center w-9 h-9 rounded-full bg-white dark:bg-gray-900 border-2 border-indigo-500 text-indigo-600 dark:text-indigo-400 font-bold text-sm shadow-sm z-10">
-                      {index + 1}
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white pt-1">
-                        {instruction.title}
-                      </h4>
-
-                      {instruction.description && (
-                        <div
-                          className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
-                          dangerouslySetInnerHTML={{
-                            __html: instruction.description,
-                          }}
-                        />
-                      )}
-
-                      {instruction.code && (
-                        <div className="mt-4">
+                  <div key={index} className="relative pl-4 md:pl-0">
+                    <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+                      <div className="flex-shrink-0 flex flex-col items-center">
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm border border-indigo-100 dark:border-indigo-800">
+                          {index + 1}
+                        </div>
+                        {index < chapter.instructions.length - 1 && (
+                          <div className="w-px h-full bg-gray-200 dark:bg-gray-800 my-2"></div>
+                        )}
+                      </div>
+                      <div className="flex-1 pb-8">
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                          {instruction.title}
+                        </h4>
+                        {instruction.description && (
+                          <div
+                            className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 leading-relaxed mb-6"
+                            dangerouslySetInnerHTML={{
+                              __html: instruction.description,
+                            }}
+                          />
+                        )}
+                        {instruction.code && (
                           <CodeBlock
                             language="typescript"
                             code={instruction.code}
                           />
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -311,7 +308,7 @@ export default function ChapterContentPanel({
         {chapter.Quiz.length > 0 && (
           <section className="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
             <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-pink-100 dark:bg-pink-900/20 rounded-lg text-pink-600 dark:text-pink-400">
+              <div className="p-2 bg-pink-50 dark:bg-pink-900/20 rounded-xl text-pink-600 dark:text-pink-400">
                 <CheckCircle className="w-6 h-6" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -333,10 +330,21 @@ export default function ChapterContentPanel({
         )}
 
         {/* Completion Action */}
-        <section className="mt-12 py-10 border-t border-b border-gray-100 dark:border-gray-800 flex flex-col items-center text-center bg-gray-50/50 dark:bg-gray-900/30 -mx-6 md:-mx-10 px-6 md:px-10">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <section className="mt-20 py-16 flex flex-col items-center text-center">
+          <div className="mb-8 p-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500">
+            <div className="bg-white dark:bg-gray-950 rounded-full p-2">
+              <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
             {t('readyToMoveOn')}
           </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">
+            Mark this lesson as complete to track your progress and unlock the
+            next chapter.
+          </p>
           <ChapterCompletionToggle
             completed={completed}
             onToggle={onToggleCompletion}
@@ -345,47 +353,39 @@ export default function ChapterContentPanel({
         </section>
 
         {/* Footer Navigation */}
-        <div className="flex justify-between items-center pt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-gray-100 dark:border-gray-800">
           {previousChapter ? (
             <Link
               href={`/courses/chapter/${previousChapter.id}`}
-              className="group flex items-center gap-4 text-left p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors max-w-[45%]"
+              className="group flex flex-col p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all bg-white dark:bg-gray-900"
             >
-              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
-                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                <ChevronLeft className="w-3 h-3" />
+                {t('navigation.previous')}
               </div>
-              <div>
-                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  {t('navigation.previous')}
-                </div>
-                <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
-                  {previousChapter.title}
-                </div>
+              <div className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {previousChapter.title}
               </div>
             </Link>
           ) : (
-            <div />
+            <div className="hidden md:block" />
           )}
 
           {nextChapter ? (
             <Link
               href={`/courses/chapter/${nextChapter.id}`}
-              className="group flex items-center gap-4 text-right p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors max-w-[45%]"
+              className="group flex flex-col items-end text-right p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all bg-white dark:bg-gray-900"
             >
-              <div>
-                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
-                  {t('navigation.nextLesson')}
-                </div>
-                <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
-                  {nextChapter.title}
-                </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                {t('navigation.nextLesson')}
+                <ChevronRight className="w-3 h-3" />
               </div>
-              <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
-                <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              <div className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {nextChapter.title}
               </div>
             </Link>
           ) : (
-            <div />
+            <div className="hidden md:block" />
           )}
         </div>
       </div>

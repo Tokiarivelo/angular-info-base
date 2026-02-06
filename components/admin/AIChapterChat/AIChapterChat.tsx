@@ -12,6 +12,7 @@ import {
   ImageIcon,
   Type,
   Globe,
+  Bot,
 } from 'lucide-react';
 import {
   AIChapterChatProps,
@@ -21,6 +22,7 @@ import {
 } from './AIChapterChat.types';
 import { useAIChapterChat } from './AIChapterChat.hooks';
 import { useTranslations } from 'next-intl';
+import { AVAILABLE_MODELS, DEFAULT_MODEL } from '@/lib/ai/constants';
 
 // Content language options
 const CONTENT_LANGUAGES = [
@@ -37,10 +39,31 @@ export default function AIChapterChat({
   const t = useTranslations('ai');
   const tCommon = useTranslations('common');
 
-  // Content language state
   const [contentLanguage, setContentLanguage] = useState<'en' | 'fr'>(
     initialCourseContext?.contentLanguage || 'en'
   );
+
+  // Model selection state
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const [availableModels, setAvailableModels] = useState(AVAILABLE_MODELS);
+
+  // Fetch available models on mount
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const response = await fetch('/api/ai/models');
+        if (response.ok) {
+          const models = await response.json();
+          if (Array.isArray(models) && models.length > 0) {
+            setAvailableModels(models);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch AI models:', error);
+      }
+    };
+    fetchModels();
+  }, []);
 
   // Create course context with selected content language
   const courseContext: CourseContext | undefined = useMemo(() => {
@@ -88,7 +111,7 @@ export default function AIChapterChat({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputValue.trim() && !isLoading) {
-      sendMessage(inputValue);
+      sendMessage(inputValue, selectedModel);
     }
   };
 
@@ -166,6 +189,41 @@ export default function AIChapterChat({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Model Selector */}
+            <div className="relative group">
+              <button
+                className="flex items-center gap-1.5 px-2 py-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-white text-sm"
+                title="Select AI Model"
+              >
+                <Bot className="w-4 h-4" />
+                <span className="max-w-[100px] truncate hidden sm:inline">
+                  {availableModels.find((m) => m.id === selectedModel)?.name ||
+                    selectedModel}
+                </span>
+              </button>
+              <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                <div className="p-2 border-b border-gray-100 dark:border-gray-700 text-xs font-semibold text-gray-400">
+                  Select AI Model
+                </div>
+                {availableModels.map((model) => (
+                  <button
+                    key={model.id}
+                    onClick={() => setSelectedModel(model.id)}
+                    className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                      selectedModel === model.id
+                        ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    <span className="flex-1 truncate">{model.name}</span>
+                    {selectedModel === model.id && (
+                      <Check className="w-3 h-3 ml-auto text-purple-600 dark:text-purple-400" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Content Language Selector */}
             <div className="relative group">
               <button
@@ -246,7 +304,9 @@ export default function AIChapterChat({
                   {promptSuggestions.map((suggestion) => (
                     <button
                       key={suggestion.label}
-                      onClick={() => sendMessage(suggestion.prompt)}
+                      onClick={() =>
+                        sendMessage(suggestion.prompt, selectedModel)
+                      }
                       disabled={isLoading}
                       className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-300 transition-colors disabled:opacity-50"
                     >

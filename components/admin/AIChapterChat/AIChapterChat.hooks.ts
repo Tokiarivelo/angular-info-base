@@ -41,7 +41,7 @@ export function useAIChapterChat(options?: UseAIChapterChatOptions) {
    * Send a message to the AI and get a response
    */
   const sendMessage = useCallback(
-    async (prompt: string) => {
+    async (prompt: string, model?: string) => {
       if (!prompt.trim() || isLoading) return;
 
       setError(null);
@@ -83,6 +83,7 @@ export function useAIChapterChat(options?: UseAIChapterChatOptions) {
             prompt,
             conversationHistory,
             courseContext,
+            model,
           }),
         });
 

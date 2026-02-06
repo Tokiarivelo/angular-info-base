@@ -10,6 +10,9 @@ import {
   Globe,
   UploadCloud,
   Link as LinkIcon,
+  Settings,
+  X,
+  ChevronRight,
 } from 'lucide-react';
 import ChapterScreenshotUpload from '@/components/ChapterProgressForm/components/ChapterScreenshotUpload';
 import ChapterLinksForm from '@/components/ChapterProgressForm/components/ChapterLinksForm';
@@ -37,7 +40,8 @@ interface ChapterWorkspacePanelProps {
   onSubmit: (data: ChapterProgressFormData) => void;
 }
 
-type Tab = 'screenshot' | 'preview' | 'live-coding';
+// Adjusted types without live-coding
+type Tab = 'screenshot' | 'preview';
 
 export default function ChapterWorkspacePanel({
   chapterId,
@@ -52,7 +56,9 @@ export default function ChapterWorkspacePanel({
   onSubmit,
 }: ChapterWorkspacePanelProps) {
   const t = useTranslations('chapterWorkspace');
-  const [activeTab, setActiveTab] = useState<Tab>('live-coding');
+  // Default to screenshot since live-coding is hidden
+  const [activeTab, setActiveTab] = useState<Tab>('preview');
+  const [showSettings, setShowSettings] = useState(false);
 
   const {
     register,
@@ -66,135 +72,116 @@ export default function ChapterWorkspacePanel({
     },
   });
 
+  const hasLinks = !!(progress?.repositoryUrl || progress?.websiteUrl);
+
   return (
-    <div className="h-full flex flex-col bg-gray-50/50 dark:bg-gray-900/50">
-      {/* Tabs Header */}
-      <div className="flex items-center px-4 pt-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <TabButton
-          active={activeTab === 'live-coding'}
-          onClick={() => setActiveTab('live-coding')}
-          icon={<Code2 className="w-4 h-4" />}
-          label={t('tabs.liveCode')}
-        />
-        <TabButton
-          active={activeTab === 'preview'}
-          onClick={() => setActiveTab('preview')}
-          icon={<Monitor className="w-4 h-4" />}
-          label={t('tabs.preview')}
-        />
-        <TabButton
-          active={activeTab === 'screenshot'}
-          onClick={() => setActiveTab('screenshot')}
-          icon={<UploadCloud className="w-4 h-4" />}
-          label={t('tabs.submission')}
-        />
+    <div className="h-full flex flex-col bg-white dark:bg-gray-900 border-l border-gray-100 dark:border-gray-800">
+      {/* Modern Header */}
+      <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-20">
+        <div className="flex gap-1 p-1 bg-gray-100/50 dark:bg-gray-800/50 rounded-lg">
+          <TabButton
+            active={activeTab === 'preview'}
+            onClick={() => {
+              setActiveTab('preview');
+              setShowSettings(false);
+            }}
+            icon={<Monitor className="w-3.5 h-3.5" />}
+            label={t('tabs.preview')}
+          />
+          <TabButton
+            active={activeTab === 'screenshot'}
+            onClick={() => {
+              setActiveTab('screenshot');
+              setShowSettings(false);
+            }}
+            icon={<UploadCloud className="w-3.5 h-3.5" />}
+            label={t('tabs.submission')}
+          />
+        </div>
+
+        <button
+          onClick={() => setShowSettings(!showSettings)}
+          className={`p-2 rounded-lg transition-all ${
+            showSettings
+              ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+          }`}
+          title="Project Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Tab Content */}
+      {/* Main Content Area */}
       <div className="flex-1 overflow-hidden relative">
-        {activeTab === 'live-coding' && (
-          <div className="h-full flex flex-col animate-in fade-in duration-300">
-            {/* Toolbar */}
-            <div className="h-10 bg-[#252526] border-b border-[#1e1e1e] flex items-center px-4 justify-between select-none">
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <span>explorer</span>
-                <span className="opacity-30">/</span>
-                <span className="text-blue-400 font-medium">src</span>
-                <span className="opacity-30">/</span>
-                <span className="text-yellow-400 font-medium">app</span>
-              </div>
-              <div className="flex gap-1.5 opacity-50">
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-600"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-600"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-gray-600"></div>
-              </div>
-            </div>
-            <div className="flex-1 bg-[#1e1e1e] overflow-hidden">
-              <LiveCodingMockup />
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'screenshot' && (
-          <div className="h-full p-6 md:p-8 overflow-y-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="max-w-2xl mx-auto space-y-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  {t('submission.title')}
-                </h2>
-                <p className="text-gray-500 dark:text-gray-400">
-                  {t('submission.description')}
-                </p>
-              </div>
-
-              {/* Project Links Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                    <LinkIcon className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {t('submission.repositories')}
-                  </h3>
-                </div>
-
-                <div className="p-6">
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <ChapterLinksForm
-                      register={register}
-                      errors={errors}
-                      isPending={isPending}
-                    />
-                    <div className="flex justify-end pt-2">
-                      <button
-                        type="submit"
-                        disabled={isPending}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-indigo-600 text-white rounded-xl font-medium hover:bg-gray-800 dark:hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none"
-                      >
-                        {isPending ? t('submission.saving') : t('submission.save')}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-              {/* Screenshots Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
-                    <ImageIcon className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {t('submission.visualProof')}
-                  </h3>
-                </div>
-
-                <div className="p-6">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                    {t('submission.visualProofDescription')}
+        {/* Settings Overlay */}
+        {showSettings && (
+          <div className="absolute inset-0 z-30 bg-white dark:bg-gray-900 animate-in fade-in slide-in-from-right-4 duration-300 overflow-y-auto">
+            <div className="p-6 md:p-8 max-w-lg mx-auto">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Project Settings
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Configure your repository and deployment links once.
                   </p>
-                  <ChapterScreenshotUpload
-                    screenshots={screenshots}
-                    onUpload={handleFileUpload}
-                    onRemove={handleRemoveScreenshot}
-                    isUploading={isUploading}
-                    uploadError={uploadError}
+                </div>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                  <ChapterLinksForm
+                    register={register}
+                    errors={errors}
                     isPending={isPending}
                   />
-                </div>
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                    >
+                      {isPending
+                        ? t('submission.saving')
+                        : t('submission.save')}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'preview' && (
-          <div className="h-full flex flex-col bg-gray-100 dark:bg-black animate-in fade-in duration-300">
+        {/* Tab Views */}
+        {!showSettings && activeTab === 'screenshot' && (
+          <div className="h-full overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+            <ChapterScreenshotUpload
+              screenshots={screenshots}
+              onUpload={handleFileUpload}
+              onRemove={handleRemoveScreenshot}
+              isUploading={isUploading}
+              uploadError={uploadError}
+              isPending={isPending}
+            />
+          </div>
+        )}
+
+        {!showSettings && activeTab === 'preview' && (
+          <div className="h-full flex flex-col bg-gray-50/50 dark:bg-black animate-in fade-in duration-300">
             {chapter.livePreviewUrl ? (
               <>
-                <div className="flex items-center justify-between p-2 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-xs shadow-sm z-10">
-                  <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 max-w-md w-full">
-                    <div className="p-1 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-                    <span className="truncate text-gray-600 dark:text-gray-300 font-mono flex-1 text-center">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-xs shadow-sm z-10">
+                  {/* Address Bar-ish look */}
+                  <div className="flex-1 flex items-center gap-3 bg-gray-50 dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-700 mx-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    <span className="truncate text-gray-600 dark:text-gray-400 font-mono flex-1">
                       {chapter.livePreviewUrl}
                     </span>
                   </div>
@@ -203,35 +190,31 @@ export default function ChapterWorkspacePanel({
                     href={chapter.livePreviewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium px-3 py-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
-                    <span>{t('preview.openNewTab')}</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
                 <div className="flex-1 bg-white relative">
                   <iframe
                     src={chapter.livePreviewUrl}
-                    className="w-full h-full border-0 shadow-inner"
+                    className="w-full h-full border-0"
                     title={t('preview.title')}
                     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                   />
-                  {/* Overlay for iframe loading state could go here */}
                 </div>
               </>
             ) : (
               <div className="h-full flex flex-col items-center justify-center p-6 text-center">
-                <div className="max-w-md w-full bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl">
-                  <div className="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Monitor className="w-10 h-10 text-gray-300 dark:text-gray-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    {t('preview.emptyTitle')}
-                  </h3>
-                  <p className="text-gray-500 dark:text-gray-400">
-                    {t('preview.emptyDescription')}
-                  </p>
+                <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-12 transition-transform hover:rotate-0">
+                  <Monitor className="w-10 h-10 text-gray-400 dark:text-gray-500" />
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  {t('preview.emptyTitle')}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+                  {t('preview.emptyDescription')}
+                </p>
               </div>
             )}
           </div>
@@ -255,17 +238,14 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`relative flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ring-blue-500 rounded-t-lg ${
+      className={`flex items-center gap-2 px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${
         active
-          ? 'text-blue-600 dark:text-blue-400 bg-transparent'
-          : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+          ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm ring-1 ring-gray-200 dark:ring-gray-600'
+          : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
       }`}
     >
       {icon}
-      {label}
-      {active && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 shadow-[0_-1px_6px_rgba(37,99,235,0.4)]"></div>
-      )}
+      <span>{label}</span>
     </button>
   );
 }

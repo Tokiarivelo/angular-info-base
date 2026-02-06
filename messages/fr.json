@@ -74,7 +74,23 @@
     "systemSettingsDesc": "Configurer les clés API et les intégrations.",
     "reloadDashboard": "Recharger le tableau de bord",
     "errorLoading": "Impossible de charger le tableau de bord",
-    "errorDescription": "Une erreur est survenue lors de la récupération des statistiques."
+    "errorDescription": "Une erreur est survenue lors de la récupération des statistiques.",
+    "enrollmentRequestsTitle": "Demandes d'inscription",
+    "pendingRequests": "Demandes en attente",
+    "reviewedRequests": "Demandes traitées",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "pending": "En attente",
+    "approve": "Approuver",
+    "reject": "Rejeter",
+    "requestedBy": "Demandé par",
+    "course": "Cours",
+    "date": "Date",
+    "status": "Statut",
+    "message": "Message",
+    "noRequests": "Aucune demande d'inscription pour le moment.",
+    "errorLoadingRequests": "Erreur lors du chargement des demandes",
+    "loadingRequests": "Chargement des demandes..."
   },
   "chapter": {
     "title": "Titre",
@@ -297,6 +313,8 @@
     },
     "screenshots": {
       "title": "Captures d'écran",
+      "uploadTitle": "Téléverser une capture d'écran",
+      "previewTitle": "Aperçu de la sélection",
       "uploadPrompt": "Cliquez pour téléverser ou glissez-déposez",
       "fileTypes": "PNG, JPG, GIF jusqu'à 10 Mo",
       "uploading": "Téléversement...",

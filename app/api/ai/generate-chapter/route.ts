@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       prompt,
       conversationHistory = [],
       courseContext,
+      model,
     } = await request.json();
 
     if (!prompt) {
@@ -50,7 +51,12 @@ export async function POST(request: NextRequest) {
     );
 
     // Create chat session and send message
-    const chat = await createChatSession(systemPrompt, ackMessage, history);
+    const chat = await createChatSession(
+      systemPrompt,
+      ackMessage,
+      history,
+      model
+    );
     const text = await sendChatMessage(chat, prompt);
 
     // Parse the response

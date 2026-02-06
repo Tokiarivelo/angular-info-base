@@ -136,9 +136,9 @@ export default function ChapterPageClient({
           <Panel
             defaultSize={55}
             minSize={30}
-            className="bg-gray-50 dark:bg-gray-950"
+            className="bg-white dark:bg-gray-900"
           >
-            <div className="h-full flex flex-col overflow-hidden border-l border-gray-200 dark:border-gray-800 text-sm">
+            <div className="h-full flex flex-col overflow-hidden text-sm">
               <ChapterWorkspacePanel
                 chapterId={id}
                 chapter={chapter}

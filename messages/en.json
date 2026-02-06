@@ -74,7 +74,23 @@
     "systemSettingsDesc": "Configure API keys and external service integrations.",
     "reloadDashboard": "Reload Dashboard",
     "errorLoading": "Unable to load dashboard",
-    "errorDescription": "We encountered an error fetching your analytics."
+    "errorDescription": "We encountered an error fetching your analytics.",
+    "enrollmentRequestsTitle": "Enrollment Requests",
+    "pendingRequests": "Pending Requests",
+    "reviewedRequests": "Reviewed Requests",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "pending": "Pending",
+    "approve": "Approve",
+    "reject": "Reject",
+    "requestedBy": "Requested by",
+    "course": "Course",
+    "date": "Date",
+    "status": "Status",
+    "message": "Message",
+    "noRequests": "No enrollment requests yet.",
+    "errorLoadingRequests": "Error loading requests",
+    "loadingRequests": "Loading requests..."
   },
   "chapter": {
     "title": "Title",
@@ -297,6 +313,8 @@
     },
     "screenshots": {
       "title": "Screenshots",
+      "uploadTitle": "Upload Screenshot",
+      "previewTitle": "Preview Selection",
       "uploadPrompt": "Click to upload or drag and drop",
       "fileTypes": "PNG, JPG, GIF up to 10MB",
       "uploading": "Uploading...",

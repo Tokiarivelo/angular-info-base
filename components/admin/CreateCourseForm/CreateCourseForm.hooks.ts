@@ -24,8 +24,9 @@ export function useCreateCourseForm() {
       // Add timestamp to prevent caching
       const response = await fetch(`/api/ai/models?t=${Date.now()}`);
       const data = await response.json();
-      if (data.success && Array.isArray(data.models)) {
-        setModels(data.models);
+
+      if (data && Array.isArray(data)) {
+        setModels(data);
       }
     } catch (error) {
       console.error('Failed to fetch AI models:', error);
@@ -52,7 +53,10 @@ export function useCreateCourseForm() {
   const generateCourseMetadata = async (
     topic: string,
     model?: string,
-    file?: File | null
+    file?: File | null,
+    targetTechnology?: string,
+    instructions?: string,
+    generationLanguage?: 'en' | 'fr'
   ) => {
     if (!topic.trim() && !file) return;
 
@@ -64,6 +68,11 @@ export function useCreateCourseForm() {
         const formData = new FormData();
         formData.append('topic', topic);
         if (model) formData.append('model', model);
+        if (targetTechnology)
+          formData.append('targetTechnology', targetTechnology);
+        if (instructions) formData.append('instructions', instructions);
+        if (generationLanguage)
+          formData.append('generationLanguage', generationLanguage);
         formData.append('file', file);
 
         response = await fetch('/api/ai/generate-course-metadata', {
@@ -76,7 +85,13 @@ export function useCreateCourseForm() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ topic, model }),
+          body: JSON.stringify({
+            topic,
+            model,
+            targetTechnology,
+            instructions,
+            generationLanguage,
+          }),
         });
       }
 

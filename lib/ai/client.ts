@@ -1,37 +1,31 @@
 import { GoogleGenAI } from '@google/genai';
 import { getSetting } from '@/lib/settings';
+import { AVAILABLE_MODELS, DEFAULT_MODEL } from './constants';
+
+export { AVAILABLE_MODELS, DEFAULT_MODEL }; // Re-export for backward compatibility if needed within server files
 
 // Initialize the Gemini AI client - reads GEMINI_API_KEY from settings
 let aiInstance: GoogleGenAI | null = null;
+let currentApiKey: string | null = null;
 
 /**
  * Get the singleton Gemini AI client instance
  */
 export async function getAIClient(): Promise<GoogleGenAI> {
-  if (!aiInstance) {
-    const apiKey = await getSetting('GEMINI_API_KEY');
-    if (!apiKey) {
-      throw new Error('GEMINI_API_KEY environment variable is not configured');
-    }
-    aiInstance = new GoogleGenAI({ apiKey });
+  const apiKey = await getSetting('GEMINI_API_KEY');
+
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY environment variable is not configured');
   }
+
+  // If the API key has changed, or if there's no instance yet, create a new one
+  if (!aiInstance || currentApiKey !== apiKey) {
+    aiInstance = new GoogleGenAI({ apiKey });
+    currentApiKey = apiKey;
+  }
+
   return aiInstance;
 }
-
-/**
- * Default model for AI operations
- */
-export const DEFAULT_MODEL = 'gemini-2.0-flash';
-
-/**
- * Available models to switch between
- */
-export const AVAILABLE_MODELS = [
-  { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Fast)' },
-  { id: 'gemini-2.0-flash-lite', name: 'Gemini 2.0 Flash Lite (Cheaper)' },
-  { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Stable)' },
-  { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (Powerful)' },
-];
 
 /**
  * Chat message format for Gemini API
@@ -121,6 +115,9 @@ export function createErrorResponse(
  */
 export async function isAIConfigured(): Promise<boolean> {
   const key = await getSetting('GEMINI_API_KEY');
+
+  console.log('key :>>>>>>>>>>>>>>>>>>>>>>>><<> ', key);
+
   return !!key;
 }
 
