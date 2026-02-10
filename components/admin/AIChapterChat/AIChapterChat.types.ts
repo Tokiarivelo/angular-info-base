@@ -14,6 +14,7 @@ export interface ChatMessage {
 
 // Course context for dynamic content generation
 export interface CourseContext {
+  courseId?: string;
   title: string;
   description?: string;
   language?: string; // Programming language if applicable

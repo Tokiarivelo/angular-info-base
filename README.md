@@ -354,6 +354,30 @@ Admins can use the AI assistant to generate comprehensive chapter content.
   - Generates prompts for **Cover Images**
   - Supports **Multi-language Generation** (English/French)
   - **One-click Apply**: Apply all generated metadata and content at once
+  - **Session Persistence**: Chat history is saved and persists across sessions
+  - **Session Management**: View, load, and delete previous AI conversations
+  - **Model Selection**: Choose from available Gemini models (Flash, Pro, etc.)
+
+### AI Chat Session Management
+
+- **💾 Persistent History**: AI conversations are automatically saved to the database
+- **📋 Session History**: Click the History icon to view and load previous conversations
+- **➕ New Chat**: Start fresh conversations while preserving old ones
+- **🗑️ Delete Sessions**: Remove conversations you no longer need
+- **🔄 Continue Conversations**: Pick up where you left off in any session
+
+### Model Selection
+
+All AI features now support model selection:
+
+- **AI Chat**: Choose models via the model selector in the chat header
+- **Block Regeneration**: Select AI model when regenerating content blocks
+- **Text Improvement**: Choose which model to use for text improvements
+- **Available Models**:
+  - Gemini 2.0 Flash (Fast) - Default, best for quick generations
+  - Gemini 2.0 Flash Lite (Cheaper) - Cost-optimized
+  - Gemini 1.5 Flash (Stable) - Proven reliability
+  - Gemini 1.5 Pro (Powerful) - Best for complex tasks
 
 ### Block-Level AI Actions
 
@@ -362,12 +386,24 @@ Each content block in the rich content editor has AI-powered actions:
 - **🔄 AI Regenerate Block**: Click the sparkle icon on any block to regenerate its content
   - Quick actions: "More concise", "More detailed", "Add example"
   - Custom instructions for specific improvements
+  - **Model selection**: Choose which AI model to use
   - Preserves block type while improving content
 
 - **✨ AI Improve Selection**: Select text in the rich text editor to reveal the "AI Improve" button
   - Quick actions: "Fix grammar", "More professional", "Simplify", "Expand"
   - Custom instructions for targeted improvements
+  - **Model selection**: Choose which AI model to use
   - Preview changes before applying
+
+### Block Insert Line (Insert Between Blocks)
+
+The rich content editor supports inserting blocks at any position:
+
+- **➕ Hover between blocks** to reveal a subtle insertion line with a "+" button
+- **Click "+"** to open a popover with block type options: Text, Pro Tip, Image, Code, Separator
+- **Insert at any position** — before the first block, between any two blocks, or after the last block
+- **Responsive & theme-aware** — works in both light and dark mode
+- **Multi-language** — all labels are translated (English & French)
 
 ### AI Image Generation
 
@@ -378,6 +414,30 @@ Generate chapter cover images automatically using AI:
   - Generates images based on chapter title, description, and content
   - Automatically uploads to Cloudinary
   - Supports **regeneration** to try different variations
+
+### Database Schema for AI Sessions
+
+```
+AIChatSession:
+- id: Unique identifier (UUID)
+- userId: Reference to User
+- courseId: Optional reference to Course
+- chapterId: Optional reference to Chapter
+- title: Session title (auto-generated from first message)
+- model: Selected AI model
+- contentLanguage: Language for content generation (en/fr)
+- createdAt/updatedAt: Timestamps
+
+AIChatMessage:
+- id: Unique identifier (UUID)
+- sessionId: Reference to AIChatSession
+- role: 'user' or 'assistant'
+- content: Message content
+- blocks: Generated EditorBlocks (JSON)
+- chapterTitle/Description: Chapter metadata
+- imagePrompt: Generated image prompt
+- createdAt: Timestamp
+```
 
 ### Environment Variables
 

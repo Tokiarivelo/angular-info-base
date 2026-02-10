@@ -45,3 +45,14 @@ export {
   generateImagePromptRequest,
   type ImagePromptInput,
 } from './prompts/image';
+
+// Session types
+export type {
+  AIChatSession,
+  AIChatMessageData,
+  CreateSessionPayload,
+  SendMessagePayload,
+  SessionListResponse,
+  SessionResponse,
+  SendMessageResponse,
+} from './session.types';

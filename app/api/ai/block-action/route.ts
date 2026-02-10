@@ -17,7 +17,8 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, block, instruction, selectedText } = await request.json();
+    const { action, block, instruction, selectedText, model } =
+      await request.json();
 
     if (!(await isAIConfigured())) {
       return NextResponse.json(
@@ -27,9 +28,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'regenerate') {
-      return handleRegenerate(block, instruction);
+      return handleRegenerate(block, instruction, model);
     } else if (action === 'improve') {
-      return handleImprove(selectedText, instruction);
+      return handleImprove(selectedText, instruction, model);
     } else {
       return NextResponse.json(
         { error: 'Invalid action. Use "regenerate" or "improve"' },
@@ -50,7 +51,8 @@ export async function POST(request: NextRequest) {
  */
 async function handleRegenerate(
   block: BlockInput | undefined,
-  instruction?: string
+  instruction?: string,
+  model?: string
 ) {
   if (!block) {
     return NextResponse.json(
@@ -62,7 +64,9 @@ async function handleRegenerate(
   const prompt = generateRegeneratePrompt(block, instruction);
   const chat = await createChatSession(
     REGENERATE_SYSTEM_PROMPT,
-    REGENERATE_ACK
+    REGENERATE_ACK,
+    [],
+    model
   );
   const text = await sendChatMessage(chat, prompt);
 
@@ -84,7 +88,8 @@ async function handleRegenerate(
  */
 async function handleImprove(
   selectedText: string | undefined,
-  instruction: string | undefined
+  instruction: string | undefined,
+  model?: string
 ) {
   if (!selectedText || !instruction) {
     return NextResponse.json(
@@ -94,7 +99,12 @@ async function handleImprove(
   }
 
   const prompt = generateImprovePrompt(selectedText, instruction);
-  const chat = await createChatSession(IMPROVE_SYSTEM_PROMPT, IMPROVE_ACK);
+  const chat = await createChatSession(
+    IMPROVE_SYSTEM_PROMPT,
+    IMPROVE_ACK,
+    [],
+    model
+  );
   const improvedText = await sendChatMessage(chat, prompt);
 
   return NextResponse.json({

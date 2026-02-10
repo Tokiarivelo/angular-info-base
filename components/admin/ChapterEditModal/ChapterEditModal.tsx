@@ -15,6 +15,8 @@ import {
   AlertCircle,
   Loader2,
   Trash2,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import { ChapterEditModalProps } from './ChapterEditModal.types';
 import { useChapterEditModal } from './ChapterEditModal.hooks';
@@ -35,6 +37,7 @@ export default function ChapterEditModal({
   const [activeTab, setActiveTab] = useState<Tab>('basic');
   const [isSaving, setIsSaving] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const {
     title,
@@ -96,7 +99,13 @@ export default function ChapterEditModal({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-5xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800 transition-all transform scale-100">
+      <div
+        className={`relative bg-white dark:bg-gray-900 shadow-2xl flex flex-col overflow-hidden border border-gray-200 dark:border-gray-800 transition-all transform ${
+          isFullScreen
+            ? 'fixed inset-0 w-full h-full z-50 rounded-none'
+            : 'w-full max-w-5xl rounded-2xl max-h-[90vh] scale-100'
+        }`}
+      >
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
           <div>
@@ -109,12 +118,25 @@ export default function ChapterEditModal({
                 : 'Add content to your course'}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsFullScreen(!isFullScreen)}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+              title={isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+            >
+              {isFullScreen ? (
+                <Minimize2 className="w-5 h-5" />
+              ) : (
+                <Maximize2 className="w-5 h-5" />
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Sidebar + Content Layout */}

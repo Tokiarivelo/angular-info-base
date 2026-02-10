@@ -232,6 +232,7 @@ model User {
   Screenshot          Screenshot[]
   Session             Session[]
   UserChapterProgress UserChapterProgress[]
+  AIChatSession       AIChatSession[]
 }
 
 model UserChapterProgress {
@@ -283,4 +284,37 @@ model SystemSetting {
   value     String
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+}
+
+model AIChatSession {
+  id           String          @id @default(uuid())
+  userId       String
+  courseId     String?
+  chapterId    String?
+  title        String          @default("New Chat")
+  model        String          @default("gemini-2.0-flash")
+  contentLanguage String       @default("en")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  messages     AIChatMessage[]
+  User         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([chapterId])
+}
+
+model AIChatMessage {
+  id                 String        @id @default(uuid())
+  sessionId          String
+  role               String        // 'user' or 'assistant'
+  content            String
+  blocks             Json?         // EditorBlock[] for assistant messages
+  chapterTitle       String?
+  chapterDescription String?
+  imagePrompt        String?
+  createdAt          DateTime      @default(now())
+  session            AIChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
 }

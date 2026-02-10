@@ -64,7 +64,7 @@ export function useChapterRichContentEditor(chapter: Chapter) {
     }
   }, [chapter, chapter.id]); // Intentionally only depend on chapter.id to avoid infinite loops
 
-  const addBlock = (type: BlockType): string => {
+  const addBlock = (type: BlockType, atIndex?: number): string => {
     const newBlock: EditorBlock = {
       id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type,
@@ -76,7 +76,15 @@ export function useChapterRichContentEditor(chapter: Chapter) {
             ? 'typescript'
             : undefined,
     };
-    setBlocks([...blocks, newBlock]);
+
+    if (atIndex !== undefined && atIndex >= 0 && atIndex <= blocks.length) {
+      const updated = [...blocks];
+      updated.splice(atIndex, 0, newBlock);
+      setBlocks(updated);
+    } else {
+      setBlocks([...blocks, newBlock]);
+    }
+
     setLastAddedBlockId(newBlock.id);
     return newBlock.id;
   };

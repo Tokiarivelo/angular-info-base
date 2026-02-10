@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import {
   ChapterRichContentEditorProps,
   BlockType,
@@ -10,6 +11,7 @@ import { useChapterRichContentEditor } from './ChapterRichContentEditor.hooks';
 import ImageBlockEditor from './components/ImageBlockEditor';
 import CodeBlockEditor from './components/CodeBlockEditor';
 import BlockTypeSelector from './components/BlockTypeSelector';
+import BlockInsertLine from './components/BlockInsertLine';
 import { BlockRegenerateButton } from './components/BlockAIActions';
 
 // Dynamic import to avoid SSR issues with CKEditor
@@ -24,6 +26,7 @@ export default function ChapterRichContentEditor({
   chapter,
   onSave,
 }: ChapterRichContentEditorProps) {
+  const t = useTranslations('richContentEditor');
   const [isSaving, setIsSaving] = useState(false);
   // Track if initial sync has been skipped to avoid infinite loops
   const hasInitializedRef = useRef(false);
@@ -83,6 +86,13 @@ export default function ChapterRichContentEditor({
     // The useEffect above will handle syncing to parent
   };
 
+  const handleInsertBlock = useCallback(
+    (type: BlockType, atIndex: number) => {
+      addBlock(type, atIndex);
+    },
+    [addBlock]
+  );
+
   // Whenever blocks structure changes (add/remove/move), sync
   // We can't do this easily inside the hook actions without passing the callback,
   // so we'll wrap the actions here or use an effect.
@@ -94,166 +104,178 @@ export default function ChapterRichContentEditor({
     <div className="space-y-8 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 p-6">
       <div className="flex justify-between items-center border-b dark:border-gray-700 pb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          Rich Content Editor
+          {t('title')}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => addBlock('richText')}
             className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 font-medium transition-colors"
           >
-            + Text
+            + {t('blockTypes.text')}
           </button>
           <button
             onClick={() => addBlock('proTip')}
             className="px-3 py-1 bg-amber-600 text-white text-sm rounded-md hover:bg-amber-700 font-medium transition-colors"
           >
-            + Pro Tip
+            + {t('blockTypes.proTip')}
           </button>
           <button
             onClick={() => addBlock('image')}
             className="px-3 py-1 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 font-medium transition-colors"
           >
-            + Image
+            + {t('blockTypes.image')}
           </button>
           <button
             onClick={() => addBlock('code')}
             className="px-3 py-1 bg-gray-700 text-white text-sm rounded-md hover:bg-gray-600 font-medium transition-colors"
           >
-            + Code
+            + {t('blockTypes.code')}
           </button>
           <button
             onClick={() => addBlock('separator')}
             className="px-3 py-1 bg-gray-500 text-white text-sm rounded-md hover:bg-gray-400 font-medium transition-colors"
           >
-            + Separator
+            + {t('blockTypes.separator')}
           </button>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-0">
+        {blocks.length > 0 && (
+          /* Insert line before the first block */
+          <BlockInsertLine
+            insertAtIndex={0}
+            onInsertBlock={handleInsertBlock}
+          />
+        )}
+
         {blocks.map((block, index) => (
-          <div
-            key={block.id}
-            data-block-id={block.id}
-            className="flex gap-3 group"
-          >
-            {/* Block Controls - Outside content block */}
-            <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pt-2">
-              <button
-                onClick={() => {
-                  moveBlock(index, 'up');
-                }}
-                disabled={index === 0}
-                className="p-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-600 dark:text-gray-300"
-                title="Move Up"
-              >
-                ↑
-              </button>
-              <button
-                onClick={() => moveBlock(index, 'down')}
-                disabled={index === blocks.length - 1}
-                className="p-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-600 dark:text-gray-300"
-                title="Move Down"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => removeBlock(block.id)}
-                className="p-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded hover:bg-red-200 dark:hover:bg-red-900/50"
-                title="Remove Block"
-              >
-                ✕
-              </button>
-              {/* Block Type Selector - Only shows for convertible types */}
-              <BlockTypeSelector
-                currentType={block.type}
-                onChangeType={(newType) => changeBlockType(block.id, newType)}
-              />
-              {/* AI Regenerate Button */}
-              <BlockRegenerateButton
-                block={block}
-                onRegeneratedBlock={(newData) =>
-                  handleUpdateBlock(block.id, newData)
-                }
-              />
-            </div>
+          <div key={block.id}>
+            <div data-block-id={block.id} className="flex gap-3 group">
+              {/* Block Controls - Outside content block */}
+              <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity pt-2">
+                <button
+                  onClick={() => {
+                    moveBlock(index, 'up');
+                  }}
+                  disabled={index === 0}
+                  className="p-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-600 dark:text-gray-300"
+                  title={t('moveUp')}
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => moveBlock(index, 'down')}
+                  disabled={index === blocks.length - 1}
+                  className="p-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 text-gray-600 dark:text-gray-300"
+                  title={t('moveDown')}
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => removeBlock(block.id)}
+                  className="p-1 bg-red-100 dark:bg-red-900/30 text-red-600 rounded hover:bg-red-200 dark:hover:bg-red-900/50"
+                  title={t('removeBlock')}
+                >
+                  ✕
+                </button>
+                {/* Block Type Selector - Only shows for convertible types */}
+                <BlockTypeSelector
+                  currentType={block.type}
+                  onChangeType={(newType) => changeBlockType(block.id, newType)}
+                />
+                {/* AI Regenerate Button */}
+                <BlockRegenerateButton
+                  block={block}
+                  onRegeneratedBlock={(newData) =>
+                    handleUpdateBlock(block.id, newData)
+                  }
+                />
+              </div>
 
-            {/* Block Content */}
-            <div
-              className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                block.type === 'proTip'
-                  ? 'border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/10'
-                  : block.type === 'image'
-                    ? 'border-purple-100 dark:border-purple-900/30 bg-purple-50 dark:bg-purple-950/10'
-                    : block.type === 'code'
-                      ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
-                      : 'border-transparent hover:border-gray-100 dark:hover:border-gray-800'
-              }`}
-            >
-              <div className="space-y-3">
-                {block.type === 'proTip' && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold px-2 py-1 bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-100 rounded uppercase">
-                      Pro Tip
-                    </span>
-                    <input
-                      type="text"
-                      value={block.title || ''}
-                      onChange={(e) =>
-                        handleUpdateBlock(block.id, { title: e.target.value })
-                      }
-                      placeholder="Tip Title..."
-                      className="flex-1 bg-transparent border-b border-amber-300 dark:border-amber-800 focus:border-amber-500 outline-none px-2 py-1 font-semibold text-gray-900 dark:text-white"
+              {/* Block Content */}
+              <div
+                className={`flex-1 min-w-0 p-4 rounded-lg border-2 transition-all ${
+                  block.type === 'proTip'
+                    ? 'border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/10'
+                    : block.type === 'image'
+                      ? 'border-purple-100 dark:border-purple-900/30 bg-purple-50 dark:bg-purple-950/10'
+                      : block.type === 'code'
+                        ? 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
+                        : 'border-transparent hover:border-gray-100 dark:hover:border-gray-800'
+                }`}
+              >
+                <div className="space-y-3">
+                  {block.type === 'proTip' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold px-2 py-1 bg-amber-200 dark:bg-amber-900 text-amber-800 dark:text-amber-100 rounded uppercase">
+                        {t('blockTypes.proTip')}
+                      </span>
+                      <input
+                        type="text"
+                        value={block.title || ''}
+                        onChange={(e) =>
+                          handleUpdateBlock(block.id, { title: e.target.value })
+                        }
+                        placeholder={t('tipTitlePlaceholder')}
+                        className="flex-1 bg-transparent border-b border-amber-300 dark:border-amber-800 focus:border-amber-500 outline-none px-2 py-1 font-semibold text-gray-900 dark:text-white"
+                      />
+                    </div>
+                  )}
+
+                  {block.type === 'image' && (
+                    <ImageBlockEditor
+                      blockId={block.id}
+                      content={block.content}
+                      onUpdate={handleUpdateBlock}
+                      onUpload={handleBlockImageUpload}
+                      isUploading={uploadingBlockId === block.id}
                     />
-                  </div>
-                )}
+                  )}
 
-                {block.type === 'image' && (
-                  <ImageBlockEditor
-                    blockId={block.id}
-                    content={block.content}
-                    onUpdate={handleUpdateBlock}
-                    onUpload={handleBlockImageUpload}
-                    isUploading={uploadingBlockId === block.id}
-                  />
-                )}
-
-                {block.type === 'code' && (
-                  <CodeBlockEditor
-                    blockId={block.id}
-                    content={block.content}
-                    language={block.title || 'typescript'}
-                    onUpdate={handleUpdateBlock}
-                  />
-                )}
-
-                {block.type === 'separator' && (
-                  <div className="py-4">
-                    <hr className="border-t-2 border-gray-300 dark:border-gray-600" />
-                    <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
-                      Horizontal Line Separator
-                    </p>
-                  </div>
-                )}
-
-                {block.type === 'richText' || block.type === 'proTip' ? (
-                  <div className="prose dark:prose-invert max-w-none">
-                    <RichTextEditor
-                      data={block.content}
-                      onChange={(data) =>
-                        handleUpdateBlock(block.id, { content: data })
-                      }
+                  {block.type === 'code' && (
+                    <CodeBlockEditor
+                      blockId={block.id}
+                      content={block.content}
+                      language={block.title || 'typescript'}
+                      onUpdate={handleUpdateBlock}
                     />
-                  </div>
-                ) : null}
+                  )}
+
+                  {block.type === 'separator' && (
+                    <div className="py-4">
+                      <hr className="border-t-2 border-gray-300 dark:border-gray-600" />
+                      <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">
+                        {t('separatorLabel')}
+                      </p>
+                    </div>
+                  )}
+
+                  {block.type === 'richText' || block.type === 'proTip' ? (
+                    <div className="prose dark:prose-invert max-w-none">
+                      <RichTextEditor
+                        data={block.content}
+                        onChange={(data) =>
+                          handleUpdateBlock(block.id, { content: data })
+                        }
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
+
+            {/* Insert line after each block */}
+            <BlockInsertLine
+              insertAtIndex={index + 1}
+              onInsertBlock={handleInsertBlock}
+            />
           </div>
         ))}
 
         {blocks.length === 0 && (
           <div className="text-center py-12 text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-            <p>Start by adding content blocks above</p>
+            <p>{t('emptyState')}</p>
           </div>
         )}
       </div>

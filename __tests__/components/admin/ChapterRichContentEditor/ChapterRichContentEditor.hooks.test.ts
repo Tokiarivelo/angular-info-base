@@ -75,6 +75,88 @@ describe('useChapterRichContentEditor', () => {
       expect(result.current.blocks[0].content).toBe('');
     });
 
+    it('should insert a block at a specific index (beginning)', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Block 1' },
+        { id: 'block-2', type: 'richText', content: 'Block 2' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      act(() => {
+        result.current.addBlock('code', 0);
+      });
+
+      expect(result.current.blocks).toHaveLength(3);
+      expect(result.current.blocks[0].type).toBe('code');
+      expect(result.current.blocks[1].id).toBe('block-1');
+      expect(result.current.blocks[2].id).toBe('block-2');
+    });
+
+    it('should insert a block at a specific index (middle)', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Block 1' },
+        { id: 'block-2', type: 'richText', content: 'Block 2' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      act(() => {
+        result.current.addBlock('proTip', 1);
+      });
+
+      expect(result.current.blocks).toHaveLength(3);
+      expect(result.current.blocks[0].id).toBe('block-1');
+      expect(result.current.blocks[1].type).toBe('proTip');
+      expect(result.current.blocks[2].id).toBe('block-2');
+    });
+
+    it('should insert a block at the end when atIndex equals blocks.length', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Block 1' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      act(() => {
+        result.current.addBlock('image', 1);
+      });
+
+      expect(result.current.blocks).toHaveLength(2);
+      expect(result.current.blocks[0].id).toBe('block-1');
+      expect(result.current.blocks[1].type).toBe('image');
+    });
+
+    it('should append block when atIndex is out of range', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Block 1' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      act(() => {
+        result.current.addBlock('separator', 999);
+      });
+
+      expect(result.current.blocks).toHaveLength(2);
+      expect(result.current.blocks[1].type).toBe('separator');
+    });
+
+    it('should set lastAddedBlockId when inserting at index', () => {
+      const initialBlocks: EditorBlock[] = [
+        { id: 'block-1', type: 'richText', content: 'Block 1' },
+      ];
+      const chapter = createMockChapter({ content: initialBlocks });
+      const { result } = renderHook(() => useChapterRichContentEditor(chapter));
+
+      let returnedId: string;
+      act(() => {
+        returnedId = result.current.addBlock('code', 0);
+      });
+
+      expect(result.current.lastAddedBlockId).toBe(returnedId!);
+    });
+
     it('should update an existing block', () => {
       const initialBlocks: EditorBlock[] = [
         { id: 'block-1', type: 'richText', content: 'Original' },

@@ -142,6 +142,49 @@ describe('useChapterRichContentEditor', () => {
       expect(result.current.blocks[0].title).toBe('typescript');
     });
 
+    it('should insert a block at the beginning with atIndex=0', () => {
+      const { result } = renderHook(() =>
+        useChapterRichContentEditor(mockChapterWithContent)
+      );
+
+      act(() => {
+        result.current.addBlock('separator', 0);
+      });
+
+      expect(result.current.blocks).toHaveLength(3);
+      expect(result.current.blocks[0].type).toBe('separator');
+      expect(result.current.blocks[1].id).toBe('block-1');
+      expect(result.current.blocks[2].id).toBe('block-2');
+    });
+
+    it('should insert a block between existing blocks', () => {
+      const { result } = renderHook(() =>
+        useChapterRichContentEditor(mockChapterWithContent)
+      );
+
+      act(() => {
+        result.current.addBlock('image', 1);
+      });
+
+      expect(result.current.blocks).toHaveLength(3);
+      expect(result.current.blocks[0].id).toBe('block-1');
+      expect(result.current.blocks[1].type).toBe('image');
+      expect(result.current.blocks[2].id).toBe('block-2');
+    });
+
+    it('should append block when no atIndex is specified', () => {
+      const { result } = renderHook(() =>
+        useChapterRichContentEditor(mockChapterWithContent)
+      );
+
+      act(() => {
+        result.current.addBlock('code');
+      });
+
+      expect(result.current.blocks).toHaveLength(3);
+      expect(result.current.blocks[2].type).toBe('code');
+    });
+
     it('should clear lastAddedBlockId when clearLastAddedBlockId is called', () => {
       const { result } = renderHook(() =>
         useChapterRichContentEditor(mockChapter)

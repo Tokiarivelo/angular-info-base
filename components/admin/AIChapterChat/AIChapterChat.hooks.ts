@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   ChatMessage,
   GenerateContentResponse,
@@ -6,12 +6,8 @@ import {
   GeneratedChapterData,
 } from './AIChapterChat.types';
 import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
-
-/**
- * Generate a unique ID for messages
- */
-const generateMessageId = () =>
-  `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+import { useAIChatStore } from '@/lib/stores';
+import { AIChatSession } from '@/lib/ai/session.types';
 
 /**
  * Generate a unique ID for blocks
@@ -24,123 +20,216 @@ const generateBlockId = () =>
  */
 interface UseAIChapterChatOptions {
   courseContext?: CourseContext;
+  courseId?: string;
+  chapterId?: string;
 }
 
 /**
- * Hook for managing AI chapter chat state and interactions
+ * Hook for managing AI chapter chat state and interactions with session persistence
  */
 export function useAIChapterChat(options?: UseAIChapterChatOptions) {
-  const { courseContext } = options || {};
+  const { courseContext, courseId, chapterId } = options || {};
 
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Get store state and actions
+  const {
+    currentSession,
+    currentSessionId,
+    sessions,
+    isSending,
+    error: storeError,
+    selectedModel,
+    contentLanguage,
+    setSelectedModel,
+    setContentLanguage,
+    setError,
+    fetchSessions,
+    fetchSession,
+    createSession,
+    deleteSession,
+    setCurrentSession,
+    clearCurrentSession,
+  } = useAIChatStore();
+
   const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setLocalError] = useState<string | null>(null);
+
+  // Convert store messages to component format
+  const messages: ChatMessage[] = (currentSession?.messages || []).map(
+    (msg) => ({
+      id: msg.id,
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content,
+      blocks: msg.blocks as EditorBlock[] | undefined,
+      chapterTitle: msg.chapterTitle || undefined,
+      chapterDescription: msg.chapterDescription || undefined,
+      imagePrompt: msg.imagePrompt || undefined,
+      timestamp: new Date(msg.createdAt),
+      isLoading: msg.isLoading,
+    })
+  );
+
+  // Load sessions on mount
+  useEffect(() => {
+    fetchSessions(courseId);
+  }, [courseId, fetchSessions]);
+
+  /**
+   * Initialize or load a session
+   */
+  const initSession = useCallback(async () => {
+    // If we already have a current session for this context, use it
+    if (currentSession) {
+      return currentSession;
+    }
+
+    // Try to find an existing session for this course/chapter
+    const existingSession = sessions.find(
+      (s) =>
+        (courseId ? s.courseId === courseId : !s.courseId) &&
+        (chapterId ? s.chapterId === chapterId : !s.chapterId)
+    );
+
+    if (existingSession) {
+      await fetchSession(existingSession.id);
+      return existingSession;
+    }
+
+    // Create a new session
+    return await createSession({
+      courseId,
+      chapterId,
+      title: courseContext?.title ? `Chat: ${courseContext.title}` : 'New Chat',
+      model: selectedModel,
+      contentLanguage,
+    });
+  }, [
+    currentSession,
+    sessions,
+    courseId,
+    chapterId,
+    courseContext,
+    selectedModel,
+    contentLanguage,
+    fetchSession,
+    createSession,
+  ]);
 
   /**
    * Send a message to the AI and get a response
    */
   const sendMessage = useCallback(
     async (prompt: string, model?: string) => {
-      if (!prompt.trim() || isLoading) return;
+      if (!prompt.trim() || isLoading || isSending) return;
 
-      setError(null);
+      setLocalError(null);
       setInputValue('');
-
-      // Add user message
-      const userMessage: ChatMessage = {
-        id: generateMessageId(),
-        role: 'user',
-        content: prompt,
-        timestamp: new Date(),
-      };
-
-      // Add loading message for assistant
-      const loadingMessage: ChatMessage = {
-        id: generateMessageId(),
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        isLoading: true,
-      };
-
-      setMessages((prev) => [...prev, userMessage, loadingMessage]);
       setIsLoading(true);
 
       try {
-        // Build conversation history for context
-        const conversationHistory = messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        }));
+        // Ensure we have a session
+        let session = currentSession;
+        if (!session) {
+          session = await initSession();
+          if (!session) {
+            throw new Error('Failed to create session');
+          }
+        }
 
-        const response = await fetch('/api/ai/generate-chapter', {
+        // Send message via store
+        const response = await fetch('/api/ai/sessions/send-message', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            sessionId: session.id,
             prompt,
-            conversationHistory,
+            model: model || selectedModel,
+            contentLanguage,
             courseContext,
-            model,
           }),
         });
 
-        const data: GenerateContentResponse = await response.json();
+        const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to generate content');
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || 'Failed to send message');
         }
 
-        // Process blocks to ensure they have valid IDs
-        let processedBlocks: EditorBlock[] | undefined;
-        if (data.blocks && Array.isArray(data.blocks)) {
-          processedBlocks = data.blocks.map((block: any) => ({
-            id: generateBlockId(),
-            type: block.type || 'richText',
-            content: block.content || '',
-            title: block.title,
-          }));
-        }
-
-        // Update the loading message with the actual response including metadata
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === loadingMessage.id
-              ? {
-                  ...msg,
-                  content: data.message,
-                  blocks: processedBlocks,
-                  chapterTitle: data.chapterTitle,
-                  chapterDescription: data.chapterDescription,
-                  imagePrompt: data.imagePrompt,
-                  isLoading: false,
-                }
-              : msg
-          )
-        );
+        // Refresh session to get updated messages
+        await fetchSession(session.id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        // Remove the loading message on error
-        setMessages((prev) =>
-          prev.filter((msg) => msg.id !== loadingMessage.id)
-        );
+        const errorMessage =
+          err instanceof Error ? err.message : 'An error occurred';
+        setLocalError(errorMessage);
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
     },
-    [isLoading, messages, courseContext]
+    [
+      isLoading,
+      isSending,
+      currentSession,
+      initSession,
+      selectedModel,
+      contentLanguage,
+      courseContext,
+      fetchSession,
+      setError,
+    ]
   );
 
   /**
-   * Clear all messages and reset the chat
+   * Clear current session (but don't delete from DB)
    */
   const clearChat = useCallback(() => {
-    setMessages([]);
-    setError(null);
+    clearCurrentSession();
+    setLocalError(null);
     setInputValue('');
-  }, []);
+  }, [clearCurrentSession]);
+
+  /**
+   * Delete current session from DB
+   */
+  const deleteCurrentSession = useCallback(async () => {
+    if (currentSessionId) {
+      await deleteSession(currentSessionId);
+      clearChat();
+    }
+  }, [currentSessionId, deleteSession, clearChat]);
+
+  /**
+   * Load a specific session
+   */
+  const loadSession = useCallback(
+    async (sessionId: string) => {
+      await fetchSession(sessionId);
+    },
+    [fetchSession]
+  );
+
+  /**
+   * Start a new chat session
+   */
+  const startNewChat = useCallback(async () => {
+    clearCurrentSession();
+    const newSession = await createSession({
+      courseId,
+      chapterId,
+      title: courseContext?.title ? `Chat: ${courseContext.title}` : 'New Chat',
+      model: selectedModel,
+      contentLanguage,
+    });
+    return newSession;
+  }, [
+    clearCurrentSession,
+    createSession,
+    courseId,
+    chapterId,
+    courseContext,
+    selectedModel,
+    contentLanguage,
+  ]);
 
   /**
    * Get the last generated blocks from the conversation
@@ -174,13 +263,32 @@ export function useAIChapterChat(options?: UseAIChapterChatOptions) {
     }, [messages]);
 
   return {
+    // Messages and state
     messages,
-    isLoading,
-    error,
+    isLoading: isLoading || isSending,
+    error: error || storeError,
     inputValue,
     setInputValue,
+
+    // Session management
+    currentSession,
+    currentSessionId,
+    sessions,
+
+    // Actions
     sendMessage,
     clearChat,
+    deleteCurrentSession,
+    loadSession,
+    startNewChat,
+
+    // Model and language
+    selectedModel,
+    setSelectedModel,
+    contentLanguage,
+    setContentLanguage,
+
+    // Utility functions
     getLastGeneratedBlocks,
     getLastGeneratedChapter,
   };
