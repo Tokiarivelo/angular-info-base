@@ -405,6 +405,19 @@ The rich content editor supports inserting blocks at any position:
 - **Responsive & theme-aware** — works in both light and dark mode
 - **Multi-language** — all labels are translated (English & French)
 
+### Diff Highlighting (Code Editor)
+
+The code editor supports `diff` as a language, with IDE-style line-level coloring:
+
+- **🟢 Added lines** (`+`) — green background with left border
+- **🔴 Removed lines** (`-`) — red background with strikethrough
+- **🟡 Changed lines** (`!`) — yellow/amber background
+- **🔵 Chunk headers** (`@@`) — blue background, italic
+- **⚪ Meta lines** (`---`/`+++`) — gray, bold
+- A **legend bar** is displayed below the editor header when `diff` mode is active
+- Works in both the **admin editor** (Prism-based) and the **reader view** (react-syntax-highlighter)
+- Shared `diffLineUtils` utility for consistent classification across components
+
 ### AI Image Generation
 
 Generate chapter cover images automatically using AI:

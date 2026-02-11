@@ -1,5 +1,3 @@
-import { PDFParse } from 'pdf-parse';
-
 /**
  * Extract text from a buffer based on file extension/mime type
  */
@@ -9,6 +7,9 @@ export async function extractTextFromBuffer(
 ): Promise<string> {
   if (mimeType === 'application/pdf') {
     try {
+      // Dynamic import to avoid loading pdfjs-dist (and @napi-rs/canvas)
+      // on every page — it's only needed when actually parsing a PDF.
+      const { PDFParse } = await import('pdf-parse');
       const parser = new PDFParse({ data: buffer });
       const data = await parser.getText();
       await parser.destroy();

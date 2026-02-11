@@ -66,3 +66,93 @@ body {
 .animate-fade-in {
   animation: fadeIn 0.15s ease-out;
 }
+
+/* ===========================
+   Diff Line Highlighting
+   IDE-style colors for code diffs
+   =========================== */
+
+/* Added lines — green background (GitHub/VS Code style) */
+.diff-line-added {
+  display: inline-block;
+  width: 100%;
+  background-color: rgba(46, 160, 67, 0.25);
+  border-left: 3px solid #3fb950;
+  padding-left: 8px;
+  margin-left: -11px;
+  color: #aff5b4;
+}
+
+/* Removed lines — red background */
+.diff-line-removed {
+  display: inline-block;
+  width: 100%;
+  background-color: rgba(248, 81, 73, 0.25);
+  border-left: 3px solid #f85149;
+  padding-left: 8px;
+  margin-left: -11px;
+  color: #ffa198;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 161, 152, 0.4);
+}
+
+/* Changed lines — yellow/amber background */
+.diff-line-changed {
+  display: inline-block;
+  width: 100%;
+  background-color: rgba(210, 153, 34, 0.2);
+  border-left: 3px solid #d29922;
+  padding-left: 8px;
+  margin-left: -11px;
+  color: #f0d96d;
+}
+
+/* Chunk/hunk headers (@@) — blue/purple background */
+.diff-line-chunk {
+  display: inline-block;
+  width: 100%;
+  background-color: rgba(88, 166, 255, 0.15);
+  border-left: 3px solid #58a6ff;
+  padding-left: 8px;
+  margin-left: -11px;
+  color: #79c0ff;
+  font-style: italic;
+}
+
+/* Meta lines (--- / +++) — subtle gray */
+.diff-line-meta {
+  display: inline-block;
+  width: 100%;
+  background-color: rgba(139, 148, 158, 0.1);
+  border-left: 3px solid #8b949e;
+  padding-left: 8px;
+  margin-left: -11px;
+  color: #8b949e;
+  font-weight: bold;
+}
+
+/* Reader-side diff line props (react-syntax-highlighter) */
+.diff-reader-line-added {
+  background-color: rgba(46, 160, 67, 0.2) !important;
+  border-left: 3px solid #3fb950;
+}
+.diff-reader-line-removed {
+  background-color: rgba(248, 81, 73, 0.2) !important;
+  border-left: 3px solid #f85149;
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 161, 152, 0.3);
+}
+.diff-reader-line-changed {
+  background-color: rgba(210, 153, 34, 0.15) !important;
+  border-left: 3px solid #d29922;
+}
+.diff-reader-line-chunk {
+  background-color: rgba(88, 166, 255, 0.12) !important;
+  border-left: 3px solid #58a6ff;
+  font-style: italic;
+}
+.diff-reader-line-meta {
+  background-color: rgba(139, 148, 158, 0.08) !important;
+  border-left: 3px solid #8b949e;
+  font-weight: bold;
+}

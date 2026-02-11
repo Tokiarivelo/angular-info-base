@@ -17,6 +17,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { getReaderDiffLineClass } from '@/components/admin/ChapterRichContentEditor/utils/diffLineUtils';
 
 interface ChapterContentPanelProps {
   chapter: any;
@@ -36,6 +37,9 @@ const CodeBlock = ({ language, code }: { language: string; code: string }) => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const isDiff = language === 'diff';
+  const codeLines = isDiff ? code.split('\n') : [];
 
   return (
     <div className="relative group my-6 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm bg-[#1e1e1e]">
@@ -69,9 +73,32 @@ const CodeBlock = ({ language, code }: { language: string; code: string }) => {
           )}
         </button>
       </div>
+
+      {/* Diff legend */}
+      {isDiff && (
+        <div className="flex items-center gap-3 px-4 py-1.5 bg-[#252526] border-b border-[#3e3e42]">
+          <span className="flex items-center gap-1.5 text-[10px] font-medium">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#2ea04370]" />
+            <span className="text-[#3fb950]">{t('diff.added')}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-medium">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#f8514970]" />
+            <span className="text-[#f85149]">{t('diff.removed')}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-medium">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#d29922]/30" />
+            <span className="text-[#d29922]">{t('diff.changed')}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-medium">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#58a6ff]/20" />
+            <span className="text-[#58a6ff]">{t('diff.chunk')}</span>
+          </span>
+        </div>
+      )}
+
       <div className="text-sm font-mono leading-relaxed">
         <SyntaxHighlighter
-          language={language || 'typescript'}
+          language={isDiff ? 'diff' : language || 'typescript'}
           style={vscDarkPlus}
           showLineNumbers={true}
           customStyle={{
@@ -82,6 +109,18 @@ const CodeBlock = ({ language, code }: { language: string; code: string }) => {
           }}
           wrapLines={true}
           wrapLongLines={true}
+          lineProps={
+            isDiff
+              ? (lineNumber: number) => {
+                  const lineContent = codeLines[lineNumber - 1] || '';
+                  const className = getReaderDiffLineClass(lineContent);
+                  return {
+                    style: { display: 'block' },
+                    ...(className ? { className } : {}),
+                  };
+                }
+              : undefined
+          }
         >
           {code}
         </SyntaxHighlighter>

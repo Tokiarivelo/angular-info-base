@@ -307,6 +307,12 @@
     "navigation": {
       "previous": "Précédent",
       "nextLesson": "Leçon suivante"
+    },
+    "diff": {
+      "added": "Ajouté",
+      "removed": "Supprimé",
+      "changed": "Modifié",
+      "chunk": "Section"
     }
   },
   "chapterWorkspace": {
@@ -373,6 +379,14 @@
       "image": "Image",
       "code": "Code",
       "separator": "Séparateur"
+    },
+    "codeEditor": "Éditeur de code",
+    "diffPlaceholder": "Collez votre diff ici...\n- ligne supprimée\n+ ligne ajoutée",
+    "diffLegend": {
+      "added": "Ajouté",
+      "removed": "Supprimé",
+      "changed": "Modifié",
+      "chunk": "Section"
     }
   }
 }
