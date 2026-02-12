@@ -386,7 +386,12 @@
       "added": "Added",
       "removed": "Removed",
       "changed": "Changed",
-      "chunk": "Chunk"
+      "chunk": "Chunk",
+      "applyHint": "Click to apply:",
+      "addedTooltip": "Mark selected lines as added (+)",
+      "removedTooltip": "Mark selected lines as removed (-)",
+      "changedTooltip": "Mark selected lines as changed (!)",
+      "chunkTooltip": "Mark selected lines as chunk header (@@)"
     }
   }
 }

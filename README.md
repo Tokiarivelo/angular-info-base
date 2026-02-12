@@ -415,8 +415,9 @@ The code editor supports `diff` as a language, with IDE-style line-level colorin
 - **🔵 Chunk headers** (`@@`) — blue background, italic
 - **⚪ Meta lines** (`---`/`+++`) — gray, bold
 - A **legend bar** is displayed below the editor header when `diff` mode is active
+- **🖱️ Clickable toolbar buttons** — click Added / Removed / Changed / Chunk to apply the corresponding diff prefix to the current line or all selected lines. Click again to toggle it off.
 - Works in both the **admin editor** (Prism-based) and the **reader view** (react-syntax-highlighter)
-- Shared `diffLineUtils` utility for consistent classification across components
+- Shared `diffLineUtils` utility for consistent classification and prefix manipulation across components
 
 ### AI Image Generation
 

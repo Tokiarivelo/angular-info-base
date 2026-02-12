@@ -2,6 +2,8 @@ import {
   classifyDiffLine,
   getEditorDiffLineClass,
   getReaderDiffLineClass,
+  stripDiffPrefix,
+  applyDiffPrefixToLines,
 } from '@/components/admin/ChapterRichContentEditor/utils/diffLineUtils';
 
 describe('diffLineUtils', () => {
@@ -102,6 +104,103 @@ describe('diffLineUtils', () => {
 
     it('should classify -- (double minus) as removed', () => {
       expect(classifyDiffLine('--double minus')).toBe('removed');
+    });
+  });
+
+  describe('stripDiffPrefix', () => {
+    it('should strip + prefix from added lines', () => {
+      expect(stripDiffPrefix('+const x = 1;')).toBe('const x = 1;');
+    });
+
+    it('should strip - prefix from removed lines', () => {
+      expect(stripDiffPrefix('-const x = 1;')).toBe('const x = 1;');
+    });
+
+    it('should strip ! prefix from changed lines', () => {
+      expect(stripDiffPrefix('!changed line')).toBe('changed line');
+    });
+
+    it('should strip @@ chunk header with content', () => {
+      expect(stripDiffPrefix('@@ -1,5 +1,7 @@ function foo()')).toBe(
+        'function foo()'
+      );
+    });
+
+    it('should strip simple @@ prefix', () => {
+      expect(stripDiffPrefix('@@ some text')).toBe('some text');
+    });
+
+    it('should strip +++ meta prefix', () => {
+      expect(stripDiffPrefix('+++ b/file.ts')).toBe('b/file.ts');
+    });
+
+    it('should strip --- meta prefix', () => {
+      expect(stripDiffPrefix('--- a/file.ts')).toBe('a/file.ts');
+    });
+
+    it('should return unchanged context lines', () => {
+      expect(stripDiffPrefix('context line')).toBe('context line');
+      expect(stripDiffPrefix('  indented line')).toBe('  indented line');
+      expect(stripDiffPrefix('')).toBe('');
+    });
+  });
+
+  describe('applyDiffPrefixToLines', () => {
+    it('should apply + prefix to plain lines', () => {
+      const result = applyDiffPrefixToLines(
+        ['const x = 1;', 'const y = 2;'],
+        'added'
+      );
+      expect(result).toEqual(['+const x = 1;', '+const y = 2;']);
+    });
+
+    it('should apply - prefix to plain lines', () => {
+      const result = applyDiffPrefixToLines(['line1', 'line2'], 'removed');
+      expect(result).toEqual(['-line1', '-line2']);
+    });
+
+    it('should apply ! prefix to plain lines', () => {
+      const result = applyDiffPrefixToLines(['line1'], 'changed');
+      expect(result).toEqual(['!line1']);
+    });
+
+    it('should apply @@ chunk wrapper', () => {
+      const result = applyDiffPrefixToLines(['function foo()'], 'chunk');
+      expect(result).toEqual(['@@ function foo() @@']);
+    });
+
+    it('should replace existing prefix with new one', () => {
+      const result = applyDiffPrefixToLines(['+added line'], 'removed');
+      expect(result).toEqual(['-added line']);
+    });
+
+    it('should toggle off when all lines already have the same prefix', () => {
+      const result = applyDiffPrefixToLines(['+line1', '+line2'], 'added');
+      expect(result).toEqual(['line1', 'line2']);
+    });
+
+    it('should toggle off chunk prefix', () => {
+      // '@@ header @@' -> stripDiffPrefix removes the @@ ... @@ wrapper
+      const result = applyDiffPrefixToLines(['@@ header @@'], 'chunk');
+      expect(result).toEqual(['']);
+    });
+
+    it('should toggle off chunk with trailing content', () => {
+      const result = applyDiffPrefixToLines(
+        ['@@ -1,5 +1,7 @@ function foo()'],
+        'chunk'
+      );
+      expect(result).toEqual(['function foo()']);
+    });
+
+    it('should not toggle off if only some lines have the prefix', () => {
+      const result = applyDiffPrefixToLines(['+line1', 'line2'], 'added');
+      expect(result).toEqual(['+line1', '+line2']);
+    });
+
+    it('should return lines unchanged for unknown diff type', () => {
+      const result = applyDiffPrefixToLines(['line1'], 'unknown');
+      expect(result).toEqual(['line1']);
     });
   });
 });

@@ -156,3 +156,36 @@ body {
   border-left: 3px solid #8b949e;
   font-weight: bold;
 }
+
+/* ===========================
+   Prose Blockquote Customization
+   Overrides Tailwind Typography defaults
+   =========================== */
+.prose blockquote {
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
+  border-left-color: #6366f1 !important; /* indigo-500 */
+  padding-left: 1.5rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  background-color: #f9fafb !important; /* gray-50 */
+  border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+  font-style: normal !important;
+  color: #374151 !important; /* gray-700 */
+  quotes: none !important;
+}
+
+/* Remove default quotes added by prose plugin */
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none !important;
+}
+
+.dark .prose blockquote {
+  background-color: rgba(31, 41, 55, 0.5) !important; /* gray-800/50 */
+  color: #d1d5db !important; /* gray-300 */
+  border-left-color: #6366f1 !important;
+}

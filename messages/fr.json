@@ -386,7 +386,12 @@
       "added": "Ajouté",
       "removed": "Supprimé",
       "changed": "Modifié",
-      "chunk": "Section"
+      "chunk": "Section",
+      "applyHint": "Cliquer pour appliquer :",
+      "addedTooltip": "Marquer les lignes sélectionnées comme ajoutées (+)",
+      "removedTooltip": "Marquer les lignes sélectionnées comme supprimées (-)",
+      "changedTooltip": "Marquer les lignes sélectionnées comme modifiées (!)",
+      "chunkTooltip": "Marquer les lignes sélectionnées comme en-tête de section (@@)"
     }
   }
 }
