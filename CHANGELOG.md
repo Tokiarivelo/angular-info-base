@@ -5,11 +5,14 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Fixed
+
+- **UI Bug**: Removed redundant `block` class in `ChapterEditModal` that conflicted with `flex` on the "Live Preview URL" label.
 - **Auth Error**: Fixed "Invalid `p.account.findUnique()` invocation" error when NextAuth v5 PrismaAdapter calls `getUserByAccount()`
 - **Schema Update**: Updated Account model to use composite primary key `@@id([provider, providerAccountId])` instead of separate `id` field
 - **NextAuth v5 Compatibility**: Ensures proper compatibility with `@auth/prisma-adapter` v2.6.0+
 
 ### Changed
+
 - Added `package-lock.json` to `.gitignore` as project uses `bun.lock`
 
 ## [0.1.0] - 2024-11-01
@@ -21,6 +24,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 #### Added
 
 **Core Features**
+
 - ✅ User authentication (sign up, sign in, sign out)
 - ✅ User profile management
 - ✅ Checklist creation and management
@@ -29,6 +33,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - ✅ User-specific data isolation
 
 **Technical Implementation**
+
 - Next.js 15 with App Router and TypeScript
 - Prisma ORM with PostgreSQL (Neon Serverless)
 - NextAuth v5 for authentication with JWT sessions
@@ -38,12 +43,14 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - Middleware for route protection
 
 **Database Schema**
+
 - User model with email/password authentication
 - Checklist model with owner relationship
 - ChecklistItem model with completion tracking
 - NextAuth models (Account, Session, VerificationToken)
 
 **Pages & Routes**
+
 - `/` - Landing page with auth links
 - `/signup` - User registration
 - `/signin` - User login
@@ -54,12 +61,14 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - `/api/signup` - Registration endpoint
 
 **Components**
+
 - `CreateChecklistForm` - Form to create new checklists
 - `ChecklistList` - Display list of checklists with progress
 - `CreateChecklistItemForm` - Form to add checklist items
 - `ChecklistItemList` - Display and manage checklist items
 
 **Development Tools**
+
 - ESLint configuration for code quality
 - Prettier for code formatting
 - Jest and React Testing Library for testing
@@ -67,6 +76,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - Comprehensive README and documentation
 
 **Documentation**
+
 - README.md - Complete setup and usage guide
 - DEVELOPMENT.md - Developer guide
 - DEPLOYMENT.md - Vercel deployment guide
@@ -74,6 +84,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - .env.example - Environment variable template
 
 **Scripts**
+
 - `dev` - Start development server
 - `build` - Build for production
 - `start` - Start production server
@@ -89,12 +100,14 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 #### Technical Notes
 
 **Next.js 15 Compatibility**
+
 - Updated to handle async params in dynamic routes
 - Configured webpack to externalize bcrypt for server builds
 - Implemented Server Components by default
 - Client Components only where interactivity is needed
 
 **Security Features**
+
 - Password hashing with bcrypt (10 rounds)
 - JWT-based sessions with secure secrets
 - Server-side authorization checks
@@ -103,6 +116,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 - Input validation on client and server
 
 **Database Design**
+
 - Cascade deletes for data integrity
 - Indexes on foreign keys for performance
 - Timestamps for audit trails
@@ -119,6 +133,7 @@ Complete Next.js 15 application for managing Angular learning checklists with us
 #### Future Enhancements
 
 Potential features for future releases:
+
 - Email verification
 - Password reset flow
 - OAuth providers (Google, GitHub)

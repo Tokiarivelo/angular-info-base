@@ -15,6 +15,8 @@ export interface Chapter {
   order: number;
 }
 
+export type Tab = 'basic' | 'content' | 'import' | 'ai';
+
 export interface ChapterEditModalProps {
   chapter?: Chapter | null; // Optional for creation mode
   courseId: string; // Required for creation
@@ -22,6 +24,7 @@ export interface ChapterEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (chapterId: string | null, data: ChapterUpdateData) => Promise<void>;
+  initialTab?: Tab;
 }
 
 export interface ChapterUpdateData {

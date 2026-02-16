@@ -18,14 +18,12 @@ import {
   Maximize2,
   Minimize2,
 } from 'lucide-react';
-import { ChapterEditModalProps } from './ChapterEditModal.types';
+import { ChapterEditModalProps, Tab } from './ChapterEditModal.types';
 import { useChapterEditModal } from './ChapterEditModal.hooks';
 import ChapterRichContentEditor from '../ChapterRichContentEditor';
 import AIChapterChat from '../AIChapterChat';
 import { EditorBlock } from '../ChapterRichContentEditor/ChapterRichContentEditor.types';
 import { GeneratedChapterData } from '../AIChapterChat/AIChapterChat.types';
-
-type Tab = 'basic' | 'content' | 'import' | 'ai';
 
 export default function ChapterEditModal({
   chapter,
@@ -33,8 +31,9 @@ export default function ChapterEditModal({
   isOpen,
   onClose,
   onSave,
+  initialTab = 'basic',
 }: ChapterEditModalProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('basic');
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [isSaving, setIsSaving] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -74,9 +73,9 @@ export default function ChapterEditModal({
   // Reset tab when opening for a new chapter vs editing
   useEffect(() => {
     if (isOpen) {
-      setActiveTab('basic');
+      setActiveTab(initialTab);
     }
-  }, [isOpen]);
+  }, [isOpen, initialTab]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -244,7 +243,7 @@ export default function ChapterEditModal({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-2">
                         <Monitor className="w-4 h-4 text-gray-400" />
                         Live Preview URL{' '}
                         <span className="text-xs font-normal text-gray-400">

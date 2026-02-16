@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash, FileText, HelpCircle, Eye } from 'lucide-react';
-import ChapterEditModal from '../ChapterEditModal';
+import ChapterEditModal, { Tab } from '../ChapterEditModal';
 import { useChaptersList } from './ChaptersList.hooks';
 import { ChaptersListProps } from './ChaptersList.types';
 import { createChapter, updateChapter } from '@/app/actions/chapter';
@@ -17,6 +17,7 @@ export default function ChaptersList({
 
   const [editingChapter, setEditingChapter] = useState<any | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [initialTab, setInitialTab] = useState<Tab>('basic');
 
   const handleSaveChapter = async (chapterId: string | null, data: any) => {
     let result;
@@ -48,7 +49,10 @@ export default function ChaptersList({
             </p>
           </div>
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => {
+              setIsCreating(true);
+              setInitialTab('basic');
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-600/20 transition-all hover:scale-105"
           >
             <Plus className="w-4 h-4" />
@@ -69,7 +73,10 @@ export default function ChaptersList({
               images, code blocks and quizzes.
             </p>
             <button
-              onClick={() => setIsCreating(true)}
+              onClick={() => {
+                setIsCreating(true);
+                setInitialTab('basic');
+              }}
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 inline-flex items-center gap-2 font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
@@ -103,6 +110,7 @@ export default function ChaptersList({
                       onClick={(e) => {
                         e.stopPropagation();
                         setEditingChapter(chapter);
+                        setInitialTab('basic');
                       }}
                       className="p-2 bg-white rounded-full text-gray-700 hover:text-blue-600 hover:scale-110 transition-all shadow-lg"
                       title="Edit Settings"
@@ -156,12 +164,15 @@ export default function ChaptersList({
                       </div>
                     </div>
 
-                    <a
-                      href={`/courses/chapter/${chapter.id}`}
+                    <button
+                      onClick={() => {
+                        setEditingChapter(chapter);
+                        setInitialTab('content');
+                      }}
                       className="text-xs font-semibold px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                     >
                       Edit Content
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -169,7 +180,10 @@ export default function ChaptersList({
 
             {/* Quick Add Card */}
             <button
-              onClick={() => setIsCreating(true)}
+              onClick={() => {
+                setIsCreating(true);
+                setInitialTab('basic');
+              }}
               className="group relative flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all"
             >
               <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 flex items-center justify-center mb-4 transition-colors">
@@ -189,6 +203,7 @@ export default function ChaptersList({
           courseId={courseId}
           courseContext={courseContext}
           isOpen={true}
+          initialTab={initialTab}
           onClose={() => {
             setEditingChapter(null);
             setIsCreating(false);
