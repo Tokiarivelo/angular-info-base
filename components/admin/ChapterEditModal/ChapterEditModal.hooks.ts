@@ -18,16 +18,20 @@ export function useChapterEditModal(chapter?: Chapter | null) {
   // New flexible content
   const [content, setContent] = useState<EditorBlock[]>(chapter?.content || []);
 
+  const legacyConvertedRef = useRef(false);
+
   // Backward compatibility: If no content but old fields exist, convert them
   useEffect(() => {
-    if (
-      (!chapter?.content || chapter.content.length === 0) &&
-      (chapter?.introText || chapter?.proTips)
-    ) {
+    if (legacyConvertedRef.current) return;
+
+    const hasNoContent = !chapter?.content || chapter.content.length === 0;
+    const hasLegacyData = chapter?.introText || (chapter?.proTips && chapter.proTips.length > 0);
+
+    if (hasNoContent && hasLegacyData && content.length === 0) {
       const newBlocks: EditorBlock[] = [];
       if (chapter.introText) {
         newBlocks.push({
-          id: `intro-legacy`,
+          id: `intro-legacy-${Date.now()}`,
           type: 'richText',
           content: chapter.introText,
         });
@@ -35,19 +39,20 @@ export function useChapterEditModal(chapter?: Chapter | null) {
       if (chapter.proTips && Array.isArray(chapter.proTips)) {
         chapter.proTips.forEach((tip: any, index: number) => {
           newBlocks.push({
-            id: `tip-legacy-${index}`,
+            id: `tip-legacy-${index}-${Date.now()}`,
             type: 'proTip',
             title: tip.title,
             content: tip.content,
           });
         });
       }
-      // Don't auto-set if we already have content to avoid overwriting
-      if (newBlocks.length > 0 && content.length === 0) {
+
+      if (newBlocks.length > 0) {
         setContent(newBlocks);
+        legacyConvertedRef.current = true;
       }
     }
-  }, [chapter, content.length]);
+  }, [chapter?.id, chapter?.introText, chapter?.proTips, content.length]);
 
   // File Import State
   const [isImporting, setIsImporting] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   X,
   Upload,
@@ -69,6 +69,14 @@ export default function ChapterEditModal({
     getUpdateData,
     setImageUrl,
   } = useChapterEditModal(chapter);
+
+  const handleEditorSave = useCallback(
+    async (data: { content: EditorBlock[] }) => {
+      setContent(data.content);
+      return Promise.resolve();
+    },
+    [setContent]
+  );
 
   // Reset tab when opening for a new chapter vs editing
   useEffect(() => {
@@ -383,10 +391,7 @@ export default function ChapterEditModal({
                       proTips: null,
                       instructions: null,
                     }}
-                    onSave={async (data) => {
-                      setContent(data.content);
-                      return Promise.resolve();
-                    }}
+                    onSave={handleEditorSave}
                   />
                 </div>
               )}

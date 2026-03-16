@@ -404,6 +404,7 @@ The rich content editor supports inserting blocks at any position:
 - **Insert at any position** — before the first block, between any two blocks, or after the last block
 - **Responsive & theme-aware** — works in both light and dark mode
 - **Multi-language** — all labels are translated (English & French)
+- **🚀 High Stability** — Recent updates fixed issues with block duplication and data loss during rapid editing. The editor now uses functional state updates and stabilized callbacks to ensure data integrity.
 
 ### Diff Highlighting (Code Editor)
 

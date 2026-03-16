@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import {
   ChapterRichContentEditorProps,
   BlockType,
+  EditorBlock,
 } from './ChapterRichContentEditor.types';
 import { useChapterRichContentEditor } from './ChapterRichContentEditor.hooks';
 import ImageBlockEditor from './components/ImageBlockEditor';
@@ -61,9 +62,9 @@ export default function ChapterRichContentEditor({
     }
   }, [lastAddedBlockId, clearLastAddedBlockId]);
 
-  // Auto-save changes to parent component - but only after user makes changes
+  // Auto-save changes to parent component
   const syncToParent = useCallback(
-    (currentBlocks: any[]) => {
+    (currentBlocks: EditorBlock[]) => {
       onSave({
         content: currentBlocks,
       });
@@ -81,10 +82,12 @@ export default function ChapterRichContentEditor({
     syncToParent(blocks);
   }, [blocks, syncToParent]);
 
-  const handleUpdateBlock = (id: string, data: any) => {
-    updateBlock(id, data);
-    // The useEffect above will handle syncing to parent
-  };
+  const handleUpdateBlock = useCallback(
+    (id: string, data: any) => {
+      updateBlock(id, data);
+    },
+    [updateBlock]
+  );
 
   const handleInsertBlock = useCallback(
     (type: BlockType, atIndex: number) => {
